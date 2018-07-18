@@ -1,0 +1,16 @@
+.DS_Store
+.npmignore
+Thumbs.db
+db.json
+*.log
+_config.yml
+package.json
+package-lock.json
+yarn.lock
+
+node_modules/
+scaffolds/
+themes/
+public/
+site/
+.deploy*/
