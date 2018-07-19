@@ -1,4 +1,4 @@
-# Hexo Configuration
+﻿# Hexo Configuration
 ## Docs: https://hexo.io/docs/configuration.html
 ## Source: https://github.com/hexojs/hexo/
 
@@ -6,7 +6,7 @@
 title: Zongsoft
 subtitle: Zongsoft Studio
 description: Zongsoft
-author: Popeye Zhong
+author: 钟峰(Popeye Zhong)
 language: zh-cn
 timezone: Asia/Shanghai
 
@@ -35,7 +35,7 @@ titlecase: false # Transform title into titlecase
 external_link: true # Open external links in new tab
 filename_case: 0
 render_drafts: false
-post_asset_folder: true
+post_asset_folder: false
 relative_link: false
 future: true
 highlight:

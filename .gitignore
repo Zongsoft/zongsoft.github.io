@@ -13,4 +13,7 @@ scaffolds/
 themes/
 public/
 site/
+hexo/
 .deploy*/
+blog/avatar/Misaka.jpg
+blog/assets/example_qr.png

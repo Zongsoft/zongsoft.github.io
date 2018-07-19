@@ -1,6 +1,6 @@
 ﻿# ========== Profile ========== #
 # avatar
-avatar: /avatar/Misaka.jpg
+avatar: /assets/avatar.jpg
 # author name
 author: Zongsoft
 # signature
@@ -31,7 +31,7 @@ friends:
   friendC: 
 about:
   enable: true
-  image: '/intro/about-bg.jpg'
+  image: 'intro/about-bg.jpg'
 
 # ========== Site ========== #
 # title of the site
@@ -41,11 +41,11 @@ main_title: Zongsoft
 # subtitle
 subtitle: Zongsoft Studio
 # site haeder image
-site_header_image: '/intro/index-bg.jpg'
+site_header_image: 'intro/index-bg.jpg'
 # post haeder image
-post_header_image: '/intro/post-bg.jpg'
+post_header_image: 'intro/post-bg.jpg'
 # 404 image
-_404_image: '/intro/404-bg.jpg'
+_404_image: 'intro/404-bg.jpg'
 
 # ========== Search ========== #
 algolia_search:
@@ -96,7 +96,7 @@ CNZZ_analytics:
 
 # ========== Others ========== #
 # favicon
-favicon: /assets/favicon.ico
+favicon: intro/favicon.ico
 # truncate length of abstracts in index page (the default is 300, there will be no abstruct if you input 0)
 truncate_length: 
 # enable toc
@@ -111,4 +111,4 @@ about_intro_height: 50
 copyright:
   enable: true
   # https://creativecommons.org/
-  license: '本文采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a>进行许可'
+  license: '本文采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a>进行许可。'
