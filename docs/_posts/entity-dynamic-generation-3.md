@@ -541,8 +541,8 @@ public class Department : IDepartment, IEntity
 
 譬如图二就是增加了属性变更通知（即实体接口继承了 `INotifyPropertyChanged` ）导致的性能影响（Dynamic Entity 所在行）。
 
-![图一](https://github.com/Zongsoft/zongsoft.github.io/blob/master/docs/images/performance-entity-event.png)
-![图二](https://github.com/Zongsoft/zongsoft.github.io/blob/master/docs/images/performance-entity+event.png)
+![图一](/blog/images/performance-entity-event.png)
+![图二](/blog/images/performance-entity+event.png)
 
 ## 写在最后的话
 该实体类动态生成器简单易用、运行性能和内存利用率都非常不错（包括提供 IEntiy 接口的超赞功能），将会成为今后我们所有业务系统的基础结构之一，所以后续的文章中（如果还有的话）应该会经常看到它的应用。

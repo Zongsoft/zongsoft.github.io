@@ -467,8 +467,8 @@ height:50vh;
 <h2 id="性能测试"><a href="#性能测试" class="headerlink" title="性能测试"></a>性能测试</h2><p>在<a href="https://zongsoft.github.io/blog/zh-cn/zongsoft/entity-dynamic-generation-2/" target="_blank" rel="noopener">《实体类的动态生成（二）》</a>中，我们已经验证过设计方案的执行性能了，但结合上面介绍的功能特性细节，还需再提醒的是：因为开启 <code>DefaultValueAttribute</code> 、扩展属性方法、单例属性、属性变更通知都会导致生成的代码与最基本字段访问方式有所功能增强，对应要跑的代码量增多，因此对跑分是有影响，但这种影响是确定可知的，它们是 feature 所需并非实现方案、算法缺陷所致，敬请知晓。</p>
 <p>譬如图二就是增加了属性变更通知（即实体接口继承了 <code>INotifyPropertyChanged</code> ）导致的性能影响（Dynamic Entity 所在行）。</p>
 <p>
-    <img src="https://github.com/Zongsoft/zongsoft.github.io/blob/master/docs/images/performance-entity-event.png" alt="图一"><br>
-    <img src="https://github.com/Zongsoft/zongsoft.github.io/blob/master/docs/images/performance-entity+event.png" alt="图二">
+    <img src="/blog/images/performance-entity-event.png" alt="图一"><br>
+    <img src="/blog/images/performance-entity+event.png" alt="图二">
 </p>
 <h2 id="写在最后的话"><a href="#写在最后的话" class="headerlink" title="写在最后的话"></a>写在最后的话</h2><p>该实体类动态生成器简单易用、运行性能和内存利用率都非常不错（包括提供 IEntiy 接口的超赞功能），将会成为今后我们所有业务系统的基础结构之一，所以后续的文章中（如果还有的话）应该会经常看到它的应用。</p>
 <p>算下来花了整整三天时间<em>（白天晚上都在写）</em>才完成《实体类的动态生成》系列文章，真心觉得写文章比写代码还累，而且这还是省略了应该配有的一些流程图、架构图的情况下。计划接下来我会为 <a href="https://github.com/zongsoft" target="_blank" rel="noopener">Zongsoft(https://github.com/Zongsoft)</a> 系列开源项目撰写该有的所有文档，照这次这个写法，心底不由升起一丝莫名恐惧和淡淡忧伤来。</p>
