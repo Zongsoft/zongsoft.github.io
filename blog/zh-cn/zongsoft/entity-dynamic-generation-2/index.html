@@ -424,7 +424,7 @@ height:50vh;
 </ol>
 <p>根据代码可分析出其理论执行性能与原生实现基本一致，内存消耗只多了一个字节（如果可写属性数量小于9），由于 <code>__NAMES__</code> 和 <code>__TOKENS__</code> 是静态变量，因此不占用实例空间，理论上该方案的整体效率非常高。</p>
 <h2 id="性能对比"><a href="#性能对比" class="headerlink" title="性能对比"></a>性能对比</h2><p>上面我们从代码角度简单分析了下整个方案的性能和消耗，那么实际情况到底怎样呢？跑个分呗（性能对比测试代码地址：<a href="https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data/samples/Zongsoft.Samples.Entities" target="_blank" rel="noopener">https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data/samples/Zongsoft.Samples.Entities</a>），具体代码就不在这里占用版面了，下面给出某次在我的老旧台式机（CPU:Intel <strong>i5-3470</strong>@<strong>3.2GHz</strong> | RAM:<strong>8GB</strong> | <strong>Win10 </strong>| <strong>.NET 4.6</strong>）上生成<strong>100万</strong>个实例的截图：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/whibaEqpMqTnAhicVSoPGtZgc2FwF8Cu9iaTWgU8wcGNCFxa73AZWpoXibicwrEutX7EKBCSfOgBsxicibMEknVMVePyg/0?wx_fmt=png" alt="跑分截图"></p>
+<p><img src="https://github.com/Zongsoft/zongsoft.github.io/blob/master/docs/images/performance-entity-event.png" alt="跑分截图"></p>
 <ul>
 <li>“Native Object: <strong>295</strong>”表示原生实现版（即简单的读写字段）的运行时长（<em>单位：</em><em><strong>毫秒</strong></em><em>，下同</em>）；</li>
 <li>“Data Entity: <strong>295</strong>”为本案的运行时长，通常本方案比原生方案要慢10毫秒左右，偶尔能跑平（<em>属于运行环境抖动，可忽略</em>）；</li>
