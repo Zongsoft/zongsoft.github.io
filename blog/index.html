@@ -354,12 +354,51 @@ height:50vh;
     
     
     <article class="index-post">
+        <a class="abstract-title" href = "/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-1/" >
+            
+                <span>代码失控与状态机（上）</span>
+        </a>
+        <div class="abstract-content">
+            前言前几天和某某同学吃饭席间，他聊到每当要修改老项目中自己写的代码时就痛苦不堪，问我是不是也有同感。我觉得这应该是不少程序猿的心声，之所以会这样，大致有两个主因：
+
+项目的整体设计很糟糕，只管往上堆砌各种功能、补丁，对于代码质量和结构关系基本无暇顾及，最终积重难返滑向失控。
+对技术缺乏必要的敬畏心，基础不够扎实、知识面较窄，不能（无法）进行合理的规划，最终导致停留在低水平的代码堆砌上，只求完成功能就万事大吉。
+
+程序猿饭桌上总少不了对产品经理的吐槽：“产品经理又对业务流程进行了疯狂调整，我觉得这会导致状态机无法支持了。”他的这个槽点让我一时有些语塞，倒不是怀疑产品经理的脑洞还能大到把状态...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/08/05</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class= abstract-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "coding">coding</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "out of control">out of control</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "state machine">state machine</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href = "/blog/zh-cn/zongsoft/entity-dynamic-generation-3/" >
             
                 <span>实体类的动态生成（三）</span>
         </a>
         <div class="abstract-content">
-            前言在 .NET 中主要有两种动态生成并编译的方式，一种是通过 System.Linq.Expressions 命名空间中的 LambdaExpression 类的 CompileToMethod(...) 方法，但是这种方法只支持动态编译到静态方法，因为这个限制我们将只能全面采用 Emitting 生成编译方案，虽然 Emitting 方案强大但是实现起来麻烦不少，必须要手动处理底层 IL 的各种细节，脑补一些 C# 编译器的实现机理，同时还要了解一些基本的 IL(Intermediate Language) 和 CLR(JVM) 执行方面的知识。
+            前言在 .NET 中主要有两种动态生成并编译的方式，一种是通过 System.Linq.Expressions 命名空间中的 LambdaExpression 类的 CompileToMethod(...) 方法，但是这种方法只支持动态编译到静态方法，因为这个限制我们只能放弃它而采用 Emitting 生成编译方案，虽然 Emitting 方案强大但是实现起来麻烦不少，必须要手动处理底层 IL 的各种细节，脑补一些 C# 编译器的实现机理，同时还要了解一些基本的 IL(Intermediate Language) 和 CLR(JVM) 执行方面的知识。
+基础知识因为要采用 Emittin...
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
@@ -402,7 +441,8 @@ height:50vh;
                 <span>实体类的动态生成（二）</span>
         </a>
         <div class="abstract-content">
-            前言由于采用字典的方式来保存属性变更值的底层设计思想，导致了性能问题，虽然.NET的字典实现已经很高效了，但相对于直接读写字段的方式而言依然有巨大的性能差距，同时也会导致对属性的读写过程中产生不必要的装箱和拆箱。那么这次我们就来彻底解决这个问题，同时还要解决“哪些属性发生过变更”“获取变更的属性集”这些功能特性，所以我们先把接口定义出来，以便后续问题讲解。
+            前言由于采用字典的方式来保存属性变更值的底层设计思想，导致了性能问题，虽然.NET的字典实现已经很高效了，但相对于直接读写字段的方式而言依然有巨大的性能差距，同时也会导致对属性的读写过程中产生不必要的装箱和拆箱。那么这次我们就来彻底解决这个问题，同时还要解决“哪些属性发生过变更”、“获取变更的属性集”这些功能特性，所以我们先把接口定义出来，以便后续问题讲解。
+1234567891011121314151617181920212223242526272829303132333435363738/* 源码位于 Zongsoft.CoreLibary 项目的 Zongsoft.Data 命名空...
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
@@ -445,7 +485,12 @@ height:50vh;
                 <span>实体类的动态生成（一）</span>
         </a>
         <div class="abstract-content">
-            前言在应用开发中，通常都会涉及各种 POJO/POCO 实体类（DO, DTO, BO, VO）的编写，有时这些实体类还需要实现 INotifyPropertyChanged 接口以支持属性变更通知，一般我们都会手写这些代码或者通过工具根据数据库表定义抑或别的什么模板、映射文件之类的来生成它们。但是，在业务实现中往往伴随着诸如“如何简单且高效的获取某个实体实例有哪些属性发生过变更？”、“变更后的值是什么？”、“指定的某个或某些属性是否发生过更改？”这样的问题，而大致的解决方法有...
+            前言在应用开发中，通常都会涉及各种 POJO/POCO 实体类（DO, DTO, BO, VO）的编写，有时这些实体类还需要实现 INotifyPropertyChanged 接口以支持属性变更通知，一般我们都会手写这些代码或者通过工具根据数据库表定义抑或别的什么模板、映射文件之类的来静态生成它们。但是，在业务实现中往往伴随着诸如“如何简单且高效的获取某个实体实例有哪些属性发生过变更？”、“变更后的值是什么？”这样的问题，而大致的解决方法有：
+
+由实体容器来跟踪实例的属性变更；
+改造实体类（譬如继承特定实体基类，在基类中实现这些基础构造）。
+
+方法(1)需要配合一整套架构设计来提供支撑，...
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
@@ -490,6 +535,8 @@ height:50vh;
         <div class="abstract-content">
             前言很多人都有搭建博客或知识库站点的想法，可自己买云服务器太不划算，部署管理也是个问题；基于免费又热门的 GitHub Pages 来搭建博客站点倒是省钱省力省事的好办法，于是上网一搜，满屏都是关于使用 Jekyll 来搭建站点的文章，这个 Jekyll 是基于 Ruby 开发的，上手得先装一大坨东西、各种啰嗦各种坑，看的一点欲望都没有了。
 神器出现平地一声雷，炸出了 Hexo (https://hexo.io/zh-cn) 这个神器。它只需要 NodeJS 即可，完全不依赖其他乱七八糟的玩意，安装部署超级简单，功能完善、漂亮主题也很多，妥妥的就是它了。
+
+Hexo 官网：https:/...
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
@@ -739,9 +786,22 @@ height:50vh;
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 4
+        Total : 5
         </div>
         <!-- search  -->
         
@@ -754,6 +814,11 @@ height:50vh;
     
     <div class="archive-year"> 2018 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span><a class="archive-post-title" href= "/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-1/" >代码失控与状态机（上）</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -805,6 +870,14 @@ height:50vh;
         <span class="sidebar-tag-name" data-tags="generate"><span class="iconfont-archer">&#xe606;</span>generate</span>
     
         <span class="sidebar-tag-name" data-tags="compile"><span class="iconfont-archer">&#xe606;</span>compile</span>
+    
+        <span class="sidebar-tag-name" data-tags="coding"><span class="iconfont-archer">&#xe606;</span>coding</span>
+    
+        <span class="sidebar-tag-name" data-tags="out of control"><span class="iconfont-archer">&#xe606;</span>out of control</span>
+    
+        <span class="sidebar-tag-name" data-tags="state"><span class="iconfont-archer">&#xe606;</span>state</span>
+    
+        <span class="sidebar-tag-name" data-tags="state machine"><span class="iconfont-archer">&#xe606;</span>state machine</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
