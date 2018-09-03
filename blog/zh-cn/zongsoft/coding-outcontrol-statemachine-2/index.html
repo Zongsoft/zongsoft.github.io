@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html>
+    <!-- title -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="author" content="钟峰(Popeye Zhong)">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="钟峰(Popeye Zhong)">
+    <meta name="keywords" content="Zongsoft | 钟峰(Popeye Zhong)">
+    <meta name="description" content="Zongsoft">
+    <meta name="Cache-Control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>代码失控与状态机（下） · Zongsoft</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/blog/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s 1;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= /blog/css/style.css?v=201807017_1502 as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="stylesheet" href= /blog/css/mobile.css?v=20180709 media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href= "/blog/intro/favicon.ico" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
+    <link rel="preload" href="/blog/scripts/main.js" as="script" />
+    <link rel="preload" as="font" href="/blog/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/blog/" >Zongsoft</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">代码失控与状态机（下）</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/blog/>Zongsoft</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style=
+
+
+
+
+
+
+
+
+height:50vh;
+
+>
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/blog/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            代码失控与状态机（下）
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "coding">coding</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "out of control">out of control</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "state machine">state machine</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "expression parser">expression parser</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count">3,400</span> / Reading time: <span class="post-count">13 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2018/09/03</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/blog/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/blog/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h2 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h2><p>在<a href="https://zongsoft.github.io/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-1" target="_blank" rel="noopener">《代码失控与状态机（上）》</a>的文末，我们留了一个解析「成员访问表达式」的“作业”，那么，通过本文我们一起来完成这个作业。</p>
+<p>首先，为什么要苦哈哈的写一个这样看上去没什么用的解析器？因为在某些 IoC 或 AOP 容器中<em>（不幸的是我需要实现一个这样的</em> IoC <em>容器）</em>，常需要动态求解成员访问表达式的值，而解析表达式就是第一步。其实这个“作业”正是编译器技术中词法解析的简化版，自己手动撸一遍，对理解《编译原理》的前端处理技巧是一个很好的入门练手。</p>
+<p>其次，我现在正在造一个 ORM 数据引擎，该数据引擎有个很酷的特性就是在 CRUD 中支持类似 <a href="http://graphql.cn" target="_blank" rel="noopener">GraphQL</a> 这样的功能（即数据模式表达式），所以我需要写一个类 <a href="http://graphql.cn" target="_blank" rel="noopener">GraphQL</a> 的解析器，这应该算是一个很有价值的案例。</p>
+<p>如上，手写各种“表达式”解析器是很有现实意义和价值的。</p>
+<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><ul>
+<li>通用词法解析模块<em>（语法解析及编译器暂未实现）</em><blockquote>
+<p><a href="https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/master/src/Expressions" target="_blank" rel="noopener">https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/master/src/Expressions</a></p>
+</blockquote>
+</li>
+<li>成员访问表达式解析器<blockquote>
+<p><a href="https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data/src/Reflection/Expressions" target="_blank" rel="noopener">https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data/src/Reflection/Expressions</a></p>
+</blockquote>
+</li>
+<li>数据模式表达式解析器<blockquote>
+<p><a href="https://github.com/Zongsoft/Zongsoft.CoreLibrary/blob/feature-data/src/Data/SchemaParser.cs" target="_blank" rel="noopener">https://github.com/Zongsoft/Zongsoft.CoreLibrary/blob/feature-data/src/Data/SchemaParser.cs</a></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><p><strong>BNF</strong>(<strong>B</strong>ackus-<strong>N</strong>aur <strong>F</strong>orm)巴克斯范式，在计算机科学领域，<strong>BNF</strong> 是一种适用于上下文无关的语法的符号表述，常用于描述计算编程语言的语法（文法）、文档格式、指令集以及通信协议等，总之它适用于需要准确描述的地方，如果不用这个东西，我们几乎没办法准确而简洁的表述像计算机编程语言这样需要精准表达的东西。</p>
+<p>除了基本的 <strong>BNF</strong> 以外，人们为了更简洁的表达而进行了扩展和增强，譬如：<strong>EBNF</strong>(<strong>E</strong>xtended <strong>B</strong>ackus–<strong>N</strong>aur <strong>F</strong>orm)、<strong>ABNF</strong>(<strong>A</strong>ugmented <strong>B</strong>ackus–<strong>N</strong>aur <strong>F</strong>orm)，我找了几篇文章供大家参考（尤其是前三篇）：</p>
+<ul>
+<li>《<a href="http://kayo.iteye.com/blog/247908" target="_blank" rel="noopener">BNF和ABNF的含义与用法</a>》</li>
+<li>《<a href="https://kb.cnblogs.com/page/189566" target="_blank" rel="noopener">语法规范：BNF与ABNF</a>》</li>
+<li>《<a href="https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form" target="_blank" rel="noopener">EBNF:Extended Backus–Naur Form</a>》</li>
+<li>《<a href="http://www.ietf.org/rfc/rfc5234.txt" target="_blank" rel="noopener">ABNF:Augmented BNF for Syntax Specifications(rfc5234)</a>》</li>
+<li>《<a href="https://www.ecma-international.org/publications/files/ECMA-ST/Ecma-334.pdf" target="_blank" rel="noopener">C# Language Specification</a>》<em>(应用BNF最强大的范例：C#语言规范) </em></li>
+</ul>
+<p>除非是去写编程语言的编译器，通常我们不用阅读和编写像 <strong>YACC</strong>(<strong>Y</strong>et <strong>A</strong>nother <strong>C</strong>ompiler <strong>C</strong>ompiler) 或 <a href="http://www.antlr.org" target="_blank" rel="noopener">ANTLR</a>(<strong>AN</strong>other <strong>T</strong>ool for <strong>L</strong>anguage <strong>R</strong>ecognition) 这些工具中的那些非常“精准”的 <strong>BNF</strong> 的语法。有关 YACC 和 ANTLR 的一个具体案例，我推荐这篇文章<em>（不用抠细节，主要关注语法定义部分）</em>：</p>
+<p><a href="https://www.pingcap.com/blog-cn/tidb-source-code-reading-5" target="_blank" rel="noopener">《TiDB 源码阅读系列文章（五）TiDB SQL Parser 的实现》</a></p>
+<p>我推荐大家阅读和采用各 SQL 手册中使用的 <strong>BNF</strong> 方言来学习应用，因为它们语法约定简单，对付一般应用场景足够用。下面是它们的链接（个人比较偏好我软的 Transact-SQL），敬请食用。</p>
+<ul>
+<li>Transact-SQL 语法约定<blockquote>
+<p><a href="https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2012/ms177563(v=sql.110" target="_blank" rel="noopener">https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2012/ms177563(v=sql.110)</a>)</p>
+</blockquote>
+</li>
+<li>PostgreSQL 手册<blockquote>
+<p><a href="https://www.postgresql.org/docs/10/static/index.html" target="_blank" rel="noopener">https://www.postgresql.org/docs/10/static/index.html</a></p>
+</blockquote>
+</li>
+<li>MySQL 手册<blockquote>
+<p><a href="https://dev.mysql.com/doc/refman/8.0/en" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/8.0/en</a></p>
+</blockquote>
+</li>
+<li>Oracle 手册<blockquote>
+<p><a href="https://docs.oracle.com/en/database/oracle/oracle-database/18/sqlrf" target="_blank" rel="noopener">https://docs.oracle.com/en/database/oracle/oracle-database/18/sqlrf</a></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="语法规范"><a href="#语法规范" class="headerlink" title="语法规范"></a>语法规范</h2><p>关于“成员访问表达式”的详细语法（文法）可以参考《C#语言规范》，下面让我们先看看之前写的那个成员表达式的例子：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PropertyA</span><br><span class="line">.ListProperty[<span class="number">100</span>]</span><br><span class="line">.MethodA(PropertyB, <span class="string">'String\'Constant for Arg2'</span>, <span class="number">200</span>, [<span class="string">'key'</span>].XXX.YYY)</span><br><span class="line">.Children[<span class="string">'arg1'</span>, PropertyC.Foo]</span><br></pre></td></tr></table></figure>
+<p>我尝试用自然语言来表述上面代码的意思：</p>
+<ol>
+<li>访问某个对象中名为 <code>PropertyA</code> 的成员（属性或字段）；</li>
+<li>访问上面成员值对象中名为 <code>ListProperty</code> 的成员（该成员为列表类型或该成员所属类型有个索引器）；</li>
+<li>访问上面成员值对象中名为 <code>MethodA</code> 的方法（方法的参数数目不限，此例为4个参数）；</li>
+<li>访问上面方法返回值对象中名为 <code>Children</code> 的成员（该成员为列表类型或该成员所属类型有个索引器）。</li>
+</ol>
+<p><strong>补充说明：</strong></p>
+<ul>
+<li>方法参数数量不定（零或多个），参数类型可以是常量（字符串、数字）或成员访问表达式；</li>
+<li>列表属性或索引器参数至少一个多则不限，参数类型同方法参数；</li>
+<li>字符串常量使用单引号或双引号标注，支持 <code>\</code> 反斜杠转义符；</li>
+<li>数字常量支持尾缀标注，即“L”表示长整型、“M”或“m”表示 decimal 类型等。</li>
+</ul>
+<p>如上，即使我写了这么长篇的文字，依然没有精确而完整的完成对“成员表达式”的语法表达，可见我们必须借助 <strong>BNF</strong> 这样东西才能进行精准表达。下面是它的 <strong>BNF</strong> 范式（采用的是 <a href="https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2012/ms177563(v=sql.110" target="_blank" rel="noopener">Transact-SQL 语法规范</a>)）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">expression ::= &#123;member | indexer&#125;[.member | indexer][...n]</span><br><span class="line"></span><br><span class="line">member ::=  identifier | method</span><br><span class="line">indexer ::= &quot;[&quot; &#123;expression | constant&#125;[,...n] &quot;]&quot;</span><br><span class="line">method ::= identifier([expression | constant][,...n])</span><br><span class="line">identifier ::= [_A-Za-z][_A-Za-z0-9]*</span><br><span class="line">constant ::= &quot;string constant&quot; | number</span><br><span class="line">number ::= [0-9]+&#123;.[0-9]&#125;?[L|m|M|f|F]</span><br></pre></td></tr></table></figure>
+<p>如上，即使我们采用的不是能直接生成词法解析器(Parser)的“高精准”的 <strong>BNF</strong> 表达式，但它依然足够精确、简洁。</p>
+<h2 id="状态机图"><a href="#状态机图" class="headerlink" title="状态机图"></a>状态机图</h2><p>有了确切的语法规范/文法（即 BNF 范式表达式）之后，我们就可以有的放矢的绘制表达式解析器的状态机图了。</p>
+<p><img src="/blog/images/MemberExpression-StateDiagram.png" alt="成员访问表达式解析器状态机图" title="成员访问表达式解析器状态机图"></p>
+<p><strong>状态说明：</strong></p>
+<ul>
+<li><strong>I</strong>dentifier：标识态，表示处于成员（属性、字段、方法）名称状态；</li>
+<li><strong>S</strong>eparator：分隔符态，表示处于成员分隔符（即圆点）状态；</li>
+<li><strong>G</strong>utter：空隙态，表示索引器或方法参数结束后，所处于的空隙状态；</li>
+<li><strong>I</strong>ndexer：索引器态，表示处于的索引器内部的就绪状态，它可以继续接受一个有效的非终结符，也可以是一个终结符；</li>
+<li><strong>P</strong>arameter：参数态，表示处于索引器或方法参数的完结状态，它必须等待一个终结符（逗号或括号）；</li>
+<li><strong>S</strong>tring：字符串常量态，表示处于字符串常量的内部，它可以接受任意字符，如果遇到终结符（匹配的单引号或双引号）则转入参数态；</li>
+<li><strong>N</strong>umber：数字常量态，表示处于数字字面量，它可以接受任意数字字符，如果遇到终结符（尾缀符）则转入参数态。</li>
+</ul>
+<p>因为方法和索引器的参数有可能是表达式，因此在实现上需要进行递归栈处理，所以流程图中标有压栈(<strong>P</strong>ush)、出栈(<strong>P</strong>op)的行为，通过虚线表示对应的激发操作。所有左方括号 <code>[</code> 通路会激发压栈操作，同时右方括号 <code>]</code> 通路会激发对应的出栈操作；因为版面问题，上述流程图并没有标注出圆括号<em>（方法参数）</em>通路的出入栈的部分，但是逻辑等同于方括号<em>（索引器）</em>部分。</p>
+<p><strong>提示：</strong></p>
+<ul>
+<li>如果在状态迁移判定中出现状态图中未定义的字符，则表示输入参数有特定的语法错误。</li>
+<li>如果当文本解析完成时递归栈仍不为空，则说明索引器或方法的参数没有匹配完毕。</li>
+</ul>
+<p>关于解析器状态机的设计，我没有发现具有普适性的设计指导方案，大家可以根据自己的理解设定不同于上图的状态定义；至于对状态设置粒度的把握，总体原则是要具备逻辑或概念上的自恰性、并方便绘图和编程实现就可以了。</p>
+<h2 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h2><p>位于 <a href="https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data/src/Reflection/Expressions" target="_blank" rel="noopener">Zongsoft.Reflection.Expressions</a> 命名空间中的接口和类整体上与 System.Linq.Expressions 命名空间中的相关类的设计类似。大致类图如下：</p>
+<p><img src="/blog/images/MemberExpression-ClassDiagram.png" alt="成员访问表达式解析静态类图" title="成员访问表达式解析静态类图"></p>
+<p>提供解析功能的是 MemberExpressionParser 这个内部静态类（状态机类），它的 Parse(string text) 即为状态驱动函数，它遍历输入参数的文本字符，交给具体的私有方法 DoXXX(context) 进行状态迁移判定，如此循环即完成整个解析工作，整体结构与<a href="https://zongsoft.github.io/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-1" target="_blank" rel="noopener">《代码失控与状态机（上）》</a>中介绍的状态机的程序结构一致，具体代码如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IMemberExpression <span class="title">Parse</span>(<span class="params"><span class="keyword">string</span> text, Action&lt;<span class="keyword">string</span>&gt; onError</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(<span class="keyword">string</span>.IsNullOrEmpty(text))</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//创建解析上下文对象</span></span><br><span class="line">	<span class="keyword">var</span> context = <span class="keyword">new</span> StateContext(text.Length, onError);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//状态迁移驱动</span></span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; text.Length; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		context.Character = text[i];</span><br><span class="line"></span><br><span class="line">		<span class="keyword">switch</span>(context.State)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">case</span> State.None:</span><br><span class="line">				<span class="keyword">if</span>(!DoNone(<span class="keyword">ref</span> context, i))</span><br><span class="line">					<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> State.Gutter:</span><br><span class="line">				<span class="keyword">if</span>(!DoGutter(<span class="keyword">ref</span> context, i))</span><br><span class="line">					<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> State.Separator:</span><br><span class="line">				<span class="keyword">if</span>(!DoSeparator(<span class="keyword">ref</span> context, i))</span><br><span class="line">					<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> State.Identifier:</span><br><span class="line">				<span class="keyword">if</span>(!DoIdentifier(<span class="keyword">ref</span> context, i))</span><br><span class="line">					<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> State.Method:</span><br><span class="line">				<span class="keyword">if</span>(!DoMethod(<span class="keyword">ref</span> context, i))</span><br><span class="line">					<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> State.Indexer:</span><br><span class="line">				<span class="keyword">if</span>(!DoIndexer(<span class="keyword">ref</span> context, i))</span><br><span class="line">					<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> State.Parameter:</span><br><span class="line">				<span class="keyword">if</span>(!DoParameter(<span class="keyword">ref</span> context, i))</span><br><span class="line">					<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> State.Number:</span><br><span class="line">				<span class="keyword">if</span>(!DoNumber(<span class="keyword">ref</span> context, i))</span><br><span class="line">					<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> State.String:</span><br><span class="line">				<span class="keyword">if</span>(!DoString(<span class="keyword">ref</span> context, i))</span><br><span class="line">					<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取最终的解析结果</span></span><br><span class="line">	<span class="keyword">return</span> context.GetResult();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码简义：</strong></p>
+<ul>
+<li>其中表示状态的枚举与上面的解析器状态机流程图的定义完全一致。</li>
+<li>内部的 StateContext 结构用来保存解析过程中的各种数据、状态、字符缓存等，以及与上下文相关的操作方法等。</li>
+<li>内部的 StateVector 结构用来保存解析过程中的标记开关（布尔）的状态，譬如当前数值常量的类型、当前字符是否位于字符串常量的转义符态、标识(<strong>I</strong>dentifier)中间是否含有空白字符等。</li>
+</ul>
+<h2 id="其他延展"><a href="#其他延展" class="headerlink" title="其他延展"></a>其他延展</h2><p>在 <a href="https://github.com/Zongsoft/Zongsoft.Data" target="_blank" rel="noopener">Zongsoft.Data</a> 数据引擎里面有个数据模式(Schema)的概念，它是一种在数据操作中定义数据形状的表达式，有点类似于 <a href="http://graphql.cn" target="_blank" rel="noopener">GraphQL</a> 表达式的功能（不含查询条件）。</p>
+<p>譬如有一个名为 <code>Corporation</code> 的企业实体类，它除了企业编号、名称、简称等单值属性外，还有企业法人、部门集合等这样的“一对一”和“一对多”的复合（导航）属性等。现在假设我们调用数据访问类的 <code>Select</code> 方法进行查询调用：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> entities = dataAccess.Select&lt;Corporation&gt;(</span><br><span class="line">    Condition.GreaterThanEqual(<span class="string">"RegisteredCapital"</span>, <span class="number">100</span>));</span><br></pre></td></tr></table></figure>
+<p>以上代码表示查询 <code>Corporation</code> 实体对应的表，条件为 <code>RegisteredCapital</code> 注册资本大于等于100万元的记录，但缺乏表达 <code>Corporation</code> 实体关联的导航属性的语义。采用数据模式(Schema)来定义操作的数据形状，大致如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> schema = <span class="string">@"</span></span><br><span class="line"><span class="string">CorporationId, Name, Abbr, RegisteredCapital,</span></span><br><span class="line"><span class="string">Principal&#123;Name, FullName, Avatar&#125;,</span></span><br><span class="line"><span class="string">Departments:10(~Level, NumberOfPeople)</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">	Name, Manager</span></span><br><span class="line"><span class="string">	&#123;</span></span><br><span class="line"><span class="string">		Name, FullName, JobTitle, PhoneNumber</span></span><br><span class="line"><span class="string">	&#125;</span></span><br><span class="line"><span class="string">&#125;"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> entities = dataAccess.Select&lt;Corporation&gt;(</span><br><span class="line">    schema,</span><br><span class="line">    Condition.GreaterThanEqual(<span class="string">"RegisteredCapital"</span>, <span class="number">100</span>) &amp;</span><br><span class="line">    Condition.Like(<span class="string">"Principal.Name"</span>, <span class="string">"钟%"</span>));</span><br></pre></td></tr></table></figure>
+<p>通过数据访问方法中的 <code>schema</code> 参数，我们可以方便的定义数据形状（含一对多导航属性的分页和排序设置），这样就省去了多次访问数据库进行数据遍历的操作，大大提高了运行效率，同时简化了代码。</p>
+<p>数据模式中各成员以逗号分隔，如果是复合属性则可以用花括号来限定其内部属性集，对于一对多的复合属性，还可以定义其分页和排序设置。以下是它的 <strong>BNF</strong> 范式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">schema ::=</span><br><span class="line">&#123;</span><br><span class="line">    * |</span><br><span class="line">    ! |</span><br><span class="line">    !identifier |</span><br><span class="line">    identifier[paging][sorting][&quot;&#123;&quot;scope [,...n]&quot;&#125;&quot;]</span><br><span class="line">&#125; [,...n]</span><br><span class="line"></span><br><span class="line">identifier ::= [_A-Za-z][_A-Za-z0-9]*</span><br><span class="line">number ::= [0-9]+</span><br><span class="line"></span><br><span class="line">paging ::= &quot;:&quot;&#123;</span><br><span class="line">    &#123;*|?&#125;|</span><br><span class="line">    number[/&#123;?|number&#125;]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">sorting ::=</span><br><span class="line">&quot;(&quot;</span><br><span class="line">    &#123;</span><br><span class="line">        [~|!]identifier</span><br><span class="line">    &#125;[,...n]</span><br><span class="line">&quot;)&quot;</span><br></pre></td></tr></table></figure>
+<p><strong>提示：</strong>惊叹号表示排除的意思，一个惊叹号表示排除之前的所有成员定义；以惊叹号打头的成员标识，表示排除之前定义的该成员（如果之前有定义的话，没有则忽略）。</p>
+<p><strong>分页设置的释义：</strong></p>
+<blockquote>
+<p><code>*</code> 返回所有记录（即不分页）；<br><code>?</code> 返回第一页，页大小为系统默认值，等同于 <code>1/?</code> 格式（数据引擎默认设置）；<br><code>n</code> 返回 n 条记录，等同于 <code>1/n</code> 格式；<br><code>n/m</code> 返回第 n 页，每页 m 行；<br><code>n/?</code> 返回第 n 页，页大小为系统默认值；</p>
+</blockquote>
+<p><img src="/blog/images/DataSchema-StateDiagram.png" alt="数据模式解析器状态机图" title="数据模式解析器状态机图"></p>
+<p>以上是数据模式表达式的解析器状态机图，具体实现代码这里就不再赘述，总体上跟“成员访问表达式”解析器类似。</p>
+<h2 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h2><p>在很多应用状态机场景的编程中，绘制一个状态机图对于实现是具有非常重要的指导意义，希望通过这两个具体的案例能对大家有所启示。</p>
+<p>其实 Linux/Unix 中的命令行，也是一个很好的案例，有兴趣的可以尝试写下它的 <strong>BNF</strong> 和解析状态机图。</p>
+<p>这次我们介绍了文本解析相关的状态机的设计和实现，其实还有与工作流相关的通用状态机也是一个非常有趣的应用场景，通用状态机可以应用在游戏、工作流、业务逻辑驱动等方面。去年下半年因为业务线的需要，我花了差不多一两个礼拜的时间实现了一个完备的通用状态机，自我感觉设计得不错，但因为时间局促，在状态泛型实现上有个小瑕疵，以后做完优化后再来介绍它的架构设计和实现，这个系列就先且到此为止罢。</p>
+
+    </article>
+
+<div style="text-align:center; margin-top:4rem;">
+	<img src="/blog/assets/zongsoft-wechat-qrcode.jpg" />
+	<p style="margin-top:2px; color:maroon;">↑ 扫码关注 Zongsoft 微信公众号 ↑</p>
+</div>
+
+<hr style="margin-top:2em;margin-bottom:2em;margin-left:0;margin-right:0;padding:0;height:2px;border:0;background-color:#e8e8e8;" />
+
+<div style="margin-bottom:4em;">
+	<img src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" width="">
+	<p style="margin-top:4px;">
+本作品采用 <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="bi-link">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a> 进行许可。欢迎转载、使用、重新发布，但必须保留本文的署名 <a target="_blank" href="https://github.com/zongsoft" class="bi-link">钟峰</a>（包含链接：<a target="_blank" href="http://zongsoft.github.io" class="bi-link">http://zongsoft.github.io</a>），不得用于商业目的，基于本文修改后的作品务必以相同的许可发布。如有任何疑问或授权方面的协商，请致信给我 (zongsoft@qq.com)。
+	</p>
+</div>
+
+
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者: <a href="http://zongsoft.com">钟峰(Popeye Zhong)</a>
+            <p>原文链接: <a href="http://zongsoft.com/zh-cn/zongsoft/coding-outcontrol-statemachine-2/">http://zongsoft.com/zh-cn/zongsoft/coding-outcontrol-statemachine-2/</a>
+            <p>发表日期: <a href="http://zongsoft.com/zh-cn/zongsoft/coding-outcontrol-statemachine-2/">September 3rd 2018, 6:00:00 pm</a>
+            <p>版权声明: 本文采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a>进行许可。</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <a class="prevSlogan" href="/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-1/">Previous Post</a>
+                <a href= "/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-1/" title= 代码失控与状态机（上） >
+                    <div class="prevTitle">代码失控与状态机（上）</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!--PC和WAP自适应版-->
+
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:zongsoft@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/Zongsoft" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/blog/assets/zongsoft-wechat-qrcode.jpg" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+            
+                <a href="//zhuanlan.zhihu.com/Zongsoft" class="iconfont-archer zhihu" target="_blank" title=zhihu></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            
+                <a href="//cnblogs.com/Zongsoft" class="iconfont-archer others" target="_blank" title=others></a>
+            
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#序言"><span class="toc-number">1.</span> <span class="toc-text">序言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#源码"><span class="toc-number">2.</span> <span class="toc-text">源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础知识"><span class="toc-number">3.</span> <span class="toc-text">基础知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#语法规范"><span class="toc-number">4.</span> <span class="toc-text">语法规范</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#状态机图"><span class="toc-number">5.</span> <span class="toc-text">状态机图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#源码解析"><span class="toc-number">6.</span> <span class="toc-text">源码解析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他延展"><span class="toc-number">7.</span> <span class="toc-text">其他延展</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结尾"><span class="toc-number">8.</span> <span class="toc-text">结尾</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 6
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/03</span><a class="archive-post-title" href= "/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-2/" >代码失控与状态机（下）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span><a class="archive-post-title" href= "/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-1/" >代码失控与状态机（上）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/17</span><a class="archive-post-title" href= "/blog/zh-cn/zongsoft/entity-dynamic-generation-3/" >实体类的动态生成（三）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/16</span><a class="archive-post-title" href= "/blog/zh-cn/zongsoft/entity-dynamic-generation-2/" >实体类的动态生成（二）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/15</span><a class="archive-post-title" href= "/blog/zh-cn/zongsoft/entity-dynamic-generation-1/" >实体类的动态生成（一）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/10</span><a class="archive-post-title" href= "/blog/zh-cn/misc/github-site/" >搭建 github.io 博客站点</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="github.io"><span class="iconfont-archer">&#xe606;</span>github.io</span>
+    
+        <span class="sidebar-tag-name" data-tags="github pages"><span class="iconfont-archer">&#xe606;</span>github pages</span>
+    
+        <span class="sidebar-tag-name" data-tags="Hexo"><span class="iconfont-archer">&#xe606;</span>Hexo</span>
+    
+        <span class="sidebar-tag-name" data-tags="建站"><span class="iconfont-archer">&#xe606;</span>建站</span>
+    
+        <span class="sidebar-tag-name" data-tags="博客"><span class="iconfont-archer">&#xe606;</span>博客</span>
+    
+        <span class="sidebar-tag-name" data-tags="实体"><span class="iconfont-archer">&#xe606;</span>实体</span>
+    
+        <span class="sidebar-tag-name" data-tags="动态编译"><span class="iconfont-archer">&#xe606;</span>动态编译</span>
+    
+        <span class="sidebar-tag-name" data-tags="动态生成"><span class="iconfont-archer">&#xe606;</span>动态生成</span>
+    
+        <span class="sidebar-tag-name" data-tags="entity"><span class="iconfont-archer">&#xe606;</span>entity</span>
+    
+        <span class="sidebar-tag-name" data-tags="emit"><span class="iconfont-archer">&#xe606;</span>emit</span>
+    
+        <span class="sidebar-tag-name" data-tags="dynamic"><span class="iconfont-archer">&#xe606;</span>dynamic</span>
+    
+        <span class="sidebar-tag-name" data-tags="generate"><span class="iconfont-archer">&#xe606;</span>generate</span>
+    
+        <span class="sidebar-tag-name" data-tags="compile"><span class="iconfont-archer">&#xe606;</span>compile</span>
+    
+        <span class="sidebar-tag-name" data-tags="coding"><span class="iconfont-archer">&#xe606;</span>coding</span>
+    
+        <span class="sidebar-tag-name" data-tags="out of control"><span class="iconfont-archer">&#xe606;</span>out of control</span>
+    
+        <span class="sidebar-tag-name" data-tags="state"><span class="iconfont-archer">&#xe606;</span>state</span>
+    
+        <span class="sidebar-tag-name" data-tags="state machine"><span class="iconfont-archer">&#xe606;</span>state machine</span>
+    
+        <span class="sidebar-tag-name" data-tags="expression parser"><span class="iconfont-archer">&#xe606;</span>expression parser</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="misc"><span class="iconfont-archer">&#xe60a;</span>misc</span>
+    
+        <span class="sidebar-category-name" data-categories="zongsoft"><span class="iconfont-archer">&#xe60a;</span>zongsoft</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/blog/",
+        author: "钟峰(Popeye Zhong)"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/blog/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/blog/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/blog/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+

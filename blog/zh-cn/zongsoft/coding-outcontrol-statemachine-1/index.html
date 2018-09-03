@@ -428,7 +428,7 @@ height:50vh;
 <h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>有了上面的状态图，就像建筑工人拿到了详细的建筑设计图纸；现在我们只需要对着状态机图，把它映射成代码即可完成一个基本状态机。状态机图越详细，实现起来就越容易，同时代码的可维护性也越好。</p>
 <figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Email</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">string</span> Identifier &#123; <span class="keyword">get</span>; <span class="keyword">private</span> <span class="keyword">set</span>;&#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">string</span> Host &#123; <span class="keyword">get</span>; <span class="keyword">private</span> <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">string</span> Domain &#123; <span class="keyword">get</span>; <span class="keyword">private</span> <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Email</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Email <span class="title">Parse</span>(<span class="params"><span class="keyword">string</span> text</span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">string</span>.IsNullOrEmpty(text))</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> state = State.None;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* The State-Driven */</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;text.Length; i++) &#123;</span><br><span class="line">            <span class="keyword">var</span> chr = text[i];</span><br><span class="line"></span><br><span class="line">            <span class="keyword">switch</span>(state)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">case</span> State.None:</span><br><span class="line">                    <span class="comment">//do state transition decision</span></span><br><span class="line"></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> State.Identifier:</span><br><span class="line">                    <span class="comment">//do state transition decision</span></span><br><span class="line"></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> State.Delimiter:</span><br><span class="line">                    <span class="comment">//do state transition decision</span></span><br><span class="line"></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> State.Host:</span><br><span class="line">                    <span class="comment">//do state transition decision</span></span><br><span class="line"></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> State.Dot:</span><br><span class="line">                    <span class="comment">//do state transition decision</span></span><br><span class="line"></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> State.Domain:</span><br><span class="line">                    <span class="comment">//do state transition decision</span></span><br><span class="line"></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Email(...);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">enum</span> State</span><br><span class="line">    &#123;</span><br><span class="line">        None,</span><br><span class="line">        Identifier,</span><br><span class="line">        Delimiter,</span><br><span class="line">        Host,</span><br><span class="line">        Dot,</span><br><span class="line">        Domain,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>上面的代码虽然看起来没什么技术含量，但它已经具备了一个状态机最基本的三大要素了（<strong>状态</strong>、<strong>状态驱动</strong>、<strong>迁移判定</strong>），针对具体业务场景我们只需完善和优化它的程序结构，底层原理的基本要义其实就是这么简单。</p>
-<p><img src="https://cdn-pri.nlark.com/yuque/0/2018/png/86907/1533456263971-7fd48027-62d1-42ca-b3f9-dcb9f19c04cc.png" alt="Notitle"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2018/png/86907/1533456263971-7fd48027-62d1-42ca-b3f9-dcb9f19c04cc.png" alt="Notitle"></p>
 <h2 id="失控的大脑"><a href="#失控的大脑" class="headerlink" title="失控的大脑"></a>失控的大脑</h2><p>人脑是一个很神奇的存在，它很擅长处理抽象思维，对于逻辑推理也有很好的应对能力，但却有个不擅长处理并发任务的Bug。比如当面临很多个逻辑分支，各分支的判定条件彼此关联，大脑很快就会陷入繁杂的状态中无法自拔。</p>
 <p>表现在解决复杂流程相关的任务时就是，写着写着你会发觉脑子好像不够用了，而程序中的 Bug 却像打地鼠游戏中的老鼠一样层出不穷。不难想象，即使脑力过人的你在勉强写完后的某天，产品经理带着他的脑洞又来找你了，在他的威逼利诱下你打开了一个月前的代码，忽然，觉得还是抱着产品经理同归于尽算了……</p>
 <p>这大概是某某同学，面对自己曾经的代码时痛苦的根源所在，因为普通人面对复杂流程问题时，终归受人脑算力所限。本质上这是人脑算力有限的一个困境，人类解决这个困境的一个行之有效的办法就是“<strong>分而治之</strong>”，即将一个大问题或复杂问题不断进行分解分化，直至达到人脑能相对轻松理解和处理的程度。</p>
@@ -472,6 +472,11 @@ height:50vh;
     <!-- paginator  -->
     <ul class="post-paginator">
         <li class="next">
+            
+                <a class="nextSlogan" href="/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-2/">Next Post</a>
+                <a href= "/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-2/" title= 代码失控与状态机（下） >
+                    <div class="nextTitle">代码失控与状态机（下）</div>
+                </a>
             
         </li>
         <li class="previous">
@@ -662,9 +667,24 @@ top:50vh;
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 5
+        Total : 6
         </div>
         <!-- search  -->
         
@@ -677,6 +697,11 @@ top:50vh;
     
     <div class="archive-year"> 2018 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/03</span><a class="archive-post-title" href= "/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-2/" >代码失控与状态机（下）</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -741,6 +766,8 @@ top:50vh;
         <span class="sidebar-tag-name" data-tags="state"><span class="iconfont-archer">&#xe606;</span>state</span>
     
         <span class="sidebar-tag-name" data-tags="state machine"><span class="iconfont-archer">&#xe606;</span>state machine</span>
+    
+        <span class="sidebar-tag-name" data-tags="expression parser"><span class="iconfont-archer">&#xe606;</span>expression parser</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>

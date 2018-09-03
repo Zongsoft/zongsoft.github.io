@@ -127,7 +127,7 @@ public class Email
 
 上面的代码虽然看起来没什么技术含量，但它已经具备了一个状态机最基本的三大要素了（**状态**、**状态驱动**、**迁移判定**），针对具体业务场景我们只需完善和优化它的程序结构，底层原理的基本要义其实就是这么简单。
 
-![Notitle](https://cdn-pri.nlark.com/yuque/0/2018/png/86907/1533456263971-7fd48027-62d1-42ca-b3f9-dcb9f19c04cc.png)
+![Notitle](https://cdn.nlark.com/yuque/0/2018/png/86907/1533456263971-7fd48027-62d1-42ca-b3f9-dcb9f19c04cc.png)
 
 
 ## 失控的大脑
