@@ -39,9 +39,10 @@ tags:
 - 《[ABNF:Augmented BNF for Syntax Specifications(rfc5234)](http://www.ietf.org/rfc/rfc5234.txt)》
 - 《[C# Language Specification](https://www.ecma-international.org/publications/files/ECMA-ST/Ecma-334.pdf)》*(应用BNF最强大的范例：C#语言规范) *
 
-除非是去写编程语言的编译器，通常我们不用阅读和编写像 **YACC**(**Y**et **A**nother **C**ompiler **C**ompiler) 或 [ANTLR](http://www.antlr.org)(**AN**other **T**ool for **L**anguage **R**ecognition) 这些工具中的那些非常“精准”的 **BNF** 的语法。有关 YACC 和 ANTLR 的一个具体案例，我推荐这篇文章*（不用抠细节，主要关注语法定义部分）*：
+除非是去写编程语言的编译器，通常我们不用阅读和编写像 **YACC**(**Y**et **A**nother **C**ompiler **C**ompiler) 或 [ANTLR](http://www.antlr.org)(**AN**other **T**ool for **L**anguage **R**ecognition) 这些工具中的那些非常“精准”的 **BNF** 的语法。有关 YACC 和 ANTLR 的一个具体案例，我推荐下面这篇文章*（不用抠细节，主要关注语法定义部分）*：
 
 [《TiDB 源码阅读系列文章（五）TiDB SQL Parser 的实现》](https://www.pingcap.com/blog-cn/tidb-source-code-reading-5)
+
 
 我推荐大家阅读和采用各 SQL 手册中使用的 **BNF** 方言来学习应用，因为它们语法约定简单，对付一般应用场景足够用。下面是它们的链接（个人比较偏好我软的 Transact-SQL），敬请食用。
 
@@ -127,69 +128,69 @@ number ::= [0-9]+{.[0-9]}?[L|m|M|f|F]
 ```csharp
 public static IMemberExpression Parse(string text, Action<string> onError)
 {
-	if(string.IsNullOrEmpty(text))
-		return null;
+    if(string.IsNullOrEmpty(text))
+        return null;
 
-	//创建解析上下文对象
-	var context = new StateContext(text.Length, onError);
+    //创建解析上下文对象
+    var context = new StateContext(text.Length, onError);
 
-	//状态迁移驱动
-	for(int i = 0; i < text.Length; i++)
-	{
-		context.Character = text[i];
+    //状态迁移驱动
+    for(int i = 0; i < text.Length; i++)
+    {
+        context.Character = text[i];
 
-		switch(context.State)
-		{
-			case State.None:
-				if(!DoNone(ref context, i))
-					return null;
+        switch(context.State)
+        {
+            case State.None:
+                if(!DoNone(ref context, i))
+                    return null;
 
-				break;
-			case State.Gutter:
-				if(!DoGutter(ref context, i))
-					return null;
+                break;
+            case State.Gutter:
+                if(!DoGutter(ref context, i))
+                    return null;
 
-				break;
-			case State.Separator:
-				if(!DoSeparator(ref context, i))
-					return null;
+                break;
+            case State.Separator:
+                if(!DoSeparator(ref context, i))
+                    return null;
 
-				break;
-			case State.Identifier:
-				if(!DoIdentifier(ref context, i))
-					return null;
+                break;
+            case State.Identifier:
+                if(!DoIdentifier(ref context, i))
+                    return null;
 
-				break;
-			case State.Method:
-				if(!DoMethod(ref context, i))
-					return null;
+                break;
+            case State.Method:
+                if(!DoMethod(ref context, i))
+                    return null;
 
-				break;
-			case State.Indexer:
-				if(!DoIndexer(ref context, i))
-					return null;
+                break;
+            case State.Indexer:
+                if(!DoIndexer(ref context, i))
+                    return null;
 
-				break;
-			case State.Parameter:
-				if(!DoParameter(ref context, i))
-					return null;
+                break;
+            case State.Parameter:
+                if(!DoParameter(ref context, i))
+                    return null;
 
-				break;
-			case State.Number:
-				if(!DoNumber(ref context, i))
-					return null;
+                break;
+            case State.Number:
+                if(!DoNumber(ref context, i))
+                    return null;
 
-				break;
-			case State.String:
-				if(!DoString(ref context, i))
-					return null;
+                break;
+            case State.String:
+                if(!DoString(ref context, i))
+                    return null;
 
-				break;
-		}
-	}
+                break;
+        }
+    }
 
-	//获取最终的解析结果
-	return context.GetResult();
+    //获取最终的解析结果
+    return context.GetResult();
 }
 ```
 
@@ -216,10 +217,10 @@ CorporationId, Name, Abbr, RegisteredCapital,
 Principal{Name, FullName, Avatar},
 Departments:10(~Level, NumberOfPeople)
 {
-	Name, Manager
-	{
-		Name, FullName, JobTitle, PhoneNumber
-	}
+    Name, Manager
+    {
+        Name, FullName, JobTitle, PhoneNumber
+    }
 }";
 
 var entities = dataAccess.Select<Corporation>(
@@ -238,7 +239,7 @@ schema ::=
     * |
     ! |
     !identifier |
-    identifier[paging][sorting]["{"scope [,...n]"}"]
+    identifier[paging][sorting]["{"schema [,...n]"}"]
 } [,...n]
 
 identifier ::= [_A-Za-z][_A-Za-z0-9]*
