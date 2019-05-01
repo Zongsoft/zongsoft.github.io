@@ -346,32 +346,36 @@
     
     
     <article class="index-post">
-        <a class="abstract-title" href="/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-1/">
+        <a class="abstract-title" href="/blog/zh-cn/misc/iis-express/">
             
-                <span>代码失控与状态机（上）</span>
+                <span>关于 IIS Express 常用设置</span>
         </a>
         <div class="abstract-content">
-            前言前几天和某某同学吃饭席间，他聊到每当要修改老项目中自己写的代码时就痛苦不堪，问我是不是也有同感。我觉得这应该是不少程序猿的心声，之所以会这样，大致有两个主因：
+            关于 IIS Express 常用设置
+站点绑定IIS Express Web 服务器默认只绑定了 localhost 的主机名，这就意味着无法通过内网或其他自定义域名进行访问，可通过如下操作添加其他绑定。
+在Web宿主项目中的 .vs 目录中的 config 子目录中，有名为“applicationhost.config”配置文件，打开它后，找到如下节点：
+1system.applicationHost/sites/site[name=xxxx]/bindings
 
-项目的整体设计很糟糕，只管往上堆砌各种功能、补丁，对于代码质量和结构关系基本无暇顾及，最终积重难返滑向失控。
-对技术缺乏必要的敬畏心，基础不够扎实、知识面较窄，不能（无法）进行合理的规划，最终导致停留在低水平的代码堆砌上，只求完成功能就万事大吉。
+在该绑定集中的添加一个首节点，假定绑定端口号为： 12345
 
-程序猿饭桌上总少不了对产品经理的吐槽：“产品经理又对业务流程进行了疯狂调整，我觉得这会导致状态机无法支持了。”他的这个槽点让我一时有些语塞，倒不是怀疑产品经理的脑洞还能大到把状态...
+1&lt;binding protocol="http"...
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
             <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/08/05</span>
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/05/01</span>
             </div>
             <!-- tags  -->
             
             <div class="abstract-tags">
     
-        <a class="post-tag" href="javascript:void(0);" data-tags="coding">coding</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="Visual Studio">Visual Studio</a>
     
-        <a class="post-tag" href="javascript:void(0);" data-tags="out of control">out of control</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="IIS Express">IIS Express</a>
     
-        <a class="post-tag" href="javascript:void(0);" data-tags="state machine">state machine</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="site binding">site binding</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="request limit">request limit</a>
     
 </div>
             
