@@ -15,9 +15,8 @@ tags:
 
 <a name="site-binding"></a>
 ## 站点绑定
-IIS Express Web 服务器默认只绑定了 `localhost` 的主机名，这就意味着无法通过内网或其他自定义域名进行访问，可通过如下操作添加其他绑定。
-
-在Web宿主项目中的 **.vs** 目录中的 **config** 子目录中，有名为“**applicationhost.config**”配置文件，打开它后，找到如下节点：
+IIS Express Web 服务器默认只绑定了 `localhost` 的主机名，这就意味着无法通过内网或其他自定义域名进行访问，可通过如下操作添加其他绑定。<br />
+<br />在Web宿主项目中的 **.vs** 目录中的 **config** 子目录中，有名为“**applicationhost.config**”配置文件，打开它后，找到如下节点：
 
 ```
 system.applicationHost/sites/site[name=xxxx]/bindings
@@ -32,15 +31,19 @@ system.applicationHost/sites/site[name=xxxx]/bindings
 2. 以管理员方式运行“命令提示符”，然后在终端执行器中执行下面命令：
 
 ```shell
-netsh http add urlacl url="http://*:12345:*" user=everyone
+netsh http add urlacl url=http://*:12345:* user=everyone
 ```
 
+**_注：_**_如果指定端口被其他 IIS Express 服务占用，可使用如下命令解除相关绑定：_
+
+```shell
+netsh http delete urlacl url=http://*:12345/
+```
 
 <a name="request-limit"></a>
 ## 请求内容长度限制
-IIS Express Web 服务器默认限制了HTTP的请求内容大小，这会导致在上传较大文件时请求被拒绝，通过如下方式可重置默认限制值。
-
-在Web宿主项目中的 **.vs** 目录中的 **config** 子目录中，有名为“**applicationhost.config**”配置文件，打开它后，找到如下节点：
+IIS Express Web 服务器默认限制了HTTP的请求内容大小，这会导致在上传较大文件时请求被拒绝，通过如下方式可重置默认限制值。<br />
+<br />在Web宿主项目中的 **.vs** 目录中的 **config** 子目录中，有名为“**applicationhost.config**”配置文件，打开它后，找到如下节点：
 
 ```
 system.webServer/security/requestFiltering
@@ -55,7 +58,7 @@ system.webServer/security/requestFiltering
 2. 然后修改Web宿主项目的 **Web.config** 文件中的如下配置节：
 
 ```xml
-<system.web>
-  <httpRuntime maxRequestLength="524288000" />
-</system.web>
+	<system.web>
+		<httpRuntime maxRequestLength="524288000" />
+	</system.web>
 ```

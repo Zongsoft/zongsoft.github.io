@@ -352,13 +352,12 @@
         </a>
         <div class="abstract-content">
             关于 IIS Express 常用设置
-站点绑定IIS Express Web 服务器默认只绑定了 localhost 的主机名，这就意味着无法通过内网或其他自定义域名进行访问，可通过如下操作添加其他绑定。
-在Web宿主项目中的 .vs 目录中的 config 子目录中，有名为“applicationhost.config”配置文件，打开它后，找到如下节点：
+站点绑定IIS Express Web 服务器默认只绑定了 localhost 的主机名，这就意味着无法通过内网或其他自定义域名进行访问，可通过如下操作添加其他绑定。在Web宿主项目中的 .vs 目录中的 config 子目录中，有名为“applicationhost.config”配置文件，打开它后，找到如下节点：
 1system.applicationHost/sites/site[name=xxxx]/bindings
 
 在该绑定集中的添加一个首节点，假定绑定端口号为： 12345
 
-1&lt;binding protocol="http"...
+1&lt;binding protocol="http" ...
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
