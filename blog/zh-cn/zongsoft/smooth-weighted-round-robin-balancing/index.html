@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="钟峰(Popeye Zhong)">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="钟峰(Popeye Zhong)">
+    
+        <meta name="keywords" content="Zongsoft,.NET,C#,ASP.NET,DDD(Domain Driven Design)">
+    
+    <meta name="description" content="Zongsoft">
+    <meta name="description" content="前言在反向代理、路由、分布式应用调度等场景中通常都需要用到负载均衡算法，负载均衡的关键要点是“均衡”，即确保调用请求能均衡的落到多个处理节点上，负载均衡算法一般使用随机或轮询都可以保证均衡性。 现实中由于服务器性能或资源分配的差异，导致我们需要为服务节点设置不同的权重，权重高的节点得到更多流量，同时降低低权重节点的流量比例。也即带权重的均衡算法。 下面我们讨论几种常见的负载均衡算法，并针对其中一种">
+<meta property="og:type" content="article">
+<meta property="og:title" content="平滑的加权轮询均衡算法">
+<meta property="og:url" content="http://zongsoft.com/zh-cn/zongsoft/smooth-weighted-round-robin-balancing/index.html">
+<meta property="og:site_name" content="Zongsoft">
+<meta property="og:description" content="前言在反向代理、路由、分布式应用调度等场景中通常都需要用到负载均衡算法，负载均衡的关键要点是“均衡”，即确保调用请求能均衡的落到多个处理节点上，负载均衡算法一般使用随机或轮询都可以保证均衡性。 现实中由于服务器性能或资源分配的差异，导致我们需要为服务节点设置不同的权重，权重高的节点得到更多流量，同时降低低权重节点的流量比例。也即带权重的均衡算法。 下面我们讨论几种常见的负载均衡算法，并针对其中一种">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-09-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-09-18T04:05:09.579Z">
+<meta property="article:author" content="钟峰(Popeye Zhong)">
+<meta property="article:tag" content="balancing">
+<meta property="article:tag" content="weighted">
+<meta property="article:tag" content="round-robin">
+<meta property="article:tag" content="smooth">
+<meta property="article:tag" content="加权轮询">
+<meta property="article:tag" content="负载均衡">
+<meta property="article:tag" content="权重均衡">
+<meta name="twitter:card" content="summary">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/blog/assets/favicon.ico">
+    
+    <title>平滑的加权轮询均衡算法 · Zongsoft</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/blog/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/blog/css/style.css?v=20211217" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/blog/css/dark.css?v=20211217" as="style">
+    <link rel="stylesheet" href="/blog/css/dark.css">
+    <link rel="stylesheet" href="/blog/css/mobile.css?v=20211217" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/blog/scripts/main.js?v=20211217" as="script">
+    <link rel="preload" href="/blog/scripts/dark.js?v=20211217" as="script">
+    <link rel="preload" href="/blog/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/blog/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/blog/>Zongsoft</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/blog/">Zongsoft</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">平滑的加权轮询均衡算法</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/blog/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                平滑的加权轮询均衡算法
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="balancing">balancing</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="weighted">weighted</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="round-robin">round-robin</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="smooth">smooth</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="加权轮询">加权轮询</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="负载均衡">负载均衡</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="权重均衡">权重均衡</a>
+    
+</div>
+
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">1.5k</span>阅读时长: <span class="post-count reading-time">6 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2022/09/15</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/blog/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/blog/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在反向代理、路由、分布式应用调度等场景中通常都需要用到负载均衡算法，负载均衡的关键要点是“<strong>均衡</strong>”，即确保调用请求能均衡的落到多个处理节点上，负载均衡算法一般使用随机或轮询都可以保证均衡性。</p>
+<p>现实中由于服务器性能或资源分配的差异，导致我们需要为服务节点设置不同的权重，权重高的节点得到更多流量，同时降低低权重节点的流量比例。也即带权重的均衡算法。</p>
+<p>下面我们讨论几种常见的负载均衡算法，并针对其中一种给出完整的算法讲解及实现。</p>
+<h2 id="一、随机"><a href="#一、随机" class="headerlink" title="一、随机"></a>一、随机</h2><p>这是最简单的负载均衡算法，每次生成一个随机数，然后对服务节点数进行取模，模值即为服务节点序号，很明显这只能做到“均匀”，无法根据各服务节点的权重进行加权分配。不过略加调整即可实现加权分配：<br>构造一个范围为总权重值的序列，然后用随机数对总权重取模，模值所在区间即为对应的服务节点。譬如：有三个服务节点，其权重分别为：<code>50</code>、<code>30</code>、<code>20</code>，则节点集图像大致如下：</p>
+<blockquote>
+<p><code>|&lt;-----------A-----------&gt;|&lt;-----B-----&gt;|&lt;---C---&gt;|</code><br><code>|&lt;0--------------------50&gt;|&lt;51-------80&gt;|&lt;81--100&gt;|</code></p>
+</blockquote>
+<h3 id="代码简示："><a href="#代码简示：" class="headerlink" title="代码简示："></a>代码简示：</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> Node&lt;TKey&gt; <span class="keyword">where</span> TKey : IEquatable&lt;TKey&gt;</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">Node</span>(<span class="params">TKey key, <span class="built_in">int</span> boundary</span>)</span> &#123;</span><br><span class="line">		<span class="keyword">this</span>.Key = key;</span><br><span class="line">		<span class="keyword">this</span>.Boundary = boundary;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> TKey Key;</span><br><span class="line">	<span class="keyword">public</span> <span class="built_in">int</span> Boundary;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title">NodeSelector</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="built_in">int</span> _total;</span><br><span class="line">	Node&lt;<span class="built_in">string</span>&gt; _nodes;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">Initialize</span>()</span> &#123;</span><br><span class="line">		_total = <span class="number">50</span> + <span class="number">30</span> + <span class="number">20</span>;</span><br><span class="line">		_nodes = <span class="keyword">new</span>[] &#123;</span><br><span class="line">			<span class="keyword">new</span> Node&lt;<span class="built_in">string</span>&gt;(<span class="string">&quot;Node-A&quot;</span>, <span class="number">50</span>),</span><br><span class="line">			<span class="keyword">new</span> Node&lt;<span class="built_in">string</span>&gt;(<span class="string">&quot;Node-B&quot;</span>, <span class="number">50</span> + <span class="number">30</span>),</span><br><span class="line">			<span class="keyword">new</span> Node&lt;<span class="built_in">string</span>&gt;(<span class="string">&quot;Node-C&quot;</span>, <span class="number">50</span> + <span class="number">30</span> + <span class="number">20</span>),</span><br><span class="line">		&#125;;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="built_in">string</span> <span class="title">Select</span>()</span> &#123;</span><br><span class="line">		<span class="keyword">var</span> <span class="keyword">value</span> = Randomizer.GenerateInt32() % _total;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span>(<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; _nodes.Length; i++) &#123;</span><br><span class="line">			<span class="keyword">if</span>(<span class="keyword">value</span> &lt;= _nodes[i].Boundary)</span><br><span class="line">				<span class="keyword">return</span> _nodes[i].Key;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>随机算法的表现恰如其名，在一个甚至多个调度周期内也无法确保各节点的权重匹配度，只能在大样本条件下满足权重的概率分布，总之就两字：随缘。</p>
+<h2 id="二、一致哈希"><a href="#二、一致哈希" class="headerlink" title="二、一致哈希"></a>二、一致哈希</h2><p>关于一致性哈希算法的文章已经汗牛充栋，亦不是本文的重点，所以就不再赘述。在构建哈希环的时候需要依据服务节点的权重比来设置相应数量的虚拟节点，之后确定服务节点的算法与上述随机算法基本差不多。</p>
+<h2 id="三、平滑加权轮询"><a href="#三、平滑加权轮询" class="headerlink" title="三、平滑加权轮询"></a>三、平滑加权轮询</h2><p>终于来到本文的重点部分，我们假设有三个服务节点，其权重分别为：<code>4</code>、<code>2</code>、<code>1</code>，那么在一个调度周期内，最简单调度序列如：<code>&#123;A,A,A,A,B,B,C&#125;</code>、<code>&#123;C,B,B,A,A,A,A&#125;</code> 或 <code>&#123;B,B,C,A,A,A,A&#125;</code>，但直觉这样的调度顺序不友好，因为它会在某一阵把压力都落到同一个节点上，导致某个节点突然很忙的情况，类似汽车换挡的那种顿挫感。</p>
+<p>如果调度序列变成：<code>&#123;A,B,A,C,A,B,A&#125;</code> 或 <code>&#123;A,A,B,A,C,A,B&#125;</code> 这样就显得“平滑”和“均衡”多了，我们主要参考 Nginx 和 LVS 采用的两种算法。</p>
+<h3 id="Nginx-算法"><a href="#Nginx-算法" class="headerlink" title="Nginx 算法"></a>Nginx 算法</h3><ul>
+<li>Nginx 的实现源码：<a target="_blank" rel="noopener" href="https://github.com/nginx/nginx/blob/52327e0627/src/http/ngx_http_upstream_round_robin.c">https://github.com/nginx/nginx/blob/52327e0627/src/http/ngx_http_upstream_round_robin.c</a></li>
+<li>Nginx 的算法摘要：<a target="_blank" rel="noopener" href="https://github.com/nginx/nginx/commit/52327e0627f49dbda1e8db695e63a4b0af4448b1">https://github.com/nginx/nginx/commit/52327e0627f49dbda1e8db695e63a4b0af4448b1</a><blockquote>
+<p>on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its urrent_weight by total number of weight points distributed among peers.</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="算法详解"><a href="#算法详解" class="headerlink" title="算法详解"></a>算法详解</h4><ul>
+<li>当前节点集初始值均为零：<code>&#123;0,0,0&#125;</code></li>
+<li>所有节点的当前权重值加上设定的权重值</li>
+<li>在当前节点集中选取最大权重值的节点作为命中节点</li>
+<li>命中节点的当前权重值减去总权重值作为其新权重值，其他节点保持不变</li>
+</ul>
+<p>设 <code>A</code>、<code>B</code>、<code>C</code> 三个节点的权重分别为：<code>4</code>、<code>2</code>、<code>1</code>，演算步骤如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">步骤</th>
+<th align="center">选择前当前值</th>
+<th align="center">选择节点(命中)</th>
+<th align="center">选择后当前值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">{ 4, 2, 1}</td>
+<td align="center">A</td>
+<td align="center">{-3, 2, 1}</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">{ 1, 4, 2}</td>
+<td align="center">B</td>
+<td align="center">{ 1,-3, 2}</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">{ 5,-1, 3}</td>
+<td align="center">A</td>
+<td align="center">{-2,-1, 3}</td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td align="center">{ 2, 1, 4}</td>
+<td align="center">C</td>
+<td align="center">{ 2, 1,-3}</td>
+</tr>
+<tr>
+<td align="center">5</td>
+<td align="center">{ 6, 3,-2}</td>
+<td align="center">A</td>
+<td align="center">{-1, 3,-2}</td>
+</tr>
+<tr>
+<td align="center">6</td>
+<td align="center">{ 3, 5,-1}</td>
+<td align="center">B</td>
+<td align="center">{ 3,-2,-1}</td>
+</tr>
+<tr>
+<td align="center">7</td>
+<td align="center">{ 7, 0, 0}</td>
+<td align="center">A</td>
+<td align="center">{ 0, 0, 0}</td>
+</tr>
+</tbody></table>
+<p>由上发现三个节点的命中次数符合 <strong>4:2:1</strong>，而且权重大的节点不会霸占选择权。经过一个周期(7轮选择)后，当前权重值又回到了<code>&#123;0, 0, 0&#125;</code>，以上过程将按照周期进行循环，完全符合我们先前期望的平滑性。</p>
+<h4 id="数学证明"><a href="#数学证明" class="headerlink" title="数学证明"></a>数学证明</h4><p>该算法的合理性和平滑性的数学证明：<a target="_blank" rel="noopener" href="https://tenfy.cn/2018/11/12/smooth-weighted-round-robin">https://tenfy.cn/2018/11/12/smooth-weighted-round-robin</a></p>
+<h3 id="LVS-算法"><a href="#LVS-算法" class="headerlink" title="LVS 算法"></a>LVS 算法</h3><p><strong>L</strong>inux <strong>V</strong>irtual <strong>S</strong>erver 采用的是另外一种，算法<a target="_blank" rel="noopener" href="http://kb.linuxvirtualserver.org/wiki/Weighted_Round-Robin_Scheduling">wiki</a>文档：<a target="_blank" rel="noopener" href="http://kb.linuxvirtualserver.org/wiki/Weighted_Round-Robin_Scheduling">http://kb.linuxvirtualserver.org/wiki/Weighted_Round-Robin_Scheduling</a></p>
+<p>从算法步骤和计算量上看，相对 Nginx 而言 LVS 算法略微简单一些，性能可能会略好一点点（<em>但都是同一个量级</em>）；通过模拟数据发现当节点权重差异较大时，其平滑性没有 Nginx 算法好。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Framework/tree/master/Zongsoft.Data">Zongsoft.Data</a> 数据访问框架的读写分离中需要将读写操作路由到不同权重的数据库，于是采用 Nginx 的平滑权重轮询均衡算法实现了数据源路由选择器，下面分别是平滑权重轮询器和数据路由的代码：</p>
+<ul>
+<li>平滑权重轮询源码：<a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Framework/blob/master/Zongsoft.Core/src/Components/Weighter.cs">https://github.com/Zongsoft/Framework/blob/master/Zongsoft.Core/src/Components/Weighter.cs</a></li>
+<li>数据源权重选择器：<a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Framework/blob/master/Zongsoft.Data/src/Common/DataSourceSelector.cs">https://github.com/Zongsoft/Framework/blob/master/Zongsoft.Data/src/Common/DataSourceSelector.cs</a></li>
+</ul>
+<hr>
+<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://tenfy.cn/2018/11/12/smooth-weighted-round-robin">Nginx 平滑的基于权重轮询算法分析</a></li>
+<li><a target="_blank" rel="noopener" href="https://pandaychen.github.io/2019/12/15/NGINX-SMOOTH-WEIGHT-ROUNDROBIN-ANALYSIS">Nginx 负载均衡及算法分析</a></li>
+<li><a target="_blank" rel="noopener" href="http://claude-ray.com/2019/08/10/nginx-swrr">Nginx SWRR 算法解读</a></li>
+</ul>
+
+    </article>
+
+    <div style="text-align:center; margin-top:4rem;">
+	<a href="http://weixin.qq.com/r/zy-g_GnEWTQmrS2b93rd" target="_blank" title="Zongsoft 微信公众号"><img src="//raw.githubusercontent.com/Zongsoft/Guidelines/master/zongsoft-qrcode%28wechat%29.png" alt="Zongsoft 微信公众号" /></a><br />
+	<!--a href="https://t.zsxq.com/2nyjqrr" target="_blank" title="Zongsoft 知识星球号"><img src="/blog/" alt="Zongsoft 知识星球-学习圈" /></a-->
+</div>
+
+<hr style="margin-top:2em;margin-bottom:2em;margin-left:0;margin-right:0;padding:0;height:2px;border:0;background-color:#e8e8e8;" />
+
+<div style="margin-bottom:4em;">
+	<img src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" width="">
+	<p style="margin-top:4px;">
+本作品采用 <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="bi-link">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a> 进行许可。欢迎转载、使用、重新发布，但必须保留本文的署名 <a target="_blank" href="https://github.com/zongsoft" class="bi-link">钟峰</a>（包含链接：<a target="_blank" href="http://zongsoft.github.io" class="bi-link">http://zongsoft.github.io</a>），不得用于商业目的，基于本文修改后的作品务必以相同的许可发布。如有任何疑问或授权方面的协商，请致信给我 (zongsoft@qq.com)。
+	</p>
+</div>
+
+
+    <!-- license -->
+    
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://zongsoft.com">钟峰(Popeye Zhong)</a>
+            <p>原文链接：<a href="http://zongsoft.com/zh-cn/zongsoft/smooth-weighted-round-robin-balancing/">http://zongsoft.com/zh-cn/zongsoft/smooth-weighted-round-robin-balancing/</a>
+            <p>发表日期：<a href="http://zongsoft.com/zh-cn/zongsoft/smooth-weighted-round-robin-balancing/">September 15th 2022, 12:00:00 am</a>
+            <p>更新日期：<a href="http://zongsoft.com/zh-cn/zongsoft/smooth-weighted-round-robin-balancing/">September 18th 2022, 12:05:09 pm</a>
+            <p>版权声明：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <a href="/blog/zh-cn/zongsoft/announcing-data-engine/" title="Zongsoft.Data 发布公告">
+                <div class="prevSlogan">Previous Post</div>
+                    <div class="prevTitle">Zongsoft.Data 发布公告</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:zongsoft@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/Zongsoft" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                    
+                    <img class="profile-qr" src="//raw.githubusercontent.com/Zongsoft/Guidelines/master/zongsoft-qrcode%28wechat%29.png" />
+                </span>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer qq" title=qq>
+                    
+                    <img class="profile-qr" src="/blog/Zongsoft" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+            
+                <a href="//zhuanlan.zhihu.com/Zongsoft" class="iconfont-archer zhihu" target="_blank" title=zhihu></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            
+                <a href="//cnblogs.com/Zongsoft" class="iconfont-archer others" target="_blank" title=others></a>
+            
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    
+        <div class="busuanzi-container">
+            
+             
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+            
+        </div>
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E9%9A%8F%E6%9C%BA"><span class="toc-number">2.</span> <span class="toc-text">一、随机</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%AE%80%E7%A4%BA%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">代码简示：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%B8%80%E8%87%B4%E5%93%88%E5%B8%8C"><span class="toc-number">3.</span> <span class="toc-text">二、一致哈希</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%B9%B3%E6%BB%91%E5%8A%A0%E6%9D%83%E8%BD%AE%E8%AF%A2"><span class="toc-number">4.</span> <span class="toc-text">三、平滑加权轮询</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Nginx-%E7%AE%97%E6%B3%95"><span class="toc-number">4.1.</span> <span class="toc-text">Nginx 算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3"><span class="toc-number">4.1.1.</span> <span class="toc-text">算法详解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E5%AD%A6%E8%AF%81%E6%98%8E"><span class="toc-number">4.1.2.</span> <span class="toc-text">数学证明</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LVS-%E7%AE%97%E6%B3%95"><span class="toc-number">4.2.</span> <span class="toc-text">LVS 算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%EF%BC%9A"><span class="toc-number">6.</span> <span class="toc-text">参考资料：</span></a></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 9
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/15</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/smooth-weighted-round-robin-balancing/">平滑的加权轮询均衡算法</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2019 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/19</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/announcing-data-engine/">Zongsoft.Data 发布公告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/01</span>
+            <a class="archive-post-title" href="/blog/zh-cn/misc/iis-express/">关于 IIS Express 常用设置</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2018 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/03</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-2/">代码失控与状态机（下）</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-1/">代码失控与状态机（上）</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/17</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/entity-dynamic-generation-3/">实体类的动态生成（三）</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/16</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/entity-dynamic-generation-2/">实体类的动态生成（二）</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/15</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/entity-dynamic-generation-1/">实体类的动态生成（一）</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/10</span>
+            <a class="archive-post-title" href="/blog/zh-cn/misc/github-site/">搭建 github.io 博客站点</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="coding">
+                <span class="iconfont-archer">&#xe606;</span>
+                coding
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="out of control">
+                <span class="iconfont-archer">&#xe606;</span>
+                out of control
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="state machine">
+                <span class="iconfont-archer">&#xe606;</span>
+                state machine
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="expression parser">
+                <span class="iconfont-archer">&#xe606;</span>
+                expression parser
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="ORM">
+                <span class="iconfont-archer">&#xe606;</span>
+                ORM
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="entity framework">
+                <span class="iconfont-archer">&#xe606;</span>
+                entity framework
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="data access">
+                <span class="iconfont-archer">&#xe606;</span>
+                data access
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="data engine">
+                <span class="iconfont-archer">&#xe606;</span>
+                data engine
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="数据访问">
+                <span class="iconfont-archer">&#xe606;</span>
+                数据访问
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="数据引擎">
+                <span class="iconfont-archer">&#xe606;</span>
+                数据引擎
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="entity">
+                <span class="iconfont-archer">&#xe606;</span>
+                entity
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="emit">
+                <span class="iconfont-archer">&#xe606;</span>
+                emit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="dynamic">
+                <span class="iconfont-archer">&#xe606;</span>
+                dynamic
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="generate">
+                <span class="iconfont-archer">&#xe606;</span>
+                generate
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="compile">
+                <span class="iconfont-archer">&#xe606;</span>
+                compile
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="实体">
+                <span class="iconfont-archer">&#xe606;</span>
+                实体
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="动态编译">
+                <span class="iconfont-archer">&#xe606;</span>
+                动态编译
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="动态生成">
+                <span class="iconfont-archer">&#xe606;</span>
+                动态生成
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="github.io">
+                <span class="iconfont-archer">&#xe606;</span>
+                github.io
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="github pages">
+                <span class="iconfont-archer">&#xe606;</span>
+                github pages
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Hexo">
+                <span class="iconfont-archer">&#xe606;</span>
+                Hexo
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="建站">
+                <span class="iconfont-archer">&#xe606;</span>
+                建站
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="博客">
+                <span class="iconfont-archer">&#xe606;</span>
+                博客
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Visual Studio">
+                <span class="iconfont-archer">&#xe606;</span>
+                Visual Studio
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="IIS Express">
+                <span class="iconfont-archer">&#xe606;</span>
+                IIS Express
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="site binding">
+                <span class="iconfont-archer">&#xe606;</span>
+                site binding
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="request limit">
+                <span class="iconfont-archer">&#xe606;</span>
+                request limit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="balancing">
+                <span class="iconfont-archer">&#xe606;</span>
+                balancing
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="weighted">
+                <span class="iconfont-archer">&#xe606;</span>
+                weighted
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="round-robin">
+                <span class="iconfont-archer">&#xe606;</span>
+                round-robin
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="smooth">
+                <span class="iconfont-archer">&#xe606;</span>
+                smooth
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="加权轮询">
+                <span class="iconfont-archer">&#xe606;</span>
+                加权轮询
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="负载均衡">
+                <span class="iconfont-archer">&#xe606;</span>
+                负载均衡
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="权重均衡">
+                <span class="iconfont-archer">&#xe606;</span>
+                权重均衡
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="zongsoft">
+            <span class="iconfont-archer">&#xe60a;</span>
+            zongsoft
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="misc">
+            <span class="iconfont-archer">&#xe60a;</span>
+            misc
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/blog/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "http://zongsoft.com",
+        root: siteMetaRoot,
+        author: "钟峰(Popeye Zhong)"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/blog/scripts/main.js?v=20211217"></script>
+        <!-- dark mode -->
+        <script src="/blog/scripts/dark.js?v=20211217"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/blog/scripts/share.js?v=20211217" async></script>
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>

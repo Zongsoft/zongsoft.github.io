@@ -3,26 +3,155 @@
     <!-- title -->
 
 
-
+    
 
 <!-- keywords -->
 
 
 
-
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="author" content="钟峰(Popeye Zhong)">
     <meta name="renderer" content="webkit">
     <meta name="copyright" content="钟峰(Popeye Zhong)">
     
-    <meta name="keywords" content="Zongsoft,钟峰(Popeye Zhong)">
+        <meta name="keywords" content="Zongsoft,.NET,C#,ASP.NET,DDD(Domain Driven Design)">
     
     <meta name="description" content="Zongsoft">
+    <meta name="description" content="前言在应用开发中，通常都会涉及各种 POJO&#x2F;POCO 实体类（DO, DTO, BO, VO）的编写，有时这些实体类还需要实现 INotifyPropertyChanged 接口以支持属性变更通知，一般我们都会手写这些代码或者通过工具根据数据库表定义抑或别的什么模板、映射文件之类的来静态生成它们。但是，在业务实现中往往伴随着诸如“__如何简单且高效的获取某个实体实例有哪些属性发生过变更">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实体类的动态生成（一）">
+<meta property="og:url" content="http://zongsoft.com/zh-cn/zongsoft/entity-dynamic-generation-1/index.html">
+<meta property="og:site_name" content="Zongsoft">
+<meta property="og:description" content="前言在应用开发中，通常都会涉及各种 POJO&#x2F;POCO 实体类（DO, DTO, BO, VO）的编写，有时这些实体类还需要实现 INotifyPropertyChanged 接口以支持属性变更通知，一般我们都会手写这些代码或者通过工具根据数据库表定义抑或别的什么模板、映射文件之类的来静态生成它们。但是，在业务实现中往往伴随着诸如“__如何简单且高效的获取某个实体实例有哪些属性发生过变更">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-07-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-10-01T17:28:48.078Z">
+<meta property="article:author" content="钟峰(Popeye Zhong)">
+<meta property="article:tag" content="entity">
+<meta property="article:tag" content="emit">
+<meta property="article:tag" content="dynamic">
+<meta property="article:tag" content="generate">
+<meta property="article:tag" content="compile">
+<meta property="article:tag" content="实体">
+<meta property="article:tag" content="动态编译">
+<meta property="article:tag" content="动态生成">
+<meta name="twitter:card" content="summary">
     <meta http-equiv="Cache-control" content="no-cache">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/blog/assets/favicon.ico">
+    
     <title>实体类的动态生成（一） · Zongsoft</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -72,159 +201,95 @@
             transform: translate3d(0, 0, 0);
         }
     }
-
 </style>
 
-    <link rel="preload" href= "/blog/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-    <link rel="stylesheet" href= "/blog/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    <link rel="preload" href="/blog/css/style.css?v=20211217" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/blog/css/dark.css?v=20211217" as="style">
+    <link rel="stylesheet" href="/blog/css/dark.css">
+    <link rel="stylesheet" href="/blog/css/mobile.css?v=20211217" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/blog/scripts/main.js?v=20211217" as="script">
+    <link rel="preload" href="/blog/scripts/dark.js?v=20211217" as="script">
+    <link rel="preload" href="/blog/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
     
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-    
-    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
-/* This file is meant as a standalone workflow for
-- testing support for link[rel=preload]
-- enabling async CSS loading in browsers that do not support rel=preload
-- applying rel preload css once loaded, whether supported or not.
-*/ -->
-<script>
-(function( w ){
-	"use strict";
-	// rel=preload support test
-	if( !w.loadCSS ){
-		w.loadCSS = function(){};
-	}
-	// define on the loadCSS obj
-	var rp = loadCSS.relpreload = {};
-	// rel=preload feature support test
-	// runs once and returns a function for compat purposes
-	rp.support = (function(){
-		var ret;
-		try {
-			ret = w.document.createElement( "link" ).relList.supports( "preload" );
-		} catch (e) {
-			ret = false;
-		}
-		return function(){
-			return ret;
-		};
-	})();
-
-	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
-	// then change that media back to its intended value on load
-	rp.bindMediaToggle = function( link ){
-		// remember existing media attr for ultimate state, or default to 'all'
-		var finalMedia = link.media || "all";
-
-		function enableStylesheet(){
-			link.media = finalMedia;
-		}
-
-		// bind load handlers to enable media
-		if( link.addEventListener ){
-			link.addEventListener( "load", enableStylesheet );
-		} else if( link.attachEvent ){
-			link.attachEvent( "onload", enableStylesheet );
-		}
-
-		// Set rel and non-applicable media type to start an async request
-		// note: timeout allows this to happen async to let rendering continue in IE
-		setTimeout(function(){
-			link.rel = "stylesheet";
-			link.media = "only x";
-		});
-		// also enable media after 3 seconds,
-		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
-		setTimeout( enableStylesheet, 3000 );
-	};
-
-	// loop through link elements in DOM
-	rp.poly = function(){
-		// double check this to prevent external calls from running
-		if( rp.support() ){
-			return;
-		}
-		var links = w.document.getElementsByTagName( "link" );
-		for( var i = 0; i < links.length; i++ ){
-			var link = links[ i ];
-			// qualify links to those with rel=preload and as=style attrs
-			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
-				// prevent rerunning on link
-				link.setAttribute( "data-loadcss", true );
-				// bind listeners to toggle media back
-				rp.bindMediaToggle( link );
-			}
-		}
-	};
-
-	// if unsupported, run the polyfill
-	if( !rp.support() ){
-		// run once at least
-		rp.poly();
-
-		// rerun poly on an interval until onload
-		var run = w.setInterval( rp.poly, 500 );
-		if( w.addEventListener ){
-			w.addEventListener( "load", function(){
-				rp.poly();
-				w.clearInterval( run );
-			} );
-		} else if( w.attachEvent ){
-			w.attachEvent( "onload", function(){
-				rp.poly();
-				w.clearInterval( run );
-			} );
-		}
-	}
-
-
-	// commonjs
-	if( typeof exports !== "undefined" ){
-		exports.loadCSS = loadCSS;
-	}
-	else {
-		w.loadCSS = loadCSS;
-	}
-}( typeof global !== "undefined" ? global : this ) );
-</script>
-
-    <link rel="icon" href= "/blog/intro/favicon.ico" />
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
-    <link rel="preload" href="/blog/scripts/main.js" as="script" />
-    <link rel="preload" as="font" href="/blog/font/Oswald-Regular.ttf" crossorigin>
-    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
-    
-    <!-- fancybox -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
     <!-- 百度统计  -->
     
     <!-- 谷歌统计  -->
     
-</head>
+<meta name="generator" content="Hexo 6.3.0"></head>
 
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/blog/lib/jquery.min.js" />')
+        }
+    </script>
     
         <body class="post-body">
     
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/blog/>Zongsoft</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
     
-<header class="header">
-
-    <div class="read-progress"></div>
-    <div class="header-sidebar-menu">&#xe775;</div>
-    <!-- post页的toggle banner  -->
-    
-    <div class="banner">
-            <div class="blog-title">
-                <a href="/blog/" >Zongsoft</a>
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/blog/">Zongsoft</a>
             </div>
-            <div class="post-title">
+            <div class="post-title header-element">
                 <a href="#" class="post-name">实体类的动态生成（一）</a>
             </div>
-    </div>
+        </div>
     
-    <a class="home-link" href=/blog/>Zongsoft</a>
 </header>
-    <div class="wrapper">
-        <div class="site-intro" style="
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
 
 
 
@@ -232,12 +297,13 @@
 
 
 
-height:50vh;
+    height:50vh;
+
 ">
     
     <!-- 主页  -->
     
-    
+        
     <!-- 404页  -->
             
     <div class="site-intro-placeholder"></div>
@@ -247,7 +313,7 @@ height:50vh;
         <h1 class="intro-title">
             <!-- 主页  -->
             
-            实体类的动态生成（一）
+                实体类的动态生成（一）
             <!-- 404 -->
             
         </h1>
@@ -255,34 +321,36 @@ height:50vh;
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
-            
+                
             <!-- 404 -->
             
         </p>
-        <!-- 文章页meta -->
+        <!-- 文章页 meta -->
         
             <div class="post-intros">
                 <!-- 文章页标签  -->
                 
                     <div class= post-intro-tags >
     
-        <a class="post-tag" href="javascript:void(0);" target="_blank" rel="noopener" data-tags = "entity">entity</a>
     
-        <a class="post-tag" href="javascript:void(0);" target="_blank" rel="noopener" data-tags = "emit">emit</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="entity">entity</a>
     
-        <a class="post-tag" href="javascript:void(0);" target="_blank" rel="noopener" data-tags = "dynamic">dynamic</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="emit">emit</a>
     
-        <a class="post-tag" href="javascript:void(0);" target="_blank" rel="noopener" data-tags = "generate">generate</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="dynamic">dynamic</a>
     
-        <a class="post-tag" href="javascript:void(0);" target="_blank" rel="noopener" data-tags = "compile">compile</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="generate">generate</a>
     
-        <a class="post-tag" href="javascript:void(0);" target="_blank" rel="noopener" data-tags = "实体">实体</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="compile">compile</a>
     
-        <a class="post-tag" href="javascript:void(0);" target="_blank" rel="noopener" data-tags = "动态编译">动态编译</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="实体">实体</a>
     
-        <a class="post-tag" href="javascript:void(0);" target="_blank" rel="noopener" data-tags = "动态生成">动态生成</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="动态编译">动态编译</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="动态生成">动态生成</a>
     
 </div>
+
                 
                 
                     <div class="post-intro-read">
@@ -290,18 +358,21 @@ height:50vh;
                     </div>
                 
                 <div class="post-intro-meta">
-                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
                     <span class="post-intro-time">2018/07/15</span>
+                    <!-- busuanzi -->
                     
-                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
-                        <span class="iconfont-archer">&#xe602;</span>
-                        <span id="busuanzi_value_page_pv"></span>
-                    </span>
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
                     
-                    <span class="shareWrapper">
-                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
-                        <span class="shareText">Share</span>
-                        <ul class="shareList">
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
                             <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
                                 <div class="share-qrcode"></div>
                             </li>
@@ -316,153 +387,182 @@ height:50vh;
         
     </div>
 </div>
-        <script>
- 
+
+            <script>
   // get user agent
-  var browser = {
-    versions: function () {
-      var u = window.navigator.userAgent;
-      return {
-        userAgent: u,
-        trident: u.indexOf('Trident') > -1, //IE内核
-        presto: u.indexOf('Presto') > -1, //opera内核
-        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
-        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
-        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
-        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
-        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
-        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
-        iPad: u.indexOf('iPad') > -1, //是否为iPad
-        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
-        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
-        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
-      };
-    }()
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
   }
-  console.log("userAgent:" + browser.versions.userAgent);
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
 
   // callback
   function fontLoaded() {
-    console.log('font loaded');
+    console.log('font loaded')
     if (document.getElementsByClassName('site-intro-meta')) {
-      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
-      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
       var postIntros = document.getElementsByClassName('post-intros')[0]
       if (postIntros) {
-        postIntros.classList.add('post-fade-in');
+        postIntros.classList.add('post-fade-in')
       }
     }
   }
 
   // UC不支持跨域，所以直接显示
-  function asyncCb(){
+  function asyncCb() {
     if (browser.versions.uc) {
-      console.log("UCBrowser");
-      fontLoaded();
+      console.log('UCBrowser')
+      fontLoaded()
     } else {
       WebFont.load({
         custom: {
-          families: ['Oswald-Regular']
+          families: ['Oswald-Regular'],
         },
-        loading: function () {  //所有字体开始加载
-          // console.log('loading');
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
         },
-        active: function () {  //所有字体已渲染
-          fontLoaded();
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
         },
-        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
-          console.log('inactive: timeout');
-          fontLoaded();
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
         },
-        timeout: 5000 // Set the timeout to two seconds
-      });
+        timeout: 5000, // Set the timeout to two seconds
+      })
     }
   }
 
-  function asyncErr(){
+  function asyncErr() {
     console.warn('script load from CDN failed, will load local script')
   }
 
   // load webfont-loader async, and add callback function
   function async(u, cb, err) {
-    var d = document, t = 'script',
+    var d = document,
+      t = 'script',
       o = d.createElement(t),
-      s = d.getElementsByTagName(t)[0];
-    o.src = u;
-    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
-    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
-    s.parentNode.insertBefore(o, s);
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
   }
 
-  var asyncLoadWithFallBack = function(arr, success, reject) {
-      var currReject = function(){
-        reject()
-        arr.shift()
-        if(arr.length)
-          async(arr[0], success, currReject)
-        }
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
 
-      async(arr[0], success, currReject)
+    async(arr[0], success, currReject)
   }
 
-  asyncLoadWithFallBack([
-    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
-    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
-    "/blog/lib/webfontloader.min.js"
-  ], asyncCb, asyncErr)
-</script>        
-        <img class="loading" src="/blog/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
-        <div class="container container-unloaded">
-            <main class="main post-page">
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/blog/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/blog/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
     <article class="article-entry">
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在应用开发中，通常都会涉及各种 POJO/POCO 实体类（DO, DTO, BO, VO）的编写，有时这些实体类还需要实现 <code>INotifyPropertyChanged</code> 接口以支持属性变更通知，一般我们都会手写这些代码或者通过工具根据数据库表定义抑或别的什么模板、映射文件之类的来静态生成它们。<br>但是，在业务实现中往往伴随着诸如“<strong>如何简单且高效的获取某个实体实例有哪些属性发生过变更？</strong>”、“<strong>变更后的值是什么？</strong>”这样的问题，而大致的解决方法有：</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在应用开发中，通常都会涉及各种 POJO&#x2F;POCO 实体类（DO, DTO, BO, VO）的编写，有时这些实体类还需要实现 <code>INotifyPropertyChanged</code> 接口以支持属性变更通知，一般我们都会手写这些代码或者通过工具根据数据库表定义抑或别的什么模板、映射文件之类的来静态生成它们。<br>但是，在业务实现中往往伴随着诸如“__如何简单且高效的获取某个实体实例有哪些属性发生过变更？__”、“__变更后的值是什么？__”这样的问题，而大致的解决方法有：</p>
 <ol>
 <li>由实体容器来跟踪实例的属性变更；</li>
 <li>改造实体类（譬如继承特定实体基类，在基类中实现这些基础构造）。</li>
 </ol>
 <p>方法(1)需要配合一整套架构设计来提供支撑，也不是专为解决上述实体类的问题而设，并且实现和使用也都不够简单高效，故此略过不表。接下来我将通过几篇文章来详细阐述这些问题的来由以及解决方案，并给出完整的代码实现以及性能比对测试。</p>
-<h2 id="关于源码"><a href="#关于源码" class="headerlink" title="关于源码"></a>关于源码</h2><p>下面将要介绍的所有代码均位于我们的开源系列项目（地址：<a href="https://github.com/Zongsoft" target="_blank" rel="noopener">https://github.com/Zongsoft</a>），项目主要采用 <a href="https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html" target="_blank" rel="noopener">LGPL 2.1授权协议</a>，欢迎大家参与并使用（<strong><span data-type="color" style="color:#F5222D">请遵照授权协议</span></strong>）。而本文相关的源码位于其中 <a href="https://github.com/Zongsoft/Zongsoft.CoreLibrary" target="_blank" rel="noopener">Zongsoft.CoreLibrary</a> 项目的 <strong>feature-data</strong> 分支（<a href="https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data" target="_blank" rel="noopener">https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data</a>）及其中的 /samples/Zongsoft.Samples.Entities 范例项目，由于目前我正在忙着造 Zongsoft.Data 数据引擎这个轮子，不排除后面介绍到的代码会有一些调整，待该项目完成后这些代码亦会合并到 __master __分支中，敬请留意。</p>
+<h2 id="关于源码"><a href="#关于源码" class="headerlink" title="关于源码"></a>关于源码</h2><p>下面将要介绍的所有代码均位于我们的开源系列项目（地址：<a target="_blank" rel="noopener" href="https://github.com/Zongsoft">https://github.com/Zongsoft</a>），项目主要采用 <a target="_blank" rel="noopener" href="https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL 2.1授权协议</a>，欢迎大家参与并使用（__<span data-type="color" style="color:#F5222D">请遵照授权协议</span>__）。而本文相关的源码位于其中 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Zongsoft.CoreLibrary">Zongsoft.CoreLibrary</a> 项目的 <strong>feature-data</strong> 分支（<a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data">https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data</a>）及其中的 &#x2F;samples&#x2F;Zongsoft.Samples.Entities 范例项目，由于目前我正在忙着造 Zongsoft.Data 数据引擎这个轮子，不排除后面介绍到的代码会有一些调整，待该项目完成后这些代码亦会合并到 __master __分支中，敬请留意。</p>
 <h2 id="基础版本"><a href="#基础版本" class="headerlink" title="基础版本"></a>基础版本</h2><p>万里长城也是从第一块砖头开始磊起来的，就让我们来搬第一块砖吧：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">User</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">uint</span> _userId;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">string</span> _name;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 传统写法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">uint</span> UserId</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> _userId;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            _userId = <span class="keyword">value</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// C# 7.0 语法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">string</span> Name</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; _name;</span><br><span class="line">        <span class="keyword">set</span> =&gt; _name = <span class="keyword">value</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 懒汉写法：仅限不需要操作成员字段的场景</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">string</span> Namespace</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span>;</span><br><span class="line">        <span class="keyword">set</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">User</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">uint</span> _userId;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">string</span> _name;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 传统写法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">uint</span> UserId</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> _userId;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            _userId = <span class="keyword">value</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// C# 7.0 语法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Name</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; _name;</span><br><span class="line">        <span class="keyword">set</span> =&gt; _name = <span class="keyword">value</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 懒汉写法：仅限不需要操作成员字段的场景</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Namespace</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span>;</span><br><span class="line">        <span class="keyword">set</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>以上代码特地用了三种编码方式，它们被C#编译器生成的IL没有模式上的不同，故而性能没有任何区别，大家根据自己的口味采用某种即可，因为我们的源码由于历史原因可能会有一些混写，在此一并做个展示而已。</p>
 <p>由于业务需要，我们希望实体类能支持属性变更通知，即让它支持 <code>INotifyPropertyChanged</code> 接口，这么简单的需求当然不在话下：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">User</span> : <span class="title">INotifyPropertyChanged</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">event</span> PropertyChangedEventHandler PropertyChanged;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">uint</span> _userId;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">string</span> _name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">uint</span> UserId</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; _userId;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(_userId == <span class="keyword">value</span>)</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">            _userId = <span class="keyword">value</span>;</span><br><span class="line">            <span class="keyword">this</span>.OnPropertyChanged(<span class="string">"UserId"</span>); <span class="comment">// 传统写法</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">string</span> Name</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; _name;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(_name == <span class="keyword">value</span>)</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">            _name = <span class="keyword">value</span>;</span><br><span class="line">            <span class="keyword">this</span>.OnPropertyChanged(<span class="keyword">nameof</span>(Name)); <span class="comment">// nameof 为 C# 7.0 新增操作符</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">OnPropertyChanged</span>(<span class="params"><span class="keyword">string</span> propertyName</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        <span class="comment">// 注意 ?. 为 C# 7.0 新增操作符</span></span><br><span class="line">        <span class="keyword">this</span>.PropertyChanged?.Invoke(<span class="keyword">this</span>, <span class="keyword">new</span> PropertyChangedEventArgs(propertyName));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">User</span> : <span class="title">INotifyPropertyChanged</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">event</span> PropertyChangedEventHandler PropertyChanged;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">uint</span> _userId;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">string</span> _name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">uint</span> UserId</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; _userId;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(_userId == <span class="keyword">value</span>)</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">            _userId = <span class="keyword">value</span>;</span><br><span class="line">            <span class="keyword">this</span>.OnPropertyChanged(<span class="string">&quot;UserId&quot;</span>); <span class="comment">// 传统写法</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Name</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; _name;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(_name == <span class="keyword">value</span>)</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">            _name = <span class="keyword">value</span>;</span><br><span class="line">            <span class="keyword">this</span>.OnPropertyChanged(<span class="keyword">nameof</span>(Name)); <span class="comment">// nameof 为 C# 7.0 新增操作符</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">OnPropertyChanged</span>(<span class="params"><span class="built_in">string</span> propertyName</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 注意 ?. 为 C# 7.0 新增操作符</span></span><br><span class="line">        <span class="keyword">this</span>.PropertyChanged?.Invoke(<span class="keyword">this</span>, <span class="keyword">new</span> PropertyChangedEventArgs(propertyName));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>一切看起来是那么完美，但是，当我们写了几个这样的实体类，尤其是有些实体类的属性还不少时，体验就有点糟糕了。自然我们会想到写个实体基类来实现属性变更通知的基础构造，当然，在某些特定场景也可以通过工具来生成类似上面这样的C#实体类文件，但工具生成的方式有一定局限性并且不易维护（譬如需要在生成的代码基础上进行特定改造），在此不再赘述。</p>
-<h2 id="实体基类"><a href="#实体基类" class="headerlink" title="实体基类"></a>实体基类</h2><p>在进行基础类库或API设计的时候，我有个建议：<strong>从应用场景开始</strong>。具体的作法是，先尝试编写使用这些API的应用代码，待各种应用场景的使用代码基本都完成后，API接口也就自然而然的确定了。譬如，在我们这个需求中我希望这么去使用实体基类：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">User</span> : <span class="title">ModelBase</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">uint</span> _userId;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">string</span> _name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">uint</span> UserId</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; _userId;</span><br><span class="line">        <span class="keyword">set</span> =&gt; <span class="keyword">this</span>.SetPropertyValue(<span class="keyword">nameof</span>(UserId), <span class="keyword">ref</span> _userId, <span class="keyword">value</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">string</span> Name</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; _name;</span><br><span class="line">        <span class="keyword">set</span> =&gt; <span class="keyword">this</span>.SetPropertyValue(<span class="keyword">nameof</span>(Name), <span class="keyword">ref</span> _name, <span class="keyword">value</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="实体基类"><a href="#实体基类" class="headerlink" title="实体基类"></a>实体基类</h2><p>在进行基础类库或API设计的时候，我有个建议：__从应用场景开始__。具体的作法是，先尝试编写使用这些API的应用代码，待各种应用场景的使用代码基本都完成后，API接口也就自然而然的确定了。譬如，在我们这个需求中我希望这么去使用实体基类：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">User</span> : <span class="title">ModelBase</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">uint</span> _userId;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">string</span> _name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">uint</span> UserId</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; _userId;</span><br><span class="line">        <span class="keyword">set</span> =&gt; <span class="keyword">this</span>.SetPropertyValue(<span class="keyword">nameof</span>(UserId), <span class="keyword">ref</span> _userId, <span class="keyword">value</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Name</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; _name;</span><br><span class="line">        <span class="keyword">set</span> =&gt; <span class="keyword">this</span>.SetPropertyValue(<span class="keyword">nameof</span>(Name), <span class="keyword">ref</span> _name, <span class="keyword">value</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>有了这样的实体基类后，增强了功能后代码依然如第一块砖的“基础版本”一样简洁，真是高兴啊！但这就够了么，能不能把具体实体类里面的成员字段也省了，交给基类来处理呢？嗯，有点意思，试着写下应用场景代码：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">User</span> : <span class="title">ModelBase</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">uint</span> UserId</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; (<span class="keyword">uint</span>)<span class="keyword">this</span>.GetPropertyValue(<span class="keyword">nameof</span>(UserId));</span><br><span class="line">        <span class="keyword">set</span> =&gt; <span class="keyword">this</span>.SetPropertyValue(<span class="keyword">nameof</span>(UserId), <span class="keyword">value</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">User</span> : <span class="title">ModelBase</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">uint</span> UserId</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; (<span class="built_in">uint</span>)<span class="keyword">this</span>.GetPropertyValue(<span class="keyword">nameof</span>(UserId));</span><br><span class="line">        <span class="keyword">set</span> =&gt; <span class="keyword">this</span>.SetPropertyValue(<span class="keyword">nameof</span>(UserId), <span class="keyword">value</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>看起来棒极了，代码变得更简洁了，真是天才啊！淡定，丧心病狂的 C# 设计者似乎看到了这种普遍的需求，于是在 C# 5 中增加了 <code>System.Runtime.CompilerServices.CallerMemberNameAttribute</code> 自定义标记，C# 编译器将自动把调用者名字生成出来传递给加注了该标记的参数，因此这样的代码还可以继续简化：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">User</span> : <span class="title">ModelBase</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">uint</span> UserId</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; (<span class="keyword">uint</span>)<span class="keyword">this</span>.GetPropertyValue();</span><br><span class="line">        <span class="keyword">set</span> =&gt; <span class="keyword">this</span>.SetPropertyValue(<span class="keyword">value</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">User</span> : <span class="title">ModelBase</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">uint</span> UserId</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; (<span class="built_in">uint</span>)<span class="keyword">this</span>.GetPropertyValue();</span><br><span class="line">        <span class="keyword">set</span> =&gt; <span class="keyword">this</span>.SetPropertyValue(<span class="keyword">value</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>但是，属性的 getter 里面的那个类型强制转换，怎么看都像是一朵“乌云”啊，能不能把它也去掉呢？嗯，利用C#的泛型类型推断可以完美解决它，继续强势进化：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">User</span> : <span class="title">ModelBase</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">uint</span> UserId</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; <span class="keyword">this</span>.GetPropertyValue(() =&gt; <span class="keyword">this</span>.UserId);</span><br><span class="line">        <span class="keyword">set</span> =&gt; <span class="keyword">this</span>.SetPropertyValue(() =&gt; <span class="keyword">this</span>.UserId, <span class="keyword">value</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">User</span> : <span class="title">ModelBase</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">uint</span> UserId</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; <span class="keyword">this</span>.GetPropertyValue(() =&gt; <span class="keyword">this</span>.UserId);</span><br><span class="line">        <span class="keyword">set</span> =&gt; <span class="keyword">this</span>.SetPropertyValue(() =&gt; <span class="keyword">this</span>.UserId, <span class="keyword">value</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>哇喔，有点小崇拜自己了，这代码漂亮的一批！至此，实体基类的API接口基本确定，已经迫不及待想要去实现它了。</p>
-<p><strong>提示：</strong>由于采用 <code>CallerMemberNameAttribute</code> 自定义标记的参数会导致 C# 编译器要求该参数必需有默认值，因此有些 <code>SetPropertyValue(...)</code> 方法重载版本中 <code>propertyName</code> 参数需要位于参数集的最后，为了与上面的范例代码对应就省略了这些参数的标记，并保持与原有范例相同的签名设计。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Linq.Expressions;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ModelBase</span> : <span class="title">INotifyPropertyChanged</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">event</span> PropertyChangedEventHandler PropertyChanged;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">object</span> <span class="title">GetPropertyValue</span>(<span class="params">[CallerMemberName]<span class="keyword">string</span> propertyName = <span class="literal">null</span></span>)</span>;</span><br><span class="line">    <span class="keyword">protected</span> T GetPropertyValue&lt;T&gt;(Expression&lt;Func&lt;T&gt;&gt; property);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> SetPropertyValue&lt;T&gt;(<span class="keyword">string</span> propertyName, <span class="keyword">ref</span> T field, T <span class="keyword">value</span>);</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> SetPropertyValue&lt;T&gt;(<span class="keyword">string</span> propertyName, T <span class="keyword">value</span>);</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> SetPropertyValue&lt;T&gt;(Expression&lt;Func&lt;T&gt;&gt; property, T <span class="keyword">value</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>__提示：__由于采用 <code>CallerMemberNameAttribute</code> 自定义标记的参数会导致 C# 编译器要求该参数必需有默认值，因此有些 <code>SetPropertyValue(...)</code> 方法重载版本中 <code>propertyName</code> 参数需要位于参数集的最后，为了与上面的范例代码对应就省略了这些参数的标记，并保持与原有范例相同的签名设计。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Linq.Expressions;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ModelBase</span> : <span class="title">INotifyPropertyChanged</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">event</span> PropertyChangedEventHandler PropertyChanged;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="built_in">object</span> <span class="title">GetPropertyValue</span>(<span class="params">[CallerMemberName]<span class="built_in">string</span> propertyName = <span class="literal">null</span></span>)</span>;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> T <span class="title">GetPropertyValue</span>&lt;<span class="title">T</span>&gt;(<span class="params">Expression&lt;Func&lt;T&gt;&gt; property</span>)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">SetPropertyValue</span>&lt;<span class="title">T</span>&gt;(<span class="params"><span class="built_in">string</span> propertyName, <span class="keyword">ref</span> T field, T <span class="keyword">value</span></span>)</span>;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">SetPropertyValue</span>&lt;<span class="title">T</span>&gt;(<span class="params"><span class="built_in">string</span> propertyName, T <span class="keyword">value</span></span>)</span>;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">SetPropertyValue</span>&lt;<span class="title">T</span>&gt;(<span class="params">Expression&lt;Func&lt;T&gt;&gt; property, T <span class="keyword">value</span></span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>实体基类的实现主要思路就是采用字典来记录各属性的变更值，有了这个基础，要继续增加诸如“获取哪些属性发生过变更”之类的需求自然就很容易了：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ModelBase</span> : <span class="title">INotifyPropertyChanged</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// other members</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">bool</span> <span class="title">HasChanges</span>(<span class="params"><span class="keyword">params</span> <span class="keyword">string</span>[] propertyNames</span>)</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> IDictionary&lt;<span class="keyword">string</span>, <span class="keyword">object</span>&gt; <span class="title">GetChangedPropertys</span>(<span class="params"></span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ModelBase</span> : <span class="title">INotifyPropertyChanged</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// other members</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">bool</span> <span class="title">HasChanges</span>(<span class="params"><span class="keyword">params</span> <span class="built_in">string</span>[] propertyNames</span>)</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> IDictionary&lt;<span class="built_in">string</span>, <span class="built_in">object</span>&gt; <span class="title">GetChangedPropertys</span>()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>具体的代码就不在这里贴出了，有兴趣的可以参考：<a href="https://github.com/Zongsoft/Zongsoft.CoreLibrary/blob/master/src/Common/ModelBase.cs" target="_blank" rel="noopener">https://github.com/Zongsoft/Zongsoft.CoreLibrary/blob/master/src/Common/ModelBase.cs</a>，从功能角度上看，目前的设计还是不错的。但是，某些方法的设计有严重性能缺陷的，主要有以下几点：</p>
+<p>具体的代码就不在这里贴出了，有兴趣的可以参考：<a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Zongsoft.CoreLibrary/blob/master/src/Common/ModelBase.cs">https://github.com/Zongsoft/Zongsoft.CoreLibrary/blob/master/src/Common/ModelBase.cs</a>，从功能角度上看，目前的设计还是不错的。但是，某些方法的设计有严重性能缺陷的，主要有以下几点：</p>
 <ol>
 <li>每次读写属性都会解析 <span data-type="color" style="color:rgb(51, 51, 51)"><span data-type="background" style="background-color:rgb(255, 255, 255)">Lambda 表达式的操作会产生巨大的性能损耗；</span></span></li>
 <li><span data-type="color" style="color:rgb(51, 51, 51)"><span data-type="background" style="background-color:rgb(255, 255, 255)">采用字典来保存实体属性值的设计机制，会导致值类型的属性读写反复被装箱(Boxing)、拆箱(Unboxing)；</span></span></li>
 <li><span data-type="color" style="color:rgb(51, 51, 51)"><span data-type="background" style="background-color:rgb(255, 255, 255)">字典的读写效率也远低于直接操作成员字段的语言原语方式。</span></span></li>
 </ol>
-<p>综上所述，虽然目前方案有性能缺陷，但应对一般场景其实是没有问题的，而且功能和易用性方面都是很好的；但是，性能对于后台程序猿而言犹如悬在头顶的<span data-type="color" style="color:rgb(51, 51, 51)"><span data-type="background" style="background-color:rgb(255, 255, 255)">达摩克利斯之剑</span></span>，这正是这个系列文章要最终解决的问题。在此之前，如果大家有关于这个问题的性能优化方案，欢迎关注我们的公众号（<strong><span data-type="color" style="color:#061178"><u>Zongsoft</u></span></strong>）留言讨论。</p>
+<p>综上所述，虽然目前方案有性能缺陷，但应对一般场景其实是没有问题的，而且功能和易用性方面都是很好的；但是，性能对于后台程序猿而言犹如悬在头顶的<span data-type="color" style="color:rgb(51, 51, 51)"><span data-type="background" style="background-color:rgb(255, 255, 255)">达摩克利斯之剑</span></span>，这正是这个系列文章要最终解决的问题。在此之前，如果大家有关于这个问题的性能优化方案，欢迎关注我们的公众号（__<span data-type="color" style="color:#061178"><u>Zongsoft</u></span>__）留言讨论。</p>
 <p><strong><span data-type="color" style="color:#820014">敬请期待更精彩的下篇，关注我们的公众号可以第一时间看到哦！</span></strong></p>
 
     </article>
 
     <div style="text-align:center; margin-top:4rem;">
 	<a href="http://weixin.qq.com/r/zy-g_GnEWTQmrS2b93rd" target="_blank" title="Zongsoft 微信公众号"><img src="//raw.githubusercontent.com/Zongsoft/Guidelines/master/zongsoft-qrcode%28wechat%29.png" alt="Zongsoft 微信公众号" /></a><br />
-	<a href="https://t.zsxq.com/2nyjqrr" target="_blank" title="Zongsoft 知识星球号"><img src="//raw.githubusercontent.com/Zongsoft/Guidelines/master/zongsoft-qrcode%28zsxq%29.png" alt="Zongsoft 知识星球-学习圈" /></a>
+	<!--a href="https://t.zsxq.com/2nyjqrr" target="_blank" title="Zongsoft 知识星球号"><img src="/blog/" alt="Zongsoft 知识星球-学习圈" /></a-->
 </div>
 
 <hr style="margin-top:2em;margin-bottom:2em;margin-left:0;margin-right:0;padding:0;height:2px;border:0;background-color:#e8e8e8;" />
@@ -475,62 +575,80 @@ height:50vh;
 </div>
 
 
-    <!-- license  -->
+    <!-- license -->
     
         <div class="license-wrapper">
             <p>原文作者：<a href="http://zongsoft.com">钟峰(Popeye Zhong)</a>
             <p>原文链接：<a href="http://zongsoft.com/zh-cn/zongsoft/entity-dynamic-generation-1/">http://zongsoft.com/zh-cn/zongsoft/entity-dynamic-generation-1/</a>
             <p>发表日期：<a href="http://zongsoft.com/zh-cn/zongsoft/entity-dynamic-generation-1/">July 15th 2018, 12:00:00 am</a>
-            <p>更新日期：<a href="http://zongsoft.com/zh-cn/zongsoft/entity-dynamic-generation-1/">November 18th 2019, 1:45:00 am</a>
-            <p>版权声明：本文采用<a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a>进行许可。</p>
+            <p>更新日期：<a href="http://zongsoft.com/zh-cn/zongsoft/entity-dynamic-generation-1/">October 2nd 2018, 1:28:48 am</a>
+            <p>版权声明：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
     
-    <!-- paginator  -->
+    <!-- paginator -->
     <ul class="post-paginator">
         <li class="next">
             
-                <a class="nextSlogan" href="/blog/zh-cn/zongsoft/entity-dynamic-generation-2/">Next Post</a>
-                <a href= "/blog/zh-cn/zongsoft/entity-dynamic-generation-2/" title= "实体类的动态生成（二）">
+                <a href="/blog/zh-cn/zongsoft/entity-dynamic-generation-2/" title="实体类的动态生成（二）">
+                <div class="nextSlogan">Next Post</div>
                     <div class="nextTitle">实体类的动态生成（二）</div>
                 </a>
             
         </li>
         <li class="previous">
             
-                <a class="prevSlogan" href="/blog/zh-cn/misc/github-site/">Previous Post</a>
-                <a href= "/blog/zh-cn/misc/github-site/" title= "搭建 github.io 博客站点">
+                <a href="/blog/zh-cn/misc/github-site/" title="搭建 github.io 博客站点">
+                <div class="prevSlogan">Previous Post</div>
                     <div class="prevTitle">搭建 github.io 博客站点</div>
                 </a>
             
         </li>
     </ul>
-    <!-- 评论插件 -->
-    <!-- 来必力City版安装代码 -->
-
-<!-- City版安装代码已完成 -->
+    <!-- comment -->
     
-    
-    <!-- partial('_partial/comment/changyan') -->
-    <!--PC版-->
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
 
 
-    
-    
-
-    <!-- 评论 -->
-</main>
-            <!-- profile -->
             
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+
         </div>
-        <footer class="footer footer-unloaded">
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
     <!-- social  -->
     
-    <div class="social">
-        
+        <div class="social">
+            
     
         
             
-                <a href="mailto:zongsoft@qq.com" target="_blank" rel="noopener" class="iconfont-archer email" title=email ></a>
+                <a href="mailto:zongsoft@qq.com" class="iconfont-archer email" title=email ></a>
             
         
     
@@ -543,17 +661,17 @@ height:50vh;
         
             
                 <span class="iconfont-archer wechat" title=wechat>
-                  
-                  <img class="profile-qr" src="//raw.githubusercontent.com/Zongsoft/Guidelines/master/zongsoft-qrcode%28wechat%29.png" />
+                    
+                    <img class="profile-qr" src="//raw.githubusercontent.com/Zongsoft/Guidelines/master/zongsoft-qrcode%28wechat%29.png" />
                 </span>
             
         
     
         
             
-                <span class="iconfont-archer zsxq" title=zsxq>
-                  
-                  <img class="profile-qr" src="//raw.githubusercontent.com/Zongsoft/Guidelines/master/zongsoft-qrcode%28zsxq%29.png" />
+                <span class="iconfont-archer qq" title=qq>
+                    
+                    <img class="profile-qr" src="/blog/Zongsoft" />
                 </span>
             
         
@@ -585,6 +703,12 @@ height:50vh;
         
     
         
+    
+        
+    
+        
+    
+        
             
                 <a href="//cnblogs.com/Zongsoft" class="iconfont-archer others" target="_blank" title=others></a>
             
@@ -593,136 +717,146 @@ height:50vh;
         
     
 
-    </div>
+
+        </div>
     
     <!-- powered by Hexo  -->
     <div class="copyright">
         <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
     </div>
+    <!-- website approve for Chinese user -->
+    
     <!-- 不蒜子  -->
     
-    <div class="busuanzi-container">
-    
-     
-    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
-    
-    </div>
-    
-</footer>
-    </div>
-    <!-- toc -->
-    
-    <div class="toc-wrapper" style=
-    
-
-
-
-
-
-
-
-top:50vh;
-
-    >
-        <div class="toc-catalog">
-            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        <div class="busuanzi-container">
+            
+             
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+            
         </div>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#关于源码"><span class="toc-number">2.</span> <span class="toc-text">关于源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础版本"><span class="toc-number">3.</span> <span class="toc-text">基础版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实体基类"><span class="toc-number">4.</span> <span class="toc-text">实体基类</span></a></li></ol>
-    </div>
-    
-    <div class="back-top iconfont-archer">&#xe639;</div>
-    <div class="sidebar sidebar-hide">
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E6%BA%90%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text">关于源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%89%88%E6%9C%AC"><span class="toc-number">3.</span> <span class="toc-text">基础版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E4%BD%93%E5%9F%BA%E7%B1%BB"><span class="toc-number">4.</span> <span class="toc-text">实体基类</span></a></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
     <ul class="sidebar-tabs sidebar-tabs-active-0">
         <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
         <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
         <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
     </ul>
     <div class="sidebar-content sidebar-content-show-archive">
-          <div class="sidebar-panel-archives">
-    <!-- 在ejs中将archive按照时间排序 -->
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
     
     
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 8
+        Total : 9
         </div>
         <!-- search  -->
         
@@ -730,193 +864,325 @@ top:50vh;
     
     <div class="post-archive">
     
-    
-    
-    
-    <div class="archive-year"> 2019 </div>
-    <ul class="year-list">
-    
-    
+        
+            
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">11/19</span><a class="archive-post-title" href= "/blog/zh-cn/zongsoft/announcing-data-engine/" >Zongsoft.Data 发布公告</a>
+            <span class="archive-post-date">09/15</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/smooth-weighted-round-robin-balancing/">平滑的加权轮询均衡算法</a>
         </li>
     
-    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2019 </div>
+            <ul class="year-list">
+            
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">05/01</span><a class="archive-post-title" href= "/blog/zh-cn/misc/iis-express/" >关于 IIS Express 常用设置</a>
+            <span class="archive-post-date">11/19</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/announcing-data-engine/">Zongsoft.Data 发布公告</a>
         </li>
     
-    
-    
-    
-    
-        </ul>
-    
-    <div class="archive-year"> 2018 </div>
-    <ul class="year-list">
-    
-    
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">09/03</span><a class="archive-post-title" href= "/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-2/" >代码失控与状态机（下）</a>
+            <span class="archive-post-date">05/01</span>
+            <a class="archive-post-title" href="/blog/zh-cn/misc/iis-express/">关于 IIS Express 常用设置</a>
         </li>
     
-    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2018 </div>
+            <ul class="year-list">
+            
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">08/05</span><a class="archive-post-title" href= "/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-1/" >代码失控与状态机（上）</a>
+            <span class="archive-post-date">09/03</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-2/">代码失控与状态机（下）</a>
         </li>
     
-    
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">07/17</span><a class="archive-post-title" href= "/blog/zh-cn/zongsoft/entity-dynamic-generation-3/" >实体类的动态生成（三）</a>
+            <span class="archive-post-date">08/05</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-1/">代码失控与状态机（上）</a>
         </li>
     
-    
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">07/16</span><a class="archive-post-title" href= "/blog/zh-cn/zongsoft/entity-dynamic-generation-2/" >实体类的动态生成（二）</a>
+            <span class="archive-post-date">07/17</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/entity-dynamic-generation-3/">实体类的动态生成（三）</a>
         </li>
     
-    
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">07/15</span><a class="archive-post-title" href= "/blog/zh-cn/zongsoft/entity-dynamic-generation-1/" >实体类的动态生成（一）</a>
+            <span class="archive-post-date">07/16</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/entity-dynamic-generation-2/">实体类的动态生成（二）</a>
         </li>
     
-    
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">07/10</span><a class="archive-post-title" href= "/blog/zh-cn/misc/github-site/" >搭建 github.io 博客站点</a>
+            <span class="archive-post-date">07/15</span>
+            <a class="archive-post-title" href="/blog/zh-cn/zongsoft/entity-dynamic-generation-1/">实体类的动态生成（一）</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/10</span>
+            <a class="archive-post-title" href="/blog/zh-cn/misc/github-site/">搭建 github.io 博客站点</a>
         </li>
     
     </div>
-  </div>
+</div>
+
         <div class="sidebar-panel-tags">
     <div class="sidebar-tags-name">
-    
-        <span class="sidebar-tag-name" data-tags="ORM"><span class="iconfont-archer">&#xe606;</span>ORM</span>
-    
-        <span class="sidebar-tag-name" data-tags="entity"><span class="iconfont-archer">&#xe606;</span>entity</span>
-    
-        <span class="sidebar-tag-name" data-tags="data access"><span class="iconfont-archer">&#xe606;</span>data access</span>
-    
-        <span class="sidebar-tag-name" data-tags="data engine"><span class="iconfont-archer">&#xe606;</span>data engine</span>
-    
-        <span class="sidebar-tag-name" data-tags="数据访问"><span class="iconfont-archer">&#xe606;</span>数据访问</span>
-    
-        <span class="sidebar-tag-name" data-tags="数据引擎"><span class="iconfont-archer">&#xe606;</span>数据引擎</span>
-    
-        <span class="sidebar-tag-name" data-tags="emit"><span class="iconfont-archer">&#xe606;</span>emit</span>
-    
-        <span class="sidebar-tag-name" data-tags="dynamic"><span class="iconfont-archer">&#xe606;</span>dynamic</span>
-    
-        <span class="sidebar-tag-name" data-tags="generate"><span class="iconfont-archer">&#xe606;</span>generate</span>
-    
-        <span class="sidebar-tag-name" data-tags="compile"><span class="iconfont-archer">&#xe606;</span>compile</span>
-    
-        <span class="sidebar-tag-name" data-tags="实体"><span class="iconfont-archer">&#xe606;</span>实体</span>
-    
-        <span class="sidebar-tag-name" data-tags="动态编译"><span class="iconfont-archer">&#xe606;</span>动态编译</span>
-    
-        <span class="sidebar-tag-name" data-tags="动态生成"><span class="iconfont-archer">&#xe606;</span>动态生成</span>
-    
-        <span class="sidebar-tag-name" data-tags="coding"><span class="iconfont-archer">&#xe606;</span>coding</span>
-    
-        <span class="sidebar-tag-name" data-tags="out of control"><span class="iconfont-archer">&#xe606;</span>out of control</span>
-    
-        <span class="sidebar-tag-name" data-tags="state machine"><span class="iconfont-archer">&#xe606;</span>state machine</span>
-    
-        <span class="sidebar-tag-name" data-tags="expression parser"><span class="iconfont-archer">&#xe606;</span>expression parser</span>
-    
-        <span class="sidebar-tag-name" data-tags="github.io"><span class="iconfont-archer">&#xe606;</span>github.io</span>
-    
-        <span class="sidebar-tag-name" data-tags="github pages"><span class="iconfont-archer">&#xe606;</span>github pages</span>
-    
-        <span class="sidebar-tag-name" data-tags="Hexo"><span class="iconfont-archer">&#xe606;</span>Hexo</span>
-    
-        <span class="sidebar-tag-name" data-tags="建站"><span class="iconfont-archer">&#xe606;</span>建站</span>
-    
-        <span class="sidebar-tag-name" data-tags="博客"><span class="iconfont-archer">&#xe606;</span>博客</span>
-    
-        <span class="sidebar-tag-name" data-tags="Visual Studio"><span class="iconfont-archer">&#xe606;</span>Visual Studio</span>
-    
-        <span class="sidebar-tag-name" data-tags="IIS Express"><span class="iconfont-archer">&#xe606;</span>IIS Express</span>
-    
-        <span class="sidebar-tag-name" data-tags="site binding"><span class="iconfont-archer">&#xe606;</span>site binding</span>
-    
-        <span class="sidebar-tag-name" data-tags="request limit"><span class="iconfont-archer">&#xe606;</span>request limit</span>
-    
-        <span class="sidebar-tag-name" data-tags="entity framework"><span class="iconfont-archer">&#xe606;</span>entity framework</span>
-    
+        
+            <span class="sidebar-tag-name" data-tags="coding">
+                <span class="iconfont-archer">&#xe606;</span>
+                coding
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="out of control">
+                <span class="iconfont-archer">&#xe606;</span>
+                out of control
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="state machine">
+                <span class="iconfont-archer">&#xe606;</span>
+                state machine
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="expression parser">
+                <span class="iconfont-archer">&#xe606;</span>
+                expression parser
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="ORM">
+                <span class="iconfont-archer">&#xe606;</span>
+                ORM
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="entity framework">
+                <span class="iconfont-archer">&#xe606;</span>
+                entity framework
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="data access">
+                <span class="iconfont-archer">&#xe606;</span>
+                data access
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="data engine">
+                <span class="iconfont-archer">&#xe606;</span>
+                data engine
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="数据访问">
+                <span class="iconfont-archer">&#xe606;</span>
+                数据访问
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="数据引擎">
+                <span class="iconfont-archer">&#xe606;</span>
+                数据引擎
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="entity">
+                <span class="iconfont-archer">&#xe606;</span>
+                entity
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="emit">
+                <span class="iconfont-archer">&#xe606;</span>
+                emit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="dynamic">
+                <span class="iconfont-archer">&#xe606;</span>
+                dynamic
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="generate">
+                <span class="iconfont-archer">&#xe606;</span>
+                generate
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="compile">
+                <span class="iconfont-archer">&#xe606;</span>
+                compile
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="实体">
+                <span class="iconfont-archer">&#xe606;</span>
+                实体
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="动态编译">
+                <span class="iconfont-archer">&#xe606;</span>
+                动态编译
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="动态生成">
+                <span class="iconfont-archer">&#xe606;</span>
+                动态生成
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="github.io">
+                <span class="iconfont-archer">&#xe606;</span>
+                github.io
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="github pages">
+                <span class="iconfont-archer">&#xe606;</span>
+                github pages
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Hexo">
+                <span class="iconfont-archer">&#xe606;</span>
+                Hexo
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="建站">
+                <span class="iconfont-archer">&#xe606;</span>
+                建站
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="博客">
+                <span class="iconfont-archer">&#xe606;</span>
+                博客
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Visual Studio">
+                <span class="iconfont-archer">&#xe606;</span>
+                Visual Studio
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="IIS Express">
+                <span class="iconfont-archer">&#xe606;</span>
+                IIS Express
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="site binding">
+                <span class="iconfont-archer">&#xe606;</span>
+                site binding
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="request limit">
+                <span class="iconfont-archer">&#xe606;</span>
+                request limit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="balancing">
+                <span class="iconfont-archer">&#xe606;</span>
+                balancing
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="weighted">
+                <span class="iconfont-archer">&#xe606;</span>
+                weighted
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="round-robin">
+                <span class="iconfont-archer">&#xe606;</span>
+                round-robin
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="smooth">
+                <span class="iconfont-archer">&#xe606;</span>
+                smooth
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="加权轮询">
+                <span class="iconfont-archer">&#xe606;</span>
+                加权轮询
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="负载均衡">
+                <span class="iconfont-archer">&#xe606;</span>
+                负载均衡
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="权重均衡">
+                <span class="iconfont-archer">&#xe606;</span>
+                权重均衡
+            </span>
+        
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
     <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
-    缺失模块。<br/>
-    1、请确保node版本大于6.2<br/>
-    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
-    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
-    3、在根目录_config.yml里添加配置：
-    <pre style="color: #787878; font-size: 0.6rem;">
-jsonContent:
-  meta: false
-  pages: false
-  posts:
-    title: true
-    date: true
-    path: true
-    text: false
-    raw: false
-    content: false
-    slug: false
-    updated: false
-    comments: false
-    link: false
-    permalink: false
-    excerpt: false
-    categories: true
-    tags: true</pre>
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
     </div> 
     <div class="sidebar-tags-list"></div>
 </div>
+
         <div class="sidebar-panel-categories">
     <div class="sidebar-categories-name">
     
-        <span class="sidebar-category-name" data-categories="zongsoft"><span class="iconfont-archer">&#xe60a;</span>zongsoft</span>
+        <span class="sidebar-category-name" data-categories="zongsoft">
+            <span class="iconfont-archer">&#xe60a;</span>
+            zongsoft
+        </span>
     
-        <span class="sidebar-category-name" data-categories="misc"><span class="iconfont-archer">&#xe60a;</span>misc</span>
+        <span class="sidebar-category-name" data-categories="misc">
+            <span class="iconfont-archer">&#xe60a;</span>
+            misc
+        </span>
     
     </div>
     <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
     <div class="sidebar-categories-list"></div>
 </div>
+
     </div>
-</div> 
-    <script>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/blog/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
     var siteMeta = {
-        root: "/blog/",
+        url: "http://zongsoft.com",
+        root: siteMetaRoot,
         author: "钟峰(Popeye Zhong)"
     }
 </script>
-    <!-- CDN failover -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
-    <script type="text/javascript">
-        if (typeof window.$ === 'undefined')
-        {
-            console.warn('jquery load from jsdelivr failed, will load local script')
-            document.write('<script src="/blog/lib/jquery.min.js">\x3C/script>')
-        }
-    </script>
-    <script src="/blog/scripts/main.js"></script>
-    <!-- algolia -->
-    
-    <!-- busuanzi  -->
-    
-    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-    
-    <!-- CNZZ  -->
-    
-    </div>
-    <!-- async load share.js -->
-    
-        <script src="/blog/scripts/share.js" async></script>    
-     
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/blog/scripts/main.js?v=20211217"></script>
+        <!-- dark mode -->
+        <script src="/blog/scripts/dark.js?v=20211217"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/blog/scripts/share.js?v=20211217" async></script>
+        
+        <!-- mermaid -->
+        
     </body>
 </html>
-
-
