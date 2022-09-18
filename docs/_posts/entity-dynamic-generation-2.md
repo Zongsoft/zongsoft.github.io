@@ -209,7 +209,7 @@ public struct PropertyToken<T>
 ## 性能对比
 上面我们从代码角度简单分析了下整个方案的性能和消耗，那么实际情况到底怎样呢？跑个分呗（性能对比测试代码地址：[https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data/samples/Zongsoft.Samples.Entities](https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data/samples/Zongsoft.Samples.Entities)），具体代码就不在这里占用版面了，下面给出某次在我的老旧台式机（CPU:Intel __i5-3470__@__3.2GHz__ | RAM:__8GB__ | __Win10 __| __.NET 4.6__）上生成__100万__个实例的截图：
 
-![跑分截图](/blog/images/performance-entity-event.png)
+![跑分截图](/images/performance-entity-event.png)
 
 * “Native Object: __295__”表示原生实现版（即简单的读写字段）的运行时长（<em>单位：</em><em><strong>毫秒</strong></em><em>，下同</em>）；
 * “Data Entity: __295__”为本案的运行时长，通常本方案比原生方案要慢10毫秒左右，偶尔能跑平（*属于运行环境抖动，可忽略*）；

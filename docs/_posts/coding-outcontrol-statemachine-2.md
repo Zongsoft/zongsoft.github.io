@@ -96,7 +96,7 @@ number ::= [0-9]+{.[0-9]}?[L|m|M|f|F]
 ## 状态机图
 有了确切的语法规范/文法（即 BNF 范式表达式）之后，我们就可以有的放矢的绘制表达式解析器的状态机图了。
 
-![成员访问表达式解析器状态机图](/blog/images/MemberExpression-StateDiagram.png "成员访问表达式解析器状态机图")
+![成员访问表达式解析器状态机图](/images/MemberExpression-StateDiagram.png "成员访问表达式解析器状态机图")
 
 
 **状态说明：**
@@ -120,7 +120,7 @@ number ::= [0-9]+{.[0-9]}?[L|m|M|f|F]
 ## 源码解析
 位于 [Zongsoft.Reflection.Expressions](https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data/src/Reflection/Expressions) 命名空间中的接口和类整体上与 System.Linq.Expressions 命名空间中的相关类的设计类似。大致类图如下：
 
-![成员访问表达式解析静态类图](/blog/images/MemberExpression-ClassDiagram.png "成员访问表达式解析静态类图")
+![成员访问表达式解析静态类图](/images/MemberExpression-ClassDiagram.png "成员访问表达式解析静态类图")
 
 
 提供解析功能的是 MemberExpressionParser 这个内部静态类（状态机类），它的 Parse(string text) 即为状态驱动函数，它遍历输入参数的文本字符，交给具体的私有方法 DoXXX(context) 进行状态迁移判定，如此循环即完成整个解析工作，整体结构与[《代码失控与状态机（上）》](https://zongsoft.github.io/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-1)中介绍的状态机的程序结构一致，具体代码如下：
@@ -267,7 +267,7 @@ sorting ::=
 > `n/m` 返回第 n 页，每页 m 行；
 > `n/?` 返回第 n 页，页大小为系统默认值；
 
-![数据模式解析器状态机图](/blog/images/DataSchema-StateDiagram.png "数据模式解析器状态机图")
+![数据模式解析器状态机图](/images/DataSchema-StateDiagram.png "数据模式解析器状态机图")
 
 
 以上是数据模式表达式的解析器状态机图，具体实现代码这里就不再赘述，总体上跟“成员访问表达式”解析器类似。

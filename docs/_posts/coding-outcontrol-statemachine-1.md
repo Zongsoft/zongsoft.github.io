@@ -31,7 +31,7 @@ tags:
 
 有了上面的基本概念，我们来看一个最简单的状态图：
 
-![状态图](/blog/images/StateDiagram-1.png "状态图")
+![状态图](/images/StateDiagram-1.png "状态图")
 
 
 你可能会奇怪这个图怎么跟网上那些状态机图不一样，连状态转换条件都没有呢？这是因为，我觉得在了解状态机之前，最好先将确立以下两种概念：
@@ -48,11 +48,11 @@ tags:
 以下是表示一个‘简陋’的 Email 地址格式的解析器状态图，状态迁移条件采用正则表达式来表达，其中图二又称为“**状态迁移图**”。
 
 
-![节点式状态机图](/blog/images/StateDiagram-2.png "图一：节点式状态机图")
+![节点式状态机图](/images/StateDiagram-2.png "图一：节点式状态机图")
 图一：节点式
 
 
-![表格式状态机图](/blog/images/StateDiagram-3.png "图二：表格式状态机图")
+![表格式状态机图](/images/StateDiagram-3.png "图二：表格式状态机图")
 图二：表格式（<span data-type="background" style="background-color:#D4380D">红色格</span>表示拒绝或异常；<span data-type="background" style="background-color:#BFBFBF">灰色格</span>表示忽略或无意义；其他表示迁移条件）
 
 
