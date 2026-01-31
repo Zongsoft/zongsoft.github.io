@@ -61,7 +61,7 @@ public static Entity
 }
 ```
 
-公共的 `Save()` 方法是一个供调试之用的方法，它会将动态编译的程序集保存到文件中，以便使用 ILSpy 这样的工具反编译查看，待 feature-data 合并到 master 分支之后会被移除。
+公共的 `Save()` 方法是一个供调试之用的方法，它会将动态编译的程序集保存到文件中，以便使用 ILSpy 这样的工具反编译查看，待 feature-data 合并到 main 分支之后会被移除。
 
 ## 关于跑分
 在 [https://github.com/Zongsoft/Zongsoft.CoreLibrary/blob/feature-data/samples/Zongsoft.Samples.Entities/Program.cs](https://github.com/Zongsoft/Zongsoft.CoreLibrary/blob/feature-data/samples/Zongsoft.Samples.Entities/Program.cs) 类中的 `PerformanceDynamic(int count)` 是动态生成的跑分（性能测试）代码，需要注意的是，如果是首次动态创建某个实体接口，内部会先进行动态编译。
@@ -556,6 +556,6 @@ __如果你觉得这次的文章对你有所帮助，又或者你觉得我们的
 
 <br />
 
-最后，因为写这个东西耽搁了不少造 [Zongsoft.Data](https://github.com/Zongsoft/Zongsoft.Data) 这个轮子的时间，所以接下来得全力去造轮子了。打算每周至少一篇干货满满的技术文章在公众号首发，希望不会让自己失望吧。
+最后，因为写这个东西耽搁了不少造 [Zongsoft.Data](https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data) 这个轮子的时间，所以接下来得全力去造轮子了。打算每周至少一篇干货满满的技术文章在公众号首发，希望不会让自己失望吧。
 
 关于 [Zongsoft.Data](https://github.com/zongsoft/zongsoft.data) 它一定会是一款性能满血、易用且足够灵活的数据引擎，首发即会支持四大关系型数据库，后续会加入对 __Elasticsearch __的支持，总之，它应该是不同于市面上任何一款 ORM 数据引擎的开源产品。我会陆续与大家分享有关它的一些设计思考以及实现中遇到的问题，当然，也可以在 github 上围观我的进展。

@@ -595,10 +595,10 @@
 <h4 id="数学证明"><a href="#数学证明" class="headerlink" title="数学证明"></a>数学证明</h4><p>该算法的合理性和平滑性的数学证明：<a target="_blank" rel="noopener" href="https://tenfy.cn/2018/11/12/smooth-weighted-round-robin">https://tenfy.cn/2018/11/12/smooth-weighted-round-robin</a></p>
 <h3 id="LVS-算法"><a href="#LVS-算法" class="headerlink" title="LVS 算法"></a>LVS 算法</h3><p><strong>L</strong>inux <strong>V</strong>irtual <strong>S</strong>erver 采用的是另外一种，算法<a target="_blank" rel="noopener" href="http://kb.linuxvirtualserver.org/wiki/Weighted_Round-Robin_Scheduling">wiki</a>文档：<a target="_blank" rel="noopener" href="http://kb.linuxvirtualserver.org/wiki/Weighted_Round-Robin_Scheduling">http://kb.linuxvirtualserver.org/wiki/Weighted_Round-Robin_Scheduling</a></p>
 <p>从算法步骤和计算量上看，相对 Nginx 而言 LVS 算法略微简单一些，性能可能会略好一点点（<em>但都是同一个量级</em>）；通过模拟数据发现当节点权重差异较大时，其平滑性没有 Nginx 算法好。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Framework/tree/master/Zongsoft.Data">Zongsoft.Data</a> 数据访问框架的读写分离中需要将读写操作路由到不同权重的数据库，于是采用 Nginx 的平滑权重轮询均衡算法实现了数据源路由选择器，下面分别是平滑权重轮询器和数据路由的代码：</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data">Zongsoft.Data</a> 数据访问框架的读写分离中需要将读写操作路由到不同权重的数据库，于是采用 Nginx 的平滑权重轮询均衡算法实现了数据源路由选择器，下面分别是平滑权重轮询器和数据路由的代码：</p>
 <ul>
-<li>平滑权重轮询源码：<a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Framework/blob/master/Zongsoft.Core/src/Components/Weighter.cs">https://github.com/Zongsoft/Framework/blob/master/Zongsoft.Core/src/Components/Weighter.cs</a></li>
-<li>数据源权重选择器：<a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Framework/blob/master/Zongsoft.Data/src/Common/DataSourceSelector.cs">https://github.com/Zongsoft/Framework/blob/master/Zongsoft.Data/src/Common/DataSourceSelector.cs</a></li>
+<li>平滑权重轮询源码：<a target="_blank" rel="noopener" href="https://github.com/Zongsoft/framework/blob/main/Zongsoft.Core/src/Components/Weighter.cs">https://github.com/Zongsoft/framework/blob/main/Zongsoft.Core/src/Components/Weighter.cs</a></li>
+<li>数据源权重选择器：<a target="_blank" rel="noopener" href="https://github.com/Zongsoft/framework/blob/main/Zongsoft.Data/src/Common/DataSourceSelector.cs">https://github.com/Zongsoft/framework/blob/main/Zongsoft.Data/src/Common/DataSourceSelector.cs</a></li>
 </ul>
 <hr>
 <h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><ul>
@@ -610,7 +610,7 @@
     </article>
 
     <div style="text-align:center; margin-top:4rem;">
-	<a href="http://weixin.qq.com/r/zy-g_GnEWTQmrS2b93rd" target="_blank" title="Zongsoft 微信公众号"><img src="//raw.githubusercontent.com/Zongsoft/Guidelines/master/zongsoft-qrcode%28wechat%29.png" alt="Zongsoft 微信公众号" /></a><br />
+	<a href="http://weixin.qq.com/r/zy-g_GnEWTQmrS2b93rd" target="_blank" title="Zongsoft 微信公众号"><img src="//raw.githubusercontent.com/Zongsoft/guidelines/main/zongsoft-qrcode%28wechat%29.png" alt="Zongsoft 微信公众号" /></a><br />
 	<!--a href="https://t.zsxq.com/2nyjqrr" target="_blank" title="Zongsoft 知识星球号"><img src="/blog/" alt="Zongsoft 知识星球-学习圈" /></a-->
 </div>
 
@@ -706,7 +706,7 @@
             
                 <span class="iconfont-archer wechat" title=wechat>
                     
-                    <img class="profile-qr" src="//raw.githubusercontent.com/Zongsoft/Guidelines/master/zongsoft-qrcode%28wechat%29.png" />
+                    <img class="profile-qr" src="//raw.githubusercontent.com/Zongsoft/guidelines/main/zongsoft-qrcode%28wechat%29.png" />
                 </span>
             
         

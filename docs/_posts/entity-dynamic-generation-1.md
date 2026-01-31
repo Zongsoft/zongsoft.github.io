@@ -204,7 +204,7 @@ public class ModelBase : INotifyPropertyChanged
 }
 ```
 
-具体的代码就不在这里贴出了，有兴趣的可以参考：[https://github.com/Zongsoft/Zongsoft.CoreLibrary/blob/master/src/Common/ModelBase.cs](https://github.com/Zongsoft/Zongsoft.CoreLibrary/blob/master/src/Common/ModelBase.cs)，从功能角度上看，目前的设计还是不错的。但是，某些方法的设计有严重性能缺陷的，主要有以下几点：
+具体的代码就不在这里贴出了，有兴趣的可以参考：[https://github.com/Zongsoft/Zongsoft.CoreLibrary/blob/main/src/Common/ModelBase.cs](https://github.com/Zongsoft/Zongsoft.CoreLibrary/blob/main/src/Common/ModelBase.cs)，从功能角度上看，目前的设计还是不错的。但是，某些方法的设计有严重性能缺陷的，主要有以下几点：
 
 1. 每次读写属性都会解析 <span data-type="color" style="color:rgb(51, 51, 51)"><span data-type="background" style="background-color:rgb(255, 255, 255)">Lambda 表达式的操作会产生巨大的性能损耗；</span></span>
 2. <span data-type="color" style="color:rgb(51, 51, 51)"><span data-type="background" style="background-color:rgb(255, 255, 255)">采用字典来保存实体属性值的设计机制，会导致值类型的属性读写反复被装箱(Boxing)、拆箱(Unboxing)；</span></span>

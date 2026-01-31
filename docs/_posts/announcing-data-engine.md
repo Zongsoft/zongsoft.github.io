@@ -15,7 +15,7 @@ tags:
 
 # Zongsoft.Data 发布公告
 
-很高兴我们的 **ORM** 数据访问框架([**_Zongsoft.Data_**](https://github.com/Zongsoft/Zongsoft.Data))在历经两个 **SaaS** 产品的应用之后，今天正式宣布对外推广！
+很高兴我们的 **ORM** 数据访问框架([**_Zongsoft.Data_**](https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data))在历经两个 **SaaS** 产品的应用之后，今天正式宣布对外推广！
 这是一个类 [**GraphQL**](https://graphql.cn/) 风格的 **ORM**(**O**bject/**R**elational **M**apping) 数据访问框架。
 
 
@@ -43,9 +43,9 @@ tags:
 <a name="samples"></a>
 ## 范例说明
 
-下面通过三个的例子 _（注：例子均基于 [**Zongsoft.Community**](https://github.com/Zongsoft/Zongsoft.Community) 项目）_ 来佐证上面的部分设计理念，更多示例和阐述请参考 [**_Zongsoft.Data_**](https://github.com/Zongsoft/Zongsoft.Data) 项目的 [**_README.md_**](https://github.com/Zongsoft/Zongsoft.Data/blob/master/README-zh_CN.md) 文档和 [**_Zongsoft.Community_**](https://github.com/Zongsoft/Zongsoft.Community) 项目的代码。
+下面通过三个的例子 _（注：例子均基于 [**Zongsoft.Discussions**](https://github.com/Zongsoft/discussions) 项目）_ 来佐证上面的部分设计理念，更多示例和阐述请参考 [**_Zongsoft.Data_**](https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data) 项目的 [**_README.md_**](https://github.com/Zongsoft/framework/blob/main/Zongsoft.Data/README.md) 文档和 [**_Zongsoft.Discussions**](https://github.com/Zongsoft/discussions) 项目的代码。
 
-> **提示：** 下面的范例均基于 [**_Zongsoft.Community_**](https://github.com/Zongsoft/Zongsoft.Community) 开源项目，该项目是一个完整的论坛社区的后台程序。你可能需要预先阅读一下该项目的[《数据库表结构设计》](https://github.com/Zongsoft/Zongsoft.Community/blob/master/database/Zongsoft.Community.md)文档，以便更好的理解范例代码的业务逻辑。
+> **提示：** 下面的范例均基于 [**_Zongsoft.Discussions**](https://github.com/Zongsoft/discussions) 开源项目，该项目是一个完整的论坛社区的后台程序。你可能需要预先阅读一下该项目的[《数据库表结构设计》](https://github.com/Zongsoft/discussions/blob/main/database/Zongsoft.Discussions.md)文档，以便更好的理解范例代码的业务逻辑。
 
 
 <a name="sample_1"></a>
@@ -219,7 +219,7 @@ WHERE EXISTS (
 
 > 上述示例通过 `Update` 更新方法的 `schema` 参数（即值为 `*,Post{Approved}` 的参数）指定了更新数据的形状，数据访问引擎将根据数据库类型生成高效的 **SQL** 语句，对于业务层而言这一切都是无感的、透明的。
 > 
-> 对于一对多的导航属性，数据访问引擎默认将以 **UPSERT** 模式处理子集的写入，关于 **UPSERT** 更多信息请参考 [**_Zongsoft.Data_**](https://github.com/Zongsoft/Zongsoft.Data) 项目文档。
+> 对于一对多的导航属性，数据访问引擎默认将以 **UPSERT** 模式处理子集的写入，关于 **UPSERT** 更多信息请参考 [**_Zongsoft.Data_**](https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data) 项目文档。
 
 
 <a name="performance"></a>
@@ -231,7 +231,7 @@ WHERE EXISTS (
 2. 数据查询结果的实体组装(**P**opulate)过程必须高效；
 3. 避免反射，有效的语法树缓存。
 
-实现层面我们采用 **E**mitting 动态编译技术对实体组装(**P**opulate)、数据参数绑定等进行预热处理，可查阅 [**_DataPopulator_**](https://github.com/Zongsoft/Zongsoft.Data/blob/master/src/Common/DataPopulatorProviderFactory.cs) 等相关类的源码深入了解。
+实现层面我们采用 **E**mitting 动态编译技术对实体组装(**P**opulate)、数据参数绑定等进行预热处理，可查阅 [**_ModelEmitter_**](https://github.com/Zongsoft/framework/blob/main/Zongsoft.Data/src/Common/ModelMemberEmitter.cs) 等相关类的源码深入了解。
 
 
 <a name="other"></a>

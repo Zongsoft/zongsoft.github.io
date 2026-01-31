@@ -118,10 +118,10 @@ class NodeSelector
 
 ## 总结
 
-在 [Zongsoft.Data](https://github.com/Zongsoft/Framework/tree/master/Zongsoft.Data) 数据访问框架的读写分离中需要将读写操作路由到不同权重的数据库，于是采用 Nginx 的平滑权重轮询均衡算法实现了数据源路由选择器，下面分别是平滑权重轮询器和数据路由的代码：
+在 [Zongsoft.Data](https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data) 数据访问框架的读写分离中需要将读写操作路由到不同权重的数据库，于是采用 Nginx 的平滑权重轮询均衡算法实现了数据源路由选择器，下面分别是平滑权重轮询器和数据路由的代码：
 
-- 平滑权重轮询源码：https://github.com/Zongsoft/Framework/blob/master/Zongsoft.Core/src/Components/Weighter.cs
-- 数据源权重选择器：https://github.com/Zongsoft/Framework/blob/master/Zongsoft.Data/src/Common/DataSourceSelector.cs
+- 平滑权重轮询源码：https://github.com/Zongsoft/framework/blob/main/Zongsoft.Core/src/Components/Weighter.cs
+- 数据源权重选择器：https://github.com/Zongsoft/framework/blob/main/Zongsoft.Data/src/Common/DataSourceSelector.cs
 
 
 -----

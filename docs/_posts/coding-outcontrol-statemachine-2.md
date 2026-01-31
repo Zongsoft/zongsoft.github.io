@@ -22,7 +22,7 @@ tags:
 
 ## 源码
 - 通用词法解析模块*（语法解析及编译器暂未实现）*
-> [https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/master/src/Expressions](https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/master/src/Expressions)
+> [https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/main/src/Expressions](https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/main/src/Expressions)
 - 成员访问表达式解析器
 > [https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data/src/Reflection/Expressions](https://github.com/Zongsoft/Zongsoft.CoreLibrary/tree/feature-data/src/Reflection/Expressions)
 - 数据模式表达式解析器
@@ -200,7 +200,7 @@ public static IMemberExpression Parse(string text, Action<string> onError)
 - 内部的 StateVector 结构用来保存解析过程中的标记开关（布尔）的状态，譬如当前数值常量的类型、当前字符是否位于字符串常量的转义符态、标识(**I**dentifier)中间是否含有空白字符等。
 
 ## 其他延展
-在 [Zongsoft.Data](https://github.com/Zongsoft/Zongsoft.Data) 数据引擎里面有个数据模式(Schema)的概念，它是一种在数据操作中定义数据形状的表达式，有点类似于 [GraphQL](http://graphql.cn) 表达式的功能（不含查询条件）。
+在 [Zongsoft.Data](https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data) 数据引擎里面有个数据模式(Schema)的概念，它是一种在数据操作中定义数据形状的表达式，有点类似于 [GraphQL](http://graphql.cn) 表达式的功能（不含查询条件）。
 
 譬如有一个名为 `Corporation` 的企业实体类，它除了企业编号、名称、简称等单值属性外，还有企业法人、部门集合等这样的“一对一”和“一对多”的复合（导航）属性等。现在假设我们调用数据访问类的 `Select` 方法进行查询调用：
 

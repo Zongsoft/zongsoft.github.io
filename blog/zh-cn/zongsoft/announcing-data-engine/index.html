@@ -509,7 +509,7 @@
             <div class="container container-unloaded">
                 <main class="main post-page">
     <article class="article-entry">
-        <h1 id="Zongsoft-Data-发布公告"><a href="#Zongsoft-Data-发布公告" class="headerlink" title="Zongsoft.Data 发布公告"></a>Zongsoft.Data 发布公告</h1><p>很高兴我们的 <strong>ORM</strong> 数据访问框架(<a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Zongsoft.Data"><strong><em>Zongsoft.Data</em></strong></a>)在历经两个 <strong>SaaS</strong> 产品的应用之后，今天正式宣布对外推广！<br>这是一个类 <a target="_blank" rel="noopener" href="https://graphql.cn/"><strong>GraphQL</strong></a> 风格的 <strong>ORM</strong>(<strong>O</strong>bject&#x2F;<strong>R</strong>elational <strong>M</strong>apping) 数据访问框架。</p>
+        <h1 id="Zongsoft-Data-发布公告"><a href="#Zongsoft-Data-发布公告" class="headerlink" title="Zongsoft.Data 发布公告"></a>Zongsoft.Data 发布公告</h1><p>很高兴我们的 <strong>ORM</strong> 数据访问框架(<a target="_blank" rel="noopener" href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data"><strong><em>Zongsoft.Data</em></strong></a>)在历经两个 <strong>SaaS</strong> 产品的应用之后，今天正式宣布对外推广！<br>这是一个类 <a target="_blank" rel="noopener" href="https://graphql.cn/"><strong>GraphQL</strong></a> 风格的 <strong>ORM</strong>(<strong>O</strong>bject&#x2F;<strong>R</strong>elational <strong>M</strong>apping) 数据访问框架。</p>
 <p><a name="intro"></a></p>
 <h2 id="又一个轮子？"><a href="#又一个轮子？" class="headerlink" title="又一个轮子？"></a>又一个轮子？</h2><p>在很长时间里，**.NET** 阵营似乎一直缺乏一个被普遍使用的 <strong>ORM</strong> 数据访问框架，从最早的原生 <strong>ADO.NET</strong> 到舶来品 <strong>iBatis.NET</strong> 和 <strong>Hibernate.NET</strong>，后来又经历了 <strong>Linq for SQL</strong> 与 <strong>E</strong>ntity <strong>F</strong>ramework 的混战，可能是因为 <strong>E</strong>ntity <strong>F</strong>ramework 早期版本的模糊定位和反复变更的设计导致了它失之霸主之位，进而造就了一段百舸争流、群雄共逐的战国时代。在历经漫长而反复的期待、失望、纠结和痛苦之后，我终于决定动手造一个轮子。</p>
 <p><a name="design"></a></p>
@@ -523,9 +523,9 @@
 <p>在一个业务系统中，数据结构及其关系毋庸置疑是最底层的基础性结构，数据库应由系统架构师或开发负责人进行仔细设计 _（<strong>N</strong>o <strong>S</strong>chema&#x2F;<strong>W</strong>eakly <strong>S</strong>chema 的思潮是涂抹了蜂蜜的毒药）_，数据访问映射以数据库表结构关系为基石，在此之上业务层亦以概念映射模型为准绳，层级之间相互隔离。</p>
 <p>领域模型实体避免通过注解 <em>(标签)</em> 来进行元数据定义，应确保严格符合 POCO&#x2F;POJO 范式。通过语义化的 <strong>S</strong>chema 来声明访问的数据结构关系，禁止应用层的 <strong>SQL</strong> 和 <strong>Linq</strong> 式的类 <strong>SQL</strong> 代码可降低业务层对数据层的依赖、提升代码可维护性外，还具备更加统一可控的便利性，并为数据访问引擎的实现提供了更大的优化空间和自由度。</p>
 <p><a name="samples"></a></p>
-<h2 id="范例说明"><a href="#范例说明" class="headerlink" title="范例说明"></a>范例说明</h2><p>下面通过三个的例子 <em>（注：例子均基于 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Zongsoft.Community"><strong>Zongsoft.Community</strong></a> 项目）</em> 来佐证上面的部分设计理念，更多示例和阐述请参考 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Zongsoft.Data"><strong><em>Zongsoft.Data</em></strong></a> 项目的 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Zongsoft.Data/blob/master/README-zh_CN.md"><strong><em>README.md</em></strong></a> 文档和 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Zongsoft.Community"><strong><em>Zongsoft.Community</em></strong></a> 项目的代码。</p>
+<h2 id="范例说明"><a href="#范例说明" class="headerlink" title="范例说明"></a>范例说明</h2><p>下面通过三个的例子 <em>（注：例子均基于 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/discussions"><strong>Zongsoft.Discussions</strong></a> 项目）</em> 来佐证上面的部分设计理念，更多示例和阐述请参考 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data"><strong><em>Zongsoft.Data</em></strong></a> 项目的 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data/blob/main/README-zh_CN.md"><strong><em>README.md</em></strong></a> 文档和 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/discussions"><strong><em>Zongsoft.Discussions</em></strong></a> 项目的代码。</p>
 <blockquote>
-<p><strong>提示：</strong> 下面的范例均基于 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Zongsoft.Community"><strong><em>Zongsoft.Community</em></strong></a> 开源项目，该项目是一个完整的论坛社区的后台程序。你可能需要预先阅读一下该项目的<a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Zongsoft.Community/blob/master/database/Zongsoft.Community.md">《数据库表结构设计》</a>文档，以便更好的理解范例代码的业务逻辑。</p>
+<p><strong>提示：</strong> 下面的范例均基于 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/discussions"><strong><em>Zongsoft.Discussions</em></strong></a> 开源项目，该项目是一个完整的论坛社区的后台程序。你可能需要预先阅读一下该项目的<a target="_blank" rel="noopener" href="https://github.com/Zongsoft/discussions/blob/main/database/Zongsoft.Discussions.md">《数据库表结构设计》</a>文档，以便更好的理解范例代码的业务逻辑。</p>
 </blockquote>
 <p><a name="sample_1"></a></p>
 <h3 id="示例一"><a href="#示例一" class="headerlink" title="示例一"></a>示例一</h3><p>导航查询及导航过滤</p>
@@ -555,7 +555,7 @@
 
 <blockquote>
 <p>上述示例通过 <code>Update</code> 更新方法的 <code>schema</code> 参数（即值为 <code>*,Post&#123;Approved&#125;</code> 的参数）指定了更新数据的形状，数据访问引擎将根据数据库类型生成高效的 <strong>SQL</strong> 语句，对于业务层而言这一切都是无感的、透明的。</p>
-<p>对于一对多的导航属性，数据访问引擎默认将以 <strong>UPSERT</strong> 模式处理子集的写入，关于 <strong>UPSERT</strong> 更多信息请参考 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Zongsoft.Data"><strong><em>Zongsoft.Data</em></strong></a> 项目文档。</p>
+<p>对于一对多的导航属性，数据访问引擎默认将以 <strong>UPSERT</strong> 模式处理子集的写入，关于 <strong>UPSERT</strong> 更多信息请参考 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data"><strong><em>Zongsoft.Data</em></strong></a> 项目文档。</p>
 </blockquote>
 <p><a name="performance"></a></p>
 <h2 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h2><p>我们希望提供最佳的<strong>综合性价比</strong>，对于一个 <strong>ORM</strong> 数据访问引擎来说，性能的关注点主要 <em>(不限)</em> 有这些要素：</p>
@@ -564,7 +564,7 @@
 <li>数据查询结果的实体组装(<strong>P</strong>opulate)过程必须高效；</li>
 <li>避免反射，有效的语法树缓存。</li>
 </ol>
-<p>实现层面我们采用 <strong>E</strong>mitting 动态编译技术对实体组装(<strong>P</strong>opulate)、数据参数绑定等进行预热处理，可查阅 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/Zongsoft.Data/blob/master/src/Common/DataPopulatorProviderFactory.cs"><strong><em>DataPopulator</em></strong></a> 等相关类的源码深入了解。</p>
+<p>实现层面我们采用 <strong>E</strong>mitting 动态编译技术对实体组装(<strong>P</strong>opulate)、数据参数绑定等进行预热处理，可查阅 <a target="_blank" rel="noopener" href="https://github.com/Zongsoft/framework/blob/main/Zongsoft.Data/src/Common/ModelMemberEmitter.cs"><strong><em>DataPopulator</em></strong></a> 等相关类的源码深入了解。</p>
 <p><a name="other"></a></p>
 <h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>得益于 <strong>“以声明方式来表达数据结构关系”</strong> 的语义化设计理念，相对于命令式设计而言，它使得程序意图更加聚焦，天然地对底层数据的表达和优化更加宽容与自由。</p>
 <p>更多详细内容 <em>（譬如：读写分离、继承表、数据模式、映射文件、过滤器、验证器、类型转换、数据隔离）</em> 请查阅相关文档。</p>
@@ -580,7 +580,7 @@
     </article>
 
     <div style="text-align:center; margin-top:4rem;">
-	<a href="http://weixin.qq.com/r/zy-g_GnEWTQmrS2b93rd" target="_blank" title="Zongsoft 微信公众号"><img src="//raw.githubusercontent.com/Zongsoft/Guidelines/master/zongsoft-qrcode%28wechat%29.png" alt="Zongsoft 微信公众号" /></a><br />
+	<a href="http://weixin.qq.com/r/zy-g_GnEWTQmrS2b93rd" target="_blank" title="Zongsoft 微信公众号"><img src="//raw.githubusercontent.com/Zongsoft/guidelines/main/zongsoft-qrcode%28wechat%29.png" alt="Zongsoft 微信公众号" /></a><br />
 	<!--a href="https://t.zsxq.com/2nyjqrr" target="_blank" title="Zongsoft 知识星球号"><img src="/blog/" alt="Zongsoft 知识星球-学习圈" /></a-->
 </div>
 
@@ -681,7 +681,7 @@
             
                 <span class="iconfont-archer wechat" title=wechat>
                     
-                    <img class="profile-qr" src="//raw.githubusercontent.com/Zongsoft/Guidelines/master/zongsoft-qrcode%28wechat%29.png" />
+                    <img class="profile-qr" src="//raw.githubusercontent.com/Zongsoft/guidelines/main/zongsoft-qrcode%28wechat%29.png" />
                 </span>
             
         

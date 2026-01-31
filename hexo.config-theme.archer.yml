@@ -10,7 +10,7 @@ social:
   email: zongsoft@qq.com
   github: //github.com/Zongsoft
   # wechat should be a path of qr-code image path
-  wechat: //raw.githubusercontent.com/Zongsoft/Guidelines/master/zongsoft-qrcode%28wechat%29.png
+  wechat: //raw.githubusercontent.com/Zongsoft/guidelines/main/zongsoft-qrcode%28wechat%29.png
   # qq should be a path of qr-code image path
   qq: 
   telegram: 
