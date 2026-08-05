@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+	font-family: 'Titillium Web';
+	src: url('/assets/font/TitilliumWeb-Regular.ttf') format('truetype');
+	font-display: swap;
+	font-style: normal;
+	font-weight: 400;
+}
+
+@font-face {
+	font-family: 'Titillium Web';
+	src: url('/assets/font/TitilliumWeb-SemiBold.ttf') format('truetype');
+	font-display: swap;
+	font-style: normal;
+	font-weight: 600;
+}
+
+@layer base {
+	:root {
+		color-scheme: light;
+	}
+
+	html {
+		scroll-padding-top: 6rem;
+	}
+
+	body {
+		@apply bg-white font-sans text-brand-ink antialiased selection:bg-brand-red selection:text-white;
+	}
+
+	a,
+	button {
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	:focus-visible {
+		@apply outline-none ring-2 ring-brand-red ring-offset-4;
+	}
+}
+
+@layer components {
+	.page-shell {
+		@apply mx-auto w-full max-w-page px-5 sm:px-8 lg:px-12 xl:px-16;
+	}
+
+	.display-title {
+		font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+		@apply font-semibold tracking-[-0.055em] text-brand-navy;
+	}
+
+	.section-title {
+		font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+		@apply font-semibold tracking-[-0.045em];
+	}
+
+	.nav-link {
+		@apply relative py-2 text-[15px] font-semibold tracking-wide text-brand-ink transition-colors duration-200 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:scale-x-0 after:bg-brand-red after:transition-transform hover:text-brand-navy hover:after:scale-x-100;
+	}
+
+	.arrow-link {
+		@apply inline-flex items-center gap-4 border-b border-current pb-1 text-base font-semibold transition-colors duration-200 hover:text-brand-red;
+	}
+
+	.project-row {
+		@apply grid min-h-[88px] grid-cols-[54px_1fr_auto] items-center gap-x-3 border-t border-brand-line py-5 transition-colors duration-200 hover:bg-brand-mist sm:grid-cols-[70px_190px_1fr_auto] sm:px-4 lg:grid-cols-[76px_240px_1fr_auto];
+	}
+
+	.project-row:focus-visible {
+		@apply ring-2 ring-inset ring-brand-red ring-offset-0;
+	}
+
+	.reveal {
+		opacity: 0;
+		transform: translateY(24px);
+		transition: opacity 700ms cubic-bezier(.2,.7,.2,1), transform 700ms cubic-bezier(.2,.7,.2,1);
+	}
+
+	.reveal.is-visible {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto !important;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+
+	.reveal {
+		opacity: 1;
+		transform: none;
+	}
+}
