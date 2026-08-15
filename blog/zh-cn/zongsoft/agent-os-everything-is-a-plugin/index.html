@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="钟峰(Popeye Zhong)">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="钟峰(Popeye Zhong)">
+    
+    <meta name="keywords" content="Zongsoft,钟峰(Popeye Zhong)">
+    
+    <meta name="description" content="Zongsoft">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>模型只是 CPU，插件运行时才是 Agent 的操作系统：从 DeepSeek Harness 到 Zongsoft · Zongsoft</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/blog/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/blog/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/blog/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/blog/intro/favicon.ico">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/blog/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/blog/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/blog/">Zongsoft</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">模型只是 CPU，插件运行时才是 Agent 的操作系统：从 DeepSeek Harness 到 Zongsoft</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href="/blog/">Zongsoft</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/blog/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            模型只是 CPU，插件运行时才是 Agent 的操作系统：从 DeepSeek Harness 到 Zongsoft
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class="post-intro-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="DeepSeek Harness">DeepSeek Harness</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Cordis">Cordis</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Zongsoft.Plugins">Zongsoft.Plugins</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="AI Agent">AI Agent</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="插件架构">插件架构</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">10.1k</span>阅读时长: <span class="post-count reading-time">37 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2026/08/15</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/blog/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/blog/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <p><img src="/images/agent-os-hero.png" alt="由可插拔模块组成的 Agent 运行时"></p>
+<blockquote>
+<p><strong>导读</strong>：DeepSeek Harness（DSH）开源后，“一切皆插件”成了 AI Agent 圈最热的口号。但口号人人会说，机制决定生死。本文不写“DSH 很厉害”的观后感，而是翻开它的真实组合清单与源码，把“一切皆插件”拆成插件运行时必须回答的<strong>五个底层问题</strong>——能力坐标、依赖激活、效果撤回、组合形态、自省演化。</p>
+<p>有意思的是：这五个问题，<a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Plugins" target="_blank" rel="noopener">Zongsoft.Plugins</a> 从 <strong>2010 年 4 月</strong>创立那天起，就在用另一套机制回答。十六年后，两条独立演化的技术路线在 Agent 时代会合。它们给出的答案不同，但问的是同一个问题。本文要论证的，正是标题里的那句判断：<strong>模型只是 CPU，插件运行时才是 Agent 的操作系统。</strong></p>
+</blockquote>
+<h2 id="引言：模型只是-CPU，插件运行时才是-Agent-的操作系统"><a href="#引言：模型只是-CPU，插件运行时才是-Agent-的操作系统" class="headerlink" title="引言：模型只是 CPU，插件运行时才是 Agent 的操作系统"></a>引言：模型只是 CPU，插件运行时才是 Agent 的操作系统</h2><p>当所有人都在追逐更大的模型时，DeepSeek 却把一个看起来不那么性感的东西推到了聚光灯下：<strong>Harness（驾驭框架）</strong>。如果借用计算机体系结构的比喻，模型更像 CPU——它决定推理能力的上限，却不会自动长出文件系统、工具、权限、会话、持久化、沙箱、界面和协作协议。真正把这些能力组织成产品的，是模型外面的 Harness。Claude Code 与 ChatGPT(Codex) CLI 的走红，不单单是模型之胜，与之配套的 Harness 才是帮助它们走向决战之巅的战车：<strong>模型之外的那一层，正在成为产品差异的主战场。</strong></p>
+<p>当然，“操作系统”不是给插件框架换一个时髦名字。它提出的是一条更严格的判断标准：</p>
+<blockquote>
+<p><strong>当一个运行时可以安装、组合、替换、撤销和治理 Agent 的各种能力时，它才开始具备 Agent OS 的形状。</strong></p>
+</blockquote>
+<p>2026 年 8 月，DeepSeek 开源了 <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener">DeepSeek Harness</a>（DSH）开发者预览版，底层以 vendor 方式引入 <a href="https://github.com/cordiverse/cordis" target="_blank" rel="noopener">Cordis</a> 插件框架，并配套了论文 <a href="https://github.com/cordiverse/paper" target="_blank" rel="noopener">A Programming Paradigm for Spatiotemporal Composability</a>。它最显眼的宣言只有一句话：</p>
+<blockquote>
+<p><strong>Everything is a Plugin —— 模型适配器、工具、会话、沙箱、存储、Agent 循环、乃至整个 Web 界面，都是插件。</strong></p>
+</blockquote>
+<p>这句话很有流量，但也容易产生误导。很多人把“插件化”理解成“把功能拆成很多 npm 包”——这只是物理拆分，还没有解决组合问题。真正的插件化，必须回答一组更底层的问题：</p>
+<ul>
+<li>插件把能力放在哪里，别人怎么找到它？</li>
+<li>插件什么时候可以开始工作，依赖没了怎么办？</li>
+<li>插件改变了世界，卸载时怎么把世界还回去？</li>
+<li>“产品是什么”由谁决定，能不能晚于编译再决定？</li>
+<li>运行中的系统能被观察、被修改吗，谁有资格改？</li>
+</ul>
+<p>这五个问题，我称之为<strong>插件运行时的五项机制</strong>。DSH 用 Cordis 的“上下文 + 效果 + 反应式依赖”回答它们；而 <a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Plugins" target="_blank" rel="noopener">Zongsoft.Plugins</a> 从 <strong>2010 年 4 月</strong>创立那天起，就用“插件树 + 清单 + 构建器/解析器”回答它们。十六年后，两条独立演化的路线在 Agent 时代会合，并且抵达了同一个结论：</p>
+<blockquote>
+<p><strong>插件不是“给完成的应用加功能”的扩展点，而是“组成这个应用本身”的组织单位。</strong></p>
+</blockquote>
+<h2 id="一、先看-DSH：一行一个插件"><a href="#一、先看-DSH：一行一个插件" class="headerlink" title="一、先看 DSH：一行一个插件"></a>一、先看 DSH：一行一个插件</h2><p>要理解 DSH，最好的入口不是架构图，而是它的<strong>组合清单</strong>。DSH 把每个 profile（产品形态）定义为一棵从“空根”上长出来的插件树，每个插件在 <code>cordis.patch.yml</code> 里占<strong>一行</strong>。下面是从 <code>dsh-base</code> 组合包的真实 <code>cordis.patch.yml</code> 中节选的片段（该包是每个 profile 的第一层）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># dsh-base/cordis.patch.yml（节选）</span></span><br><span class="line"><span class="attr">- insert:</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">timer</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/cordis-plugin-timer'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">llm</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-llm'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">session</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-session'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">agent</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-agent'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">agent-default-model</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-agent-default-model'</span></span><br><span class="line"><span class="attr">      config:</span></span><br><span class="line"><span class="attr">        provider:</span> <span class="string">deepseek-official</span></span><br><span class="line"><span class="attr">        model:</span> <span class="string">deepseek-v4-flash</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">tools</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-tools'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">agent-loop</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-agent-loop'</span></span><br><span class="line"><span class="attr">      config:</span></span><br><span class="line"><span class="attr">        agents:</span> <span class="string">[]</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">sandbox</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-sandbox-local'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">approval</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-user-approval'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">session-persistence-jsonl</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-session-persistence-jsonl'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">web</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-web'</span></span><br><span class="line"><span class="attr">      config:</span></span><br><span class="line"><span class="attr">        searchProvider:</span> <span class="string">deepseek-official</span></span><br></pre></td></tr></table></figure>
+<p>每一行的语义是：“把名为 X 的插件，以这份 config 挂进运行时”。行与行之间<strong>没有加载顺序的含义</strong>——清单里的注释写得很直白：“Row order carries no load semantics (activation is service-availability driven)”，即<strong>激活由服务可用性驱动，而不是行序</strong>。一个插件声明自己依赖哪些服务（<code>inject</code>），依赖齐了它才启动；依赖消失，它先失活，等依赖回来再重新激活。这是“插件”与“一堆 import”最本质的区别。</p>
+<p><img src="/images/agent-os-runtime-stack.png" alt="Agent Runtime 的完整分层"></p>
+<h3 id="连“内核”都是插件"><a href="#连“内核”都是插件" class="headerlink" title="连“内核”都是插件"></a>连“内核”都是插件</h3><p>DSH 最激进的地方在于：<strong>它没有一个需要被“扩展”的特权内核</strong>。我们通常认为的 Agent 内核——循环、会话、工具系统——在 DSH 里全部是插件行。看 <code>dsh-agent-loop</code> 包的 README，这句话值得反复读：</p>
+<blockquote>
+<p>“这是 harness 中唯一包含具体循环逻辑的包。其他所有内容要么是抽象服务，要么是针对扩展点的插件：新行为应放入插件，而不是这里。”</p>
+</blockquote>
+<p>也就是说，整个 DSH 只有一个“具体实现”：那个调用模型、运行工具、然后重复的 React Loop。其余一切——压缩、持久化、遥测、审批、沙箱、UI——都是监听事件分类体系（<code>agent/*</code>、<code>tools/*</code>、<code>session/event</code>）的插件。工具执行也不是硬编码的“调一下函数”，而是一条可以被任何插件拦截的流水线：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tools/pre-execute（允许/拒绝/询问）</span><br><span class="line">  → guard（单调策略）</span><br><span class="line">    → tools/execute（超时/重试包装）</span><br><span class="line">      → tools/post-execute（检查/替换结果、附加上下文）</span><br><span class="line">        → finalizeContent（最终内容）</span><br><span class="line">          → tools/result（只读观测）</span><br></pre></td></tr></table></figure>
+<p>权限沙箱挂在 <code>pre-execute</code>，计划模式挂在 <code>pre-execute</code> + 提示词，上下文压缩监听 <code>agent/pre-step</code> 与 <code>agent/request-error</code>，崩溃恢复监听 <code>agent/request-error</code> 做退避重试……每个“能力”都是事件流上的一个听众，而不是循环里的一个 <code>if</code> 分支。</p>
+<p>不过要划清一条边界：“没有特权产品内核”不等于“没有运行时基座”。DSH 仍然依赖 Cordis 提供上下文、依赖解析、事件与生命周期语义。准确的说法是：<strong>Cordis 是组合规则，DSH 是由这些规则组装出来的产品。</strong></p>
+<h3 id="连-UI-都是插件"><a href="#连-UI-都是插件" class="headerlink" title="连 UI 都是插件"></a>连 UI 都是插件</h3><p>再往外一层：DSH 的 Web 界面也不是“给 Agent 写的一个前端”，而是一批 <code>dsh.client</code> 插件行。<code>dsh-web-app/cordis.patch.yml</code> 的真实内容里，浏览器里每一个可见的部件都有对应的一行：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># dsh-web-app/cordis.patch.yml（节选）</span></span><br><span class="line"><span class="attr">- insert:</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">connection</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-client-connection'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">ui-conversation</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-client-ui-conversation'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">ui-tool</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-client-ui-tool'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">ui-settings</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-client-ui-settings'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">ui-cordis</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-client-ui-cordis'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">ui-plan</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-client-ui-plan'</span></span><br><span class="line"><span class="attr">    - id:</span> <span class="string">ui-goal</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">'@deepseek-ai/dsh-client-ui-goal'</span></span><br></pre></td></tr></table></figure>
+<p>“模块节点把这张插件名录扫描进 <code>window.__DSH_BOOT__</code>”——浏览器插件在 Cordis 存在之前就被引导，然后作为插件条目被运行时收养。删除一行，某个 UI 部件就从界面上消失；加上一行，新部件就长出来。<strong>界面是组合结果，不是仓库里的一个目录。</strong></p>
+<h3 id="会话是事实流，不是聊天数组"><a href="#会话是事实流，不是聊天数组" class="headerlink" title="会话是事实流，不是聊天数组"></a>会话是事实流，不是聊天数组</h3><p>DSH 的会话子系统把交互历史做成<strong>仅追加的事件日志</strong>（<code>SessionEvent</code>）：<code>user/message</code>、<code>assistant/chunk</code>、<code>assistant/message</code>、<code>tool/call</code>、<code>tool/result</code>、<code>turn/start</code>、<code>turn/end</code>……模型看到的消息，由这条日志<strong>投影</strong>出来；原始流式分片被保留，供 UI 还原；恢复、分叉、转录、遥测、持久化都从同一事件流派生。压缩不是“删掉旧对话”，而是追加一条 <code>replace</code> 语义的摘要事件，把被遮蔽的旧条目从未来的模型输入中移除——日志本身永远只增不改。</p>
+<p>这让系统获得了很强的可观察性：一次 Turn 可以包含零个或多个 Step，一个 Step 就是一次模型请求及其工具调用；即使输入被拒绝、首步为空或请求失败，运行轨迹仍可以有明确的开始与结束。</p>
+<blockquote>
+<p>会话事件可回放，回答的是“发生过什么”；插件效果可撤销，回答的是“卸载后留下什么”。二者互相配合，但不是一回事。</p>
+</blockquote>
+<h3 id="Agent-能修改运行时自己"><a href="#Agent-能修改运行时自己" class="headerlink" title="Agent 能修改运行时自己"></a>Agent 能修改运行时自己</h3><p>DSH 还内置了一套自引用工具：<code>cordis_inspect</code>（查看当前进程的插件、服务、事件）、<code>cordis_define</code> / <code>cordis_run</code> / <code>cordis_stop</code> / <code>cordis_undefine</code>（定义、运行、停止、撤回一个动态包）。这意味着 <strong>Agent 不仅能调用工具，还能检查运行时结构、组装新能力、再把实验撤掉</strong>。</p>
+<p>官方文档对此有非常清醒的边界声明：动态包只存在于进程内存，不会写入配置、不会跨重启存续、也不会自动晋升为正式插件；其 <code>node:vm</code> 隔离 globals，但<strong>不是安全边界</strong>，应当像授予 bash 权限一样谨慎。一个能修改自身的 Agent，如果没有权限、审计、作用域与进程级沙箱，得到的不是进化能力，而是更大的爆炸半径。</p>
+<h2 id="二、插件运行时的五项机制"><a href="#二、插件运行时的五项机制" class="headerlink" title="二、插件运行时的五项机制"></a>二、插件运行时的五项机制</h2><p>看完了 DSH 的“表象”，现在把镜头拉远。无论是 DSH/Cordis 的高动态运行时，还是 Zongsoft 的企业级插件框架，要兑现“一切皆插件”，都必须回答下面五个问题。这不是我的发明——是两套代码各自独立长出来的共同结构。</p>
+<h3 id="机制一：能力坐标-——-插件把能力放在哪里？"><a href="#机制一：能力坐标-——-插件把能力放在哪里？" class="headerlink" title="机制一：能力坐标 —— 插件把能力放在哪里？"></a>机制一：能力坐标 —— 插件把能力放在哪里？</h3><p><strong>没有坐标的插件化，等于换了一种目录结构的耦合。</strong></p>
+<ul>
+<li><strong>DSH / Cordis</strong>：能力放在 <code>ctx.&lt;key&gt;</code>。每个服务占据一个稳定的上下文键（<code>ctx.llm</code>、<code>ctx.tools</code>、<code>ctx.sessions</code>），其他插件通过<strong>键</strong>查找能力，而不是 import 具体实现。事件则通过 TypeScript 声明合并注册名字，再以 <code>emit</code> / <code>waterfall</code> / <code>parallel</code> / <code>serial</code> 四种模式分发。插件条目本身也有稳定 id（<code>llm</code>、<code>session</code>、<code>agent-loop</code>），patch 按 id 定位——id 就是坐标。</li>
+<li><strong>Zongsoft</strong>：能力放在<strong>插件树路径</strong>上。对象、服务、模块、事件处理器、命令、启动项被挂载到稳定路径，例如 <code>/Workbench/Modules</code>、<code>/Workspace/Environment/Services</code>、<code>/Workbench/Events</code>。路径既是位置，也是契约：提供者把能力放到约定节点，消费者通过路径或 <code>expose</code> 关系取得它。</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- Automao.Trading-daemon.plugin（真实插件，节选） --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plugin</span> <span class="attr">name</span>=<span class="string">"Automao.Trading.Daemon"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">title</span>=<span class="string">"Automao.Trading.Daemon Plugin"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">manifest</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">dependency</span> <span class="attr">name</span>=<span class="string">"Automao.Trading"</span> /&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">dependency</span> <span class="attr">name</span>=<span class="string">"Automao.Paying"</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">manifest</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!-- 挂载支付事件处理程序：支付完成的通知由后台服务(daemon)处理 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">extension</span> <span class="attr">path</span>=<span class="string">"/Workbench/Modules/Paying/Events/Payment/Paid"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">object</span> <span class="attr">type</span>=<span class="string">"Automao.Trading.Features.PaymentHandler, Automao.Trading"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">extension</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!-- 挂载定时统计任务 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">extension</span> <span class="attr">path</span>=<span class="string">"/Workbench/Scheduler/Handlers"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">object</span> <span class="attr">name</span>=<span class="string">"OrderStatisticHandler"</span> <span class="attr">type</span>=<span class="string">"Automao.Trading.Services.OrderStatisticHandler, Automao.Trading"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">extension</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这个例子最能体现插件化的装配灵活性：<strong>支付完成的通知由 daemon（后台服务）程序处理</strong>。支付网关的回调是异步的、与用户请求链路不同步，天然适合放进后台常驻服务去消费——所以交易模块把支付处理器挂到 <code>/Workbench/Modules/Paying/Events/Payment/Paid</code> 事件路径，把 <code>OrderStatisticHandler</code> 挂到调度器，二者都只存在于 <code>Automao.Trading.Daemon</code> 这个后台插件里；而交易模块的 Web 插件（<code>Automao.Trading.Web</code>）只声明程序集与依赖，不挂任何事件处理器。<strong>同一个事件路径，谁消费、在哪个宿主里消费，完全由“装进哪个宿主的哪个插件”决定。</strong>服务键与树路径，一个靠“名字 + 作用域”，一个靠“层级路径”，解决的是同一个问题：<strong>让能力拥有独立于具体对象实例的稳定坐标。</strong></p>
+<p>坐标之上还有作用域：Cordis 的 <code>isolate</code> 让同一个服务键在不同上下文绑定到不同实现，<code>intercept</code> 则允许权限、审计等横切策略附着在服务访问上，而不改变 Provider 本身——这就是“名字 + 作用域”的具体语义。</p>
+<h3 id="机制二：依赖激活-——-插件何时可以开始工作？"><a href="#机制二：依赖激活-——-插件何时可以开始工作？" class="headerlink" title="机制二：依赖激活 —— 插件何时可以开始工作？"></a>机制二：依赖激活 —— 插件何时可以开始工作？</h3><p>这是“插件化”与“模块化”最根本的分水岭。</p>
+<ul>
+<li><strong>DSH / Cordis</strong>：插件用 <code>inject</code> 声明“我需要哪些服务”。运行时把依赖当作<strong>反应式 coeffect</strong>——服务从不满足变为满足，插件激活（<code>PENDING → LOADING → ACTIVE</code>）；Provider 消失或换成另一个实现，消费者<strong>先失活、再针对新的依赖视图重新激活</strong>。加载顺序不是人肉排的，而是依赖解析出来的。</li>
+</ul>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Cordis 官方的 Quick Start（节选）</span></span><br><span class="line"><span class="keyword">const</span> greeter = <span class="built_in">Object</span>.assign(<span class="function">(<span class="params">ctx: Context</span>) =&gt;</span> &#123;</span><br><span class="line">  ctx.on(<span class="string">'app/ready'</span>, <span class="function">(<span class="params">message</span>) =&gt;</span> &#123;</span><br><span class="line">    ctx.logger.info(<span class="string">'%s #%d'</span>, message, ctx.counter.next())</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;, &#123;</span><br><span class="line">  inject: [<span class="string">'counter'</span>],   <span class="comment">// 声明依赖：counter 就绪后才启动</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> root = <span class="keyword">new</span> Context()</span><br><span class="line"><span class="keyword">await</span> root.plugin(Counter)</span><br><span class="line"><span class="keyword">await</span> root.plugin(greeter)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>Zongsoft</strong>：插件里也有 <code>&lt;dependencies&gt;</code>，但源码注释把边界划得非常清楚：<strong>“依赖项只表明插件的加载顺序，并无类型依赖的暗喻”</strong>。加载器递归预加载插件，用栈做依赖拓扑，主插件先加载、从插件后加载；运行时定位则交给插件树路径。也就是说，Zongsoft 的依赖是<strong>排序语义</strong>，Cordis 的依赖是<strong>状态语义</strong>——前者表达“先装谁”，后者表达“依赖齐了没”。</li>
+</ul>
+<p>顺带厘清一组概念：<strong>物理依赖</strong>指代码层面的程序集/类型引用，编译期就固定；<strong>逻辑依赖</strong>指运行时的行为契约（事件路径、服务约定），只在运行中成立。Zongsoft 插件文件里的 <code>&lt;dependencies&gt;</code> 两者都不是——它只表达加载顺序：类型引用交给 .NET 的程序集解析，运行时协作交给插件树路径。所以“插件里没有依赖”不等于“两者毫无关系”：核心模块之间完全可以靠逻辑依赖（事件路径）协作，而插件依赖只负责决定谁先装。</p>
+<p>为什么会有这个差异？因为场景不同。Agent 运行时的拓扑在<strong>运行中</strong>高频变化（HMR、动态包、会话级插件），依赖必须能响应变化；企业系统的插件集合在<strong>部署时</strong>确定，加载顺序足够，稳定性更重要。这不是谁优谁劣，而是动力学与静力学的分工。</p>
+<p>这也解释了为什么“用了依赖注入容器”不等于“拥有插件运行时”：DI 容器擅长把接口解析成对象，但对象图通常在应用启动后保持稳定；消息总线擅长解耦发送者与接收者，却未必知道一个监听器属于哪个组件；包管理器能下载代码，却不负责代码运行后留下的效果。插件运行时必须把三件事连起来——<strong>能力怎样被定位，依赖怎样随运行状态重新解析，效果怎样归属并随组件撤回</strong>。少任何一项，动态组合都会在别处以约定和人工纪律的形式重新出现。</p>
+<h3 id="机制三：效果撤回-——-插件改变世界后，怎么把世界还回去？"><a href="#机制三：效果撤回-——-插件改变世界后，怎么把世界还回去？" class="headerlink" title="机制三：效果撤回 —— 插件改变世界后，怎么把世界还回去？"></a>机制三：效果撤回 —— 插件改变世界后，怎么把世界还回去？</h3><p>“能加载”只完成了一半。插件加载时会注册服务、监听事件、创建子组件、申请资源——<strong>卸载时这些效果必须能归属、能撤销</strong>。</p>
+<ul>
+<li><strong>Cordis</strong>：把效果抽象为“上下文变换 + 逆操作”。<code>ctx.effect(callback)</code> 执行的每次修改都返回自己的清理函数，运行时按发生顺序累积、卸载时<strong>逆序执行</strong>；子效果的撤销组合进父上下文，父组件离开会级联撤销子组件。销毁是幂等的，异步清理会被等待。</li>
+</ul>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Cordis 的效果模型（示意）</span></span><br><span class="line">ctx.effect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> id = setInterval(tick, <span class="number">1000</span>)   <span class="comment">// 效果：改变世界</span></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> clearInterval(id)       <span class="comment">// 逆操作：把世界还回去</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>Zongsoft</strong>：<code>IBuilder</code> 同时定义 <code>Build</code> 与 <code>Destroy</code>；插件卸载走一条递归协议——先卸载子插件，再卸载依赖它的从插件，然后把构件（Builtin）逐个从插件树卸下（这一步会调用对应构建器的 <code>Destroy</code>），最后清理构建器、解析器等固定元素。可释放的集合成员也会被处理。</li>
+</ul>
+<p>两套机制表达了<strong>同样的对称意识</strong>：创建效果与清理效果要成对出现、由运行时负责触发时机。区别在于保证强度：Cordis 要求<strong>每一次</strong>上下文变换都可组合地逆操作，并给出形式化证明；Zongsoft 则以构建/销毁协议与递归卸载落实“能装就能卸”，但它没有要求每个变换都携带逆操作，而是依赖框架的约定与纪律。</p>
+<blockquote>
+<p>相似的是问题意识，差异的是保证强度和主要场景。</p>
+</blockquote>
+<h3 id="机制四：组合与形态-——-产品是什么？"><a href="#机制四：组合与形态-——-产品是什么？" class="headerlink" title="机制四：组合与形态 —— 产品是什么？"></a>机制四：组合与形态 —— 产品是什么？</h3><p>插件化最容易翻车的地方，是“插件很多，但没有产品”。一个真正的插件运行时，必须让<strong>产品形态成为组合的结果</strong>。</p>
+<ul>
+<li><strong>DSH</strong>：产品 = profile = 一摞有序的 patch 层。官方 README 的描述是：“The tree composes over an empty root”——先在空根上叠加基础组合包（<code>dsh-base</code>），再叠加形态组合包（<code>dsh-web-app</code> 或 <code>dsh-headless</code>），然后是 profile 自己的 <code>cordis.patch.yml</code>、机器级的 <code>$DSH_HOME/cordis.patch.yml</code>，最后是命令行 <code>--patch</code> 叠加。patch 按 id 定位，<strong>整行替换 config，最后写入者胜</strong>；<code>--dump-config</code> 可以随时把组合结果导出查看。想确认某个插件的真实配置？看组合结果，而不是猜代码。</li>
+<li><strong>Zongsoft</strong>：产品 = 空宿主 + 插件集合 + 配置分层。宿主（Terminal / Daemon / Web）本身<strong>没有任何业务代码</strong>，部署 = 把插件及其附属文件放进 <code>plugins/</code> 目录。配置同样分层：<code>X.option</code> 是环境无关的缺省值，<code>X.{env}.option</code>（<code>test</code> / <code>production</code> / <code>development</code>）按环境覆盖，<code>X.{env}-debug.option</code> 再覆盖一层调试参数——同一份插件，在不同环境长出不同配置。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DSH：dsh-base → dsh-web-app / dsh-headless → profile patch → home patch → --patch</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Zongsoft：空宿主 → 插件程序集 + *.plugin → X.option → X.&#123;env&#125;.option → X.&#123;env&#125;-debug.option</span><br></pre></td></tr></table></figure>
+<p>这套“组合优先”的设计，战略价值不在于少写几个 <code>if</code>，而在于：<strong>产品边界可以晚于编译被决定</strong>。同一个 base，加上 Web 组合包就是聊天界面，加上 Headless 组合包就是一次性任务执行器；同一个空宿主，放进不同的插件集合，可以是终端、后台服务，也可以是 SaaS 的管理端、商家端、客户端站点。产品不再是“某个主程序类”，而是“宿主、插件清单与配置的组合”。</p>
+<p>组合之所以能成立，还因为<strong>能力被拆成了定义、提供者与消费者三层</strong>。例如文件系统不是某个工具内部的一段实现：服务定义描述契约，Provider 决定能力落在本机还是远端沙箱，面向模型的工具只是消费者。替换 Provider，Bash、PTY、LSP 等共享同一执行世界的能力就能整体迁移，而无需分别 fork。</p>
+<h3 id="机制五：自省与演化-——-运行时能被观察、被修改吗？"><a href="#机制五：自省与演化-——-运行时能被观察、被修改吗？" class="headerlink" title="机制五：自省与演化 —— 运行时能被观察、被修改吗？"></a>机制五：自省与演化 —— 运行时能被观察、被修改吗？</h3><p>前四项机制回答“系统如何被组装”，最后一项回答“系统如何被认知和改变”。</p>
+<ul>
+<li><strong>DSH</strong>：把自省做成了 Agent 可用的工具。<code>cordis_inspect</code> 报告当前进程里“谁在跑、每个服务能做什么”；<code>cordis_define</code> / <code>cordis_run</code> / <code>cordis_stop</code> / <code>cordis_undefine</code> 让 Agent 在<strong>进程内存</strong>里定义、运行、停止、撤回一个动态插件包。它还能检查自己的 API 目录——这个目录与官方文档由同一份 AST 遍历生成，因此“模型读到的数据”与“渲染出来的文档”不可能彼此偏离。这是把“一切皆插件”延伸到<strong>自我描述协议</strong>的一步：运行时结构不再只是人眼可读，而是模型可读、可操作。</li>
+<li><strong>Zongsoft</strong>：插件树自带 <code>find</code> / <code>list</code> / <code>tree</code> 命令，可以把运行中的系统结构以树状打印出来；<code>Mount</code> / <code>Unmount</code> 支持运行时挂载与卸载对象。它的演化走的是另一条更重的路：编译后的插件程序集 + 声明式插件文件 + 部署工具链（<code>deploy</code> / <code>*.deploy</code> 部署文件）+ 环境化配置，强调版本、审核、回滚与责任边界。</li>
+</ul>
+<p>两者的分野在这里变得非常清楚：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>DSH / Cordis</th>
+<th>Zongsoft</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>能力坐标</td>
+<td>上下文服务键 <code>ctx.&lt;key&gt;</code>、事件名、loader 条目 id</td>
+<td>插件树稳定路径（<code>/Workbench/...</code>）与 expose</td>
+</tr>
+<tr>
+<td>依赖语义</td>
+<td><code>inject</code> 反应式 coeffect，依赖驱动激活/失活</td>
+<td>插件依赖 <code>&lt;dependencies&gt;</code> 只表达加载顺序</td>
+</tr>
+<tr>
+<td>效果撤回</td>
+<td><code>ctx.effect</code> 累积逆操作，逆序执行，级联撤销</td>
+<td><code>Build/Destroy</code>、内置节点清理、递归卸载</td>
+</tr>
+<tr>
+<td>组合形态</td>
+<td>profile = bundle patch 分层，整行替换，HMR</td>
+<td>空宿主 + 插件文件 + 环境 option 分层</td>
+</tr>
+<tr>
+<td>自省演化</td>
+<td><code>cordis_inspect/define/run/stop/undefine</code>，进程内自修改</td>
+<td>插件树命令、<code>Mount/Unmount</code>、部署工具链</td>
+</tr>
+<tr>
+<td>主要场景</td>
+<td>高动态 Agent 运行时、自修改、细粒度恢复</td>
+<td>企业软件、跨宿主复用、版本化治理</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>一个面向运行时的动力学，一个面向企业的静力学。它们不是竞争关系，而是插件化平台的一体两面。</p>
+</blockquote>
+<h2 id="三、Zongsoft-的十六年：把“一切皆插件”落在企业软件里"><a href="#三、Zongsoft-的十六年：把“一切皆插件”落在企业软件里" class="headerlink" title="三、Zongsoft 的十六年：把“一切皆插件”落在企业软件里"></a>三、Zongsoft 的十六年：把“一切皆插件”落在企业软件里</h2><p>如果只讲 DSH，这篇就只是一篇技术解读。把 Zongsoft 放进来，是想展示另一条同样成立、但很少被 AI 圈看到的路径：<strong>没有 Agent、没有热更新、没有自修改，插件化能不能撑起真实的产品？</strong></p>
+<h3 id="空宿主：多类应用，同一套装配"><a href="#空宿主：多类应用，同一套装配" class="headerlink" title="空宿主：多类应用，同一套装配"></a>空宿主：多类应用，同一套装配</h3><p><a href="https://github.com/Zongsoft/hosting" target="_blank" rel="noopener">Zongsoft Hosting</a> 提供终端（Terminal）、后台服务（Daemon）和网站（Web）等多种宿主，分别应对不同种类的应用形态。它们的入口代码都薄得惊人——区别只是参数里的一行：<code>host=</code> 指定宿主类型，<code>site=</code> 指定站点。</p>
+<blockquote>
+<p>需要说明的是，这些宿主参数<strong>并不是必需的</strong>——它们的唯一作用是<strong>标注宿主程序的类型</strong>：一方面，自动升级插件（Upgrader）可以据此进行包管理与定位，知道当前该为哪个宿主、哪个站点拉取和安装升级包；另一方面，宿主类型会进入应用程序上下文与配置，其他业务插件可以随时获取自己运行在哪种宿主、哪个站点上。</p>
+</blockquote>
+<h4 id="终端应用（Terminal）"><a href="#终端应用（Terminal）" class="headerlink" title="终端应用（Terminal）"></a>终端应用（Terminal）</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Zongsoft.Hosting.Terminal/Program.cs（完整）</span></span><br><span class="line"><span class="keyword">internal</span> <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        Zongsoft.Plugins.Hosting.Application</span><br><span class="line">            .Terminal(<span class="string">"zongsoft.terminal"</span>, [.. args, <span class="string">"host=terminal"</span>, <span class="string">"site=daemon"</span>])</span><br><span class="line">            .Run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="后台服务（Daemon）"><a href="#后台服务（Daemon）" class="headerlink" title="后台服务（Daemon）"></a>后台服务（Daemon）</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Zongsoft.Hosting.Daemon/Program.cs（完整）</span></span><br><span class="line"><span class="keyword">internal</span> <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        <span class="meta">#<span class="meta-keyword">if</span> WINDOWS</span></span><br><span class="line">        Zongsoft.Plugins.Hosting.Application</span><br><span class="line">            .Daemon(<span class="string">"zongsoft.daemon"</span>, [.. args, <span class="string">"host=daemon"</span>, <span class="string">"site=daemon"</span>], builder =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                builder.Services.AddWindowsService(options =&gt; options.ServiceName = builder.Environment.ApplicationName);</span><br><span class="line">            &#125;).Run();</span><br><span class="line">        <span class="meta">#<span class="meta-keyword">elif</span> LINUX</span></span><br><span class="line">        Zongsoft.Plugins.Hosting.Application</span><br><span class="line">            .Daemon(<span class="string">"zongsoft.daemon"</span>, [.. args, <span class="string">"host=daemon"</span>, <span class="string">"site=daemon"</span>], builder =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                builder.Services.AddSystemd();</span><br><span class="line">            &#125;).Run();</span><br><span class="line">        <span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">        Zongsoft.Plugins.Hosting.Application</span><br><span class="line">            .Daemon(<span class="string">"zongsoft.daemon"</span>, [.. args, <span class="string">"host=daemon"</span>, <span class="string">"site=daemon"</span>])</span><br><span class="line">            .Run();</span><br><span class="line">        <span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>后台宿主的差异只在“以何种身份常驻”：Windows 上注册为系统服务（<code>AddWindowsService</code>），Linux 上交给 systemd 托管（<code>AddSystemd</code>）——插件装配的逻辑一字未改。</p>
+</blockquote>
+<h4 id="网站应用（Web）"><a href="#网站应用（Web）" class="headerlink" title="网站应用（Web）"></a>网站应用（Web）</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Zongsoft.Hosting.Web/default/Program.cs（完整）</span></span><br><span class="line"><span class="keyword">internal</span> <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        <span class="keyword">var</span> app = Zongsoft.Web.Application.Web([.. args, <span class="string">"host=web"</span>, <span class="string">"site=default"</span>, <span class="string">"daemon=zongsoft.web"</span>]);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如需启用私有部署模式，打开下行注释</span></span><br><span class="line">        <span class="comment">// app.Configuration["Deployment"] = "private";</span></span><br><span class="line"></span><br><span class="line">        app.Run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>三种入口背后是同一个插件运行时：宿主只负责初始化环境，自身不含任何具体功能。功能从哪来？部署——运行部署脚本把需要的插件及其配置、证书放进 <code>plugins/</code> 目录，这个动作本身就是“组合”。宿主因为插件集合不同而成为不同产品（终端、后台服务、管理端网站、商家端网站……）；同一个业务插件，可以进入不同宿主、不同站点。这也正是 Automao 中 258 个插件能被反复组合出大量产品形态的底层原因。</p>
+<h3 id="部署即组合：插件自带的“出厂清单”"><a href="#部署即组合：插件自带的“出厂清单”" class="headerlink" title="部署即组合：插件自带的“出厂清单”"></a>部署即组合：插件自带的“出厂清单”</h3><p>空宿主把功能全部留给部署——那“部署”本身由什么描述？Zongsoft 的做法是：<strong>每个插件库自带一份 <code>*.deploy</code> 自描述清单</strong>，自我表达“我该被放到哪里、依赖哪些包、需要哪些原生库、默认携带哪些配置文件”。<a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data" target="_blank" rel="noopener"><code>Zongsoft.Data</code></a>、<a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data/drivers" target="_blank" rel="noopener"><code>Zongsoft.Data/drivers/*</code></a>、<a href="https://github.com/Zongsoft/framework/tree/main/messaging" target="_blank" rel="noopener"><code>messaging/*</code></a>、<a href="https://github.com/Zongsoft/framework/tree/main/externals" target="_blank" rel="noopener"><code>externals/*</code></a> 的每个插件库都有自己的 <code>.deploy</code> 文件：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Zongsoft.Data/src/Zongsoft.Data.deploy</span></span><br><span class="line">artifacts/Zongsoft.Data.plugin</span><br><span class="line">lib/$(Framework)/Zongsoft.Data.*</span><br><span class="line">lib/$(Framework)/*/Zongsoft.Data.resources.*</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Zongsoft.Data/drivers/mysql/src/Zongsoft.Data.MySql.deploy</span></span><br><span class="line">artifacts/Zongsoft.Data.MySql.plugin</span><br><span class="line">lib/$(Framework)/Zongsoft.Data.MySql.*</span><br><span class="line">nuget:MySqlConnector@2.4.0</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># messaging/kafka/src/Zongsoft.Messaging.Kafka.deploy</span></span><br><span class="line">artifacts/Zongsoft.Messaging.Kafka.plugin</span><br><span class="line">artifacts/Zongsoft.Messaging.Kafka.option</span><br><span class="line">lib/$(Framework)/Zongsoft.Messaging.Kafka.*</span><br><span class="line">nuget:Confluent.Kafka@2.15.0</span><br><span class="line">%NUGET_PACKAGES%/librdkafka.redist/2.15.0/runtimes/win-$(architecture)/native/*  &lt;platform:win,windows&gt;</span><br><span class="line">%NUGET_PACKAGES%/librdkafka.redist/2.15.0/runtimes/linux-$(architecture)/native/* &lt;platform:linux&gt;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><code>artifacts/</code> 是插件文件，<code>lib/$(Framework)/</code> 按目标框架展开程序集，<code>nuget:</code> 声明第三方依赖，<code>%NUGET_PACKAGES%/...</code> 配合 <code>&lt;platform:...&gt;</code> 按平台挑原生库——<code>$(Framework)</code>、<code>$(architecture)</code> 是部署时的展开变量。一份清单，把“这个插件需要什么环境”说得明明白白。</p>
+</blockquote>
+<p>宿主侧则声明“我要哪些插件”。<a href="https://github.com/Zongsoft/hosting/tree/main/web/web.deploy" target="_blank" rel="noopener"><code>hosting/web/web.deploy</code></a> 以 <code>#@import ../packages</code> 引入共享包清单 <a href="https://github.com/Zongsoft/hosting/tree/main/packages" target="_blank" rel="noopener"><code>hosting/packages</code></a>，再按 <code>[plugins 分类 名称]</code> 分组声明要部署的 NuGet 包（如 <a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Security/api" target="_blank" rel="noopener"><code>Zongsoft.Security.Web</code></a>、<a href="https://github.com/Zongsoft/framework/tree/main/externals/wechat/api" target="_blank" rel="noopener"><code>Zongsoft.Externals.Wechat.Web</code></a>）；<a href="https://github.com/Zongsoft/hosting/tree/main/terminal/.deploy" target="_blank" rel="noopener"><code>terminal/.deploy</code></a>、<a href="https://github.com/Zongsoft/hosting/tree/main/daemon/.deploy" target="_blank" rel="noopener"><code>daemon/.deploy</code></a> 各自声明自己的集合，并且把配置文件的来源也写成带变量的映射，例如：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># daemon/.deploy（节选）</span></span><br><span class="line">../.deploy/$(scheme)/options/app.$(environment).option       = Zongsoft.Hosting.Daemon.option   &lt;!debug:on&gt;</span><br><span class="line">../.deploy/$(scheme)/options/app.$(environment)-debug.option = Zongsoft.Hosting.Daemon.option    &lt;debug:on&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">#@import ../packages</span></span><br><span class="line"><span class="section">[plugins]</span></span><br><span class="line">nuget:Zongsoft.Plugins/plugins/Main.plugin</span><br></pre></td></tr></table></figure>
+<p>部署脚本 <a href="https://github.com/Zongsoft/hosting/tree/main/web/default/deploy.cmd" target="_blank" rel="noopener"><code>web/default/deploy.cmd</code></a> 交互式询问 scheme / environment / debug / platform / architecture / framework，随后 <code>dotnet cake</code> 编译、清空 <code>plugins/</code> 目录，再执行 <code>dotnet deploy --host:web --site:default --scheme:... --environment:...</code>——底层由 <a href="https://github.com/Zongsoft/tools/tree/main/deployer" target="_blank" rel="noopener"><code>Zongsoft.Tools.Deployer</code></a> 部署工具提供能力，最终把各层清单组合成实际的 <code>plugins/</code> 目录。部署专属的产物则放在 <a href="https://github.com/Zongsoft/hosting/tree/main/.deploy" target="_blank" rel="noopener"><code>hosting/.deploy/</code></a>：按环境拆分的配置（<code>app.development.option</code>、<code>app.test.option</code>、<code>app.production.option</code> 及 <code>-debug</code> 变体）、nginx 配置、systemd 服务单元（<a href="https://github.com/Zongsoft/hosting/tree/main/.deploy/default/systemd/zongsoft.daemon.service" target="_blank" rel="noopener"><code>zongsoft.daemon.service</code></a>、<a href="https://github.com/Zongsoft/hosting/tree/main/.deploy/default/systemd/zongsoft.web.service" target="_blank" rel="noopener"><code>zongsoft.web.service</code></a>）。</p>
+<blockquote>
+<p>这正好与 DSH 形成呼应：DSH 用 <code>--dump-config</code> 把“运行时组合”导出为可读清单，Zongsoft 用 <code>*.deploy</code> 把“部署组合”写成自描述清单——前者组合发生在运行时配置，后者组合发生在部署清单。落点不同，思想一致：<strong>组合的结果必须可声明、可审计、可复现。</strong></p>
+</blockquote>
+<h3 id="插件树：路径即契约"><a href="#插件树：路径即契约" class="headerlink" title="插件树：路径即契约"></a>插件树：路径即契约</h3><p><a href="https://github.com/Zongsoft/framework/blob/main/Zongsoft.Plugins/src/PluginTree.cs" target="_blank" rel="noopener">PluginTree</a> 是 Zongsoft 的核心数据结构。它的根节点下挂着 <code>/Workbench/Modules</code>、<code>/Workbench/Services</code>、<code>/Workbench/Events</code>、<code>/Workspace/Environment/Services</code> 等稳定路径；插件文件通过 <code>&lt;extension path=&quot;...&quot;&gt;</code> 把构件挂到这些节点上。构件（Builtin）是“延迟构造的对象描述”：被引用时才通过构建器构建，卸载时通过构建器销毁。</p>
+<p>更彻底的是：<strong>框架连“如何解释和构建插件”本身也做成了插件</strong>。<code>object</code>、<code>expose</code>、<code>lazy</code> 等构建器，<code>path</code>、<code>service</code>、<code>option</code>、<code>type</code> 等解析器，都由主插件清单注册；它们随后又被用来装配模块、服务、文件系统、事件交换器和命令。换言之，Zongsoft 没有只把“业务功能”做成插件——它把“插件的语法”也开放为可组合能力。这是“一切皆插件”最容易被忽略、也最彻底的一层。</p>
+<h3 id="Automao：250-个插件的真实-SaaS"><a href="#Automao：250-个插件的真实-SaaS" class="headerlink" title="Automao：250+ 个插件的真实 SaaS"></a>Automao：250+ 个插件的真实 SaaS</h3><p>插件化最常受到的质疑是：Demo 很漂亮，业务一复杂就退化为依赖地狱。Automao 是这个问题最好的反例——一个基于 Zongsoft 开发框架构建的插件化 SaaS 系统。仅源码目录就存在 <strong>258 个 <code>.plugin</code> 文件</strong>：基础技术、通用业务模块、行业产品（房产、车辆、资产、票务……）、管理端/商家端/客户端/网关/IoT 站点，全部通过插件组合。</p>
+<p>当插件数量达到这个量级，考验早已不是“能否加载一个 DLL”，而是<strong>命名、依赖、边界与交付方式能否长期保持可理解</strong>。Automao 的意义正在于此：它把插件化从一个框架特性，变成了团队组织复杂业务的共同语言——业务能力与交付形态正交（交易是一个领域能力，Web/后台任务/不同站点是承载方式），扩展位置成为架构语言（退款处理器挂载到明确事件路径，而不是隐式调用约定）。</p>
+<p>这也呼应了 <a href="https://github.com/hiisea/elux" target="_blank" rel="noopener">EluxJS</a> 作者在“微模块”探索中反复强调的取舍：真正按业务领域划分的模块，需要共享运行时与明确的协作协议，才能既保持自治，又避免微前端式隔离带来的重量。Zongsoft 和 Automao 把这个命题推到了后端与完整 SaaS 系统中。</p>
+<h3 id="依赖解耦：核心模块与技术方案的边界"><a href="#依赖解耦：核心模块与技术方案的边界" class="headerlink" title="依赖解耦：核心模块与技术方案的边界"></a>依赖解耦：核心模块与技术方案的边界</h3><p>多重依赖是插件化最容易失控的地方：会员（Membership）与支付（Paying）都是核心业务模块，微信（WeChat）是具体技术方案——如果不加约束，就会出现“会员 → 支付 → 微信”的链式耦合，换一个支付渠道就要动三个模块。Automao 的答案是：<strong>把技术方案从核心模块里拆出去，让依赖方向反转</strong>。</p>
+<p>看真实插件。会员模块与支付模块的核心插件，<code>manifest</code> 依赖都只有 <code>Automao.Common</code>——两个核心模块之间、以及它们与任何支付技术之间，既没有物理依赖（程序集/类型引用），也没有插件声明的加载依赖；它们的协作只发生在逻辑依赖（事件路径契约）上。支付模块通过插件树<strong>发布事件契约</strong>：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- Automao.Paying.plugin（事件契约，节选） --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">extension</span> <span class="attr">path</span>=<span class="string">"/Workbench/Modules/Paying/Events"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">expose</span> <span class="attr">name</span>=<span class="string">"Payment"</span> <span class="attr">value</span>=<span class="string">"&#123;path:../@Payment&#125;"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">expose</span> <span class="attr">name</span>=<span class="string">"Paid"</span> <span class="attr">value</span>=<span class="string">"&#123;path:../@Paid&#125;"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">expose</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">expose</span> <span class="attr">name</span>=<span class="string">"Refundment"</span> <span class="attr">value</span>=<span class="string">"&#123;path:../@Refundment&#125;"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">expose</span> <span class="attr">name</span>=<span class="string">"Refunded"</span> <span class="attr">value</span>=<span class="string">"&#123;path:../@Refunded&#125;"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">expose</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">extension</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>会员模块把 <code>ChargeHandler</code> / <code>RefundHandler</code> 挂到这两个事件路径上（甚至没有在插件里声明对支付模块的依赖）——模块之间通过路径通信（逻辑依赖），而不是通过类型引用（物理依赖）。而具体支付技术方案，作为<strong>独立的 provider 插件</strong>存在：<code>modules/paying/providers/</code> 下同时有 alipay / card / cash / wechat 四个提供程序，<code>modules/membership/providers/wechat/</code> 则提供微信会员卡提供程序。每个 provider 的依赖方向都是“核心模块 + 对应外部 SDK”：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- Automao.Paying.Providers.Wechat.plugin --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">manifest</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span> <span class="attr">name</span>=<span class="string">"Automao.Paying"</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span> <span class="attr">name</span>=<span class="string">"Automao.Externals.Wechat"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">manifest</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- Automao.Paying.Providers.Alipay.plugin --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">manifest</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span> <span class="attr">name</span>=<span class="string">"Automao.Paying"</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span> <span class="attr">name</span>=<span class="string">"Automao.Externals.Alipay"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">manifest</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>核心模块不知道微信、支付宝的存在；provider 反向依赖核心模块与外部 SDK。换支付方案 = 换部署的 provider 插件，业务模块一行不改；同一时刻也可以并存多个 provider（现金、会员卡、微信、支付宝……）。这正是“依赖倒置”在插件层的落地——<strong>谁依赖谁，由部署时装入哪个插件决定，而不是由代码结构决定。</strong></p>
+<h3 id="数据引擎与安全：“核心部件”也只是插件"><a href="#数据引擎与安全：“核心部件”也只是插件" class="headerlink" title="数据引擎与安全：“核心部件”也只是插件"></a>数据引擎与安全：“核心部件”也只是插件</h3><p>在企业系统里，数据引擎（数据框架）与安全控制通常被视为不折不扣的“核心部件”——而 Zongsoft 的插件化主张，恰恰在这里接受最严峻的考验：<strong>它们也必须以普通插件的身份存在。</strong></p>
+<p>看框架源码的目录结构就知道这不是口号。数据框架 <a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data" target="_blank" rel="noopener">Zongsoft.Data</a> 本身是一个插件，而它的数据库驱动——<a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data/drivers" target="_blank" rel="noopener"><code>Zongsoft.Data/drivers</code></a> 下的 <a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data/drivers/mysql" target="_blank" rel="noopener"><code>mysql</code></a>、<a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data/drivers/postgres" target="_blank" rel="noopener"><code>postgres</code></a>、<a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data/drivers/duckdb" target="_blank" rel="noopener"><code>duckdb</code></a>、<a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data/drivers/sqlite" target="_blank" rel="noopener"><code>sqlite</code></a>、<a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data/drivers/clickhouse" target="_blank" rel="noopener"><code>clickhouse</code></a>、<a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data/drivers/tdengine" target="_blank" rel="noopener"><code>tdengine</code></a>、<a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Data/drivers/mssql" target="_blank" rel="noopener"><code>mssql</code></a>……每一个都是独立的驱动插件：<code>MySqlDriver</code>、<code>DuckDBDriver</code> 等都实现统一的数据驱动抽象 <code>IDataDriver</code>，各自带有自己的 <code>*.deploy</code> 自描述部署清单（前文部署小节展示的 <a href="https://github.com/Zongsoft/framework/blob/main/Zongsoft.Data/drivers/mysql/src/Zongsoft.Data.MySql.deploy" target="_blank" rel="noopener"><code>Zongsoft.Data.MySql.deploy</code></a> 就是其中之一）。安全控制同理：<a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Security" target="_blank" rel="noopener"><code>Zongsoft.Security</code></a> 是插件，验证码（<a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Security/captcha" target="_blank" rel="noopener"><code>Zongsoft.Security.Captcha</code></a>）、Web 变体（<a href="https://github.com/Zongsoft/framework/tree/main/Zongsoft.Security/api" target="_blank" rel="noopener"><code>Zongsoft.Security.Web</code></a>）也都是独立插件。</p>
+<p>这意味着什么？<strong>切换数据库 = 替换或新增一个数据引擎驱动插件，业务模块零改动</strong>——业务代码只面向统一的数据访问抽象，驱动以插件身份被选择与装配；安全能力的更换同理。连性命攸关的数据引擎与安全控制都不享有“天生特权”，这正是<strong>插件平等、一切皆插件</strong>的设计初衷：在一个真正插件化的系统里，“核心”不是一个受保护的类，而是一个与其它能力平等的节点——它只是恰好被每个部署都装上而已。</p>
+<h3 id="企业级的插件化，慢一点，但更稳"><a href="#企业级的插件化，慢一点，但更稳" class="headerlink" title="企业级的插件化，慢一点，但更稳"></a>企业级的插件化，慢一点，但更稳</h3><p>Zongsoft 的路线没有 DSH 那么“炫”，却天然贴近企业关心的问题：版本可控、可审计、可部署、可复用、责任边界清晰。它的卸载协议由构建器与框架纪律保证，而不是要求每一次变换都可逆；它的依赖是排序语义，而不是响应式状态。<strong>它的目标不是让系统在运行中不断自变，而是让系统在长期演进中保持可组合。</strong></p>
+<h2 id="四、殊途同归：插件成为系统的组织单位"><a href="#四、殊途同归：插件成为系统的组织单位" class="headerlink" title="四、殊途同归：插件成为系统的组织单位"></a>四、殊途同归：插件成为系统的组织单位</h2><p>把两套体系放在一起，最有价值的不是强行寻找一一对应，而是看它们怎样用不同机制回答同一组问题——这正是上文那张对照表的含义。</p>
+<p>Cordis 论文给这套共同问题提供了理论坐标：<strong>时间可组合性</strong>（效果能否完全撤回）与<strong>空间可组合性</strong>（依赖能否随环境变化）。它把经典的效果（effect）与余效果（coeffect）这对对偶概念提升为运行时机制：效果 <em>(effect)</em> 回答“计算对世界做了什么”（副作用、变更），余效果 <em>(coeffect)</em> 回答“计算需要从世界得到什么”（上下文依赖、前置要求）。可逆效果让每次上下文变换都携带逆操作，反应式 coeffect 让上下文变化主动通知组件——并给出组件演算的元理论。DSH 把这套理论带进了会话、工具、模型、沙箱乃至 Agent 自修改；Zongsoft 则用插件树、声明式挂载、空宿主和生命周期管理，把同样的两个维度落实在企业软件里。</p>
+<blockquote>
+<p>注：余效果（coeffect）的“余”字取数学中 co- 前缀的传统译法（如余弦、余切之于正弦、正切），意为与 effect 互补、对偶。</p>
+</blockquote>
+<p>论文也直面了一个“粒度不匹配”的问题：操作系统可以在进程退出时回收内存和句柄，容器编排器可以在服务层处理依赖与重启，但为了换掉一个 Agent 工具而重启整个进程，会丢失连接、缓存和进行中的任务；把每个细小能力都拆成独立服务，又会引入网络、序列化和运维成本。Cordis 想建立的，是一种介于函数局部作用域与进程边界之间的<strong>组件级恢复域</strong>：既保留同进程调用的效率，又让一个组件能够独立退出。而且论文给出的性质非常克制：它并不声称现实世界的所有副作用都能倒放——发送出去的邮件、已经被外部系统读取的文件、完成的支付，通常不可逆，只能补偿；恶意插件若能直接接触宿主运行时，也不能靠语言级 Context 变成可信代码。<strong>可组合性减少的是结构性失控，不是抹除现实世界的不可逆性。</strong></p>
+<p><img src="/images/agent-os-spatiotemporal-composability.png" alt="时空可组合性的两条坐标轴"></p>
+<p>这里必须诚实：<strong>没有证据表明两条路线存在直接影响关系</strong>。Zongsoft 的插件树与 Cordis 的上下文，各自独立演化。恰恰因为如此，这次会合才更值得重视：</p>
+<p><img src="/images/agent-os-dsh-zongsoft-plugin-architecture.png" alt="DSH/Cordis 与 Zongsoft/Automao 的插件化路径"></p>
+<blockquote>
+<p>当两条相隔多年、面向不同场景的技术路线，都把“插件”从扩展点提升为系统组织单位时，我们看到的可能不是一阵热点，而是一种正在成为基础设施的架构范式。</p>
+</blockquote>
+<h2 id="五、对-Agent-时代的启示：插件运行时应该长什么样"><a href="#五、对-Agent-时代的启示：插件运行时应该长什么样" class="headerlink" title="五、对 Agent 时代的启示：插件运行时应该长什么样"></a>五、对 Agent 时代的启示：插件运行时应该长什么样</h2><p>回到开头的问题：DSH 的火热，表面来自 DeepSeek 的品牌与 Agent 浪潮；更深层的原因，是开发者终于集体撞上了一个经典的软件工程问题——<strong>当能力越来越多、变化越来越快，系统靠什么保持可组合？</strong></p>
+<p>从 DSH 与 Zongsoft 的经验里，可以提炼出一份插件运行时的“验收清单”——四条，每条都能对着真实代码打钩：</p>
+<p><strong>① 能力有坐标：查得到、找得着。</strong> 服务键、事件名、树路径，三者至少要有其一。没有命名空间的插件化，最终会退化成换了目录结构的耦合。</p>
+<p><strong>② 组合即产品：形态是分层配置的结果。</strong> 产品能力由 bundle/patch 或宿主/清单组合而来，能 dump、能审计、能对比——而不是埋在万能入口的 if 分支里。</p>
+<p><strong>③ 卸载即还原：效果归属创建者，并按序撤销。</strong> 事件、工具、服务、子组件、资源必须能随组件一起被清退；不能安全卸载的插件，本质上仍是一次不可逆的全局修改。</p>
+<p><strong>④ 自改须受控：自省要可见，修改要过沙箱与审批。</strong> 越接近“系统可以改写自己”，治理就越不是附加功能——动态实验与持久插件之间，必须有一道明确的晋升边界。</p>
+<p>由此还可以得到一个对 Agent 平台的具体判断：<strong>动态与治理不应二选一，而应各归其位。</strong> Cordis 式的运行时自适应（HMR、动态包、会话级插件）适合放在受限的会话里做实验；Zongsoft 式的工程化治理（版本、审核、部署、责任边界）适合把验证过的能力沉淀为正式插件。自进化发生在沙箱里，可治理性沉淀在仓库里——这可能是未来 Agent 平台的标准分工。</p>
+<h2 id="结语：模型决定-Agent-能走多远，运行时决定它能走多久"><a href="#结语：模型决定-Agent-能走多远，运行时决定它能走多久" class="headerlink" title="结语：模型决定 Agent 能走多远，运行时决定它能走多久"></a>结语：模型决定 Agent 能走多远，运行时决定它能走多久</h2><p>DeepSeek Harness 告诉我们：模型适配器可以是一行配置，Agent 循环可以是插件行，整个 UI 可以是一张插件名录。Zongsoft 则用十六年告诉我们：这条路不只属于高动态的 Agent，它也属于版本化、可审计、跨站点复用的企业软件——连数据引擎与安全控制这样的“核心部件”，也只是插件树里的普通节点。</p>
+<p>Cordis 用“可逆效果 + 反应式 coeffect”把动态组合推向形式化；DSH 把它带进了会话、工具、模型、沙箱乃至 Agent 自修改；Zongsoft.Plugins 则从 2010 年起，通过插件树、声明式挂载、空宿主和生命周期管理，把“一切皆插件”落实在企业软件中；Automao 进一步证明，这套思想可以承载真实 SaaS 的模块、产品和站点组合。它们不是同一个实现，也没有证据表明存在直接影响关系——恰恰因为如此，这次思想共振才更值得重视。</p>
+<p>两条路线，一套信念：</p>
+<blockquote>
+<p>没有特权的产品内核，只有可组合的运行时规则；能力被命名、被获得、被生效、被撤回、被组合、被观察——插件，从“扩展点”升格为“系统的组织单位”。</p>
+</blockquote>
+<p>模型还会继续迭代，今天最强的名字迟早会被替换。真正能够穿越模型周期的，是那套让能力被装上、换下、组合、观察并安全演进的运行时。<strong>模型决定 Agent 能走多远；插件运行时决定它能否在不断变化中，仍然作为一个系统向前走。</strong></p>
+<hr>
+<h2 id="延伸阅读"><a href="#延伸阅读" class="headerlink" title="延伸阅读"></a>延伸阅读</h2><ul>
+<li><a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener">DeepSeek Harness 官方仓库</a></li>
+<li><a href="https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/architecture.md" target="_blank" rel="noopener">DeepSeek Harness 架构文档</a></li>
+<li><a href="https://deepseek-harness.github.io/deepseek-harness/reference/cordis-primer" target="_blank" rel="noopener">Cordis 入门（官方文档）</a></li>
+<li><a href="https://github.com/cordiverse/paper" target="_blank" rel="noopener">A Programming Paradigm for Spatiotemporal Composability（Cordis 论文）</a></li>
+<li><a href="https://github.com/Zongsoft/framework" target="_blank" rel="noopener">Zongsoft 开发框架（含 Zongsoft.Plugins）</a></li>
+<li><a href="https://github.com/Zongsoft/hosting" target="_blank" rel="noopener">Zongsoft Hosting（空宿主）</a></li>
+</ul>
+
+    </article>
+
+    <div style="text-align:center; margin-top:4rem;">
+	<img src="/blog/assets/zongsoft-wechat-qrcode.jpg">
+	<p style="margin-top:2px; color:maroon;">↑ 扫码关注 Zongsoft 微信公众号 ↑</p>
+</div>
+
+<hr style="margin-top:2em;margin-bottom:2em;margin-left:0;margin-right:0;padding:0;height:2px;border:0;background-color:#e8e8e8;">
+
+<div style="margin-bottom:4em;">
+	<img src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" width>
+	<p style="margin-top:4px;">
+本作品采用 <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="bi-link">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a> 进行许可。欢迎转载、使用、重新发布，但必须保留本文的署名 <a target="_blank" href="https://github.com/zongsoft" class="bi-link">钟峰</a>（包含链接：<a target="_blank" href="http://zongsoft.github.io" class="bi-link">http://zongsoft.github.io</a>），不得用于商业目的，基于本文修改后的作品务必以相同的许可发布。如有任何疑问或授权方面的协商，请致信给我 (zongsoft@qq.com)。
+	</p>
+</div>
+
+
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://zongsoft.com">钟峰(Popeye Zhong)</a>
+            </p><p>原文链接：<a href="http://zongsoft.com/zh-cn/zongsoft/agent-os-everything-is-a-plugin/">http://zongsoft.com/zh-cn/zongsoft/agent-os-everything-is-a-plugin/</a>
+            </p><p>发表日期：<a href="http://zongsoft.com/zh-cn/zongsoft/agent-os-everything-is-a-plugin/">August 15th 2026, 11:00:00 pm</a>
+            </p><p>更新日期：<a href="http://zongsoft.com/zh-cn/zongsoft/agent-os-everything-is-a-plugin/">August 16th 2026, 1:40:37 am</a>
+            </p><p>版权声明：本文采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a>进行许可。</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <a class="prevSlogan" href="/blog/zh-cn/zongsoft/smooth-weighted-round-robin-balancing/">Previous Post</a>
+                <a href="/blog/zh-cn/zongsoft/smooth-weighted-round-robin-balancing/" title="平滑的加权轮询均衡算法">
+                    <div class="prevTitle">平滑的加权轮询均衡算法</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:zongsoft@qq.com" class="iconfont-archer email" title="email"></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/Zongsoft" class="iconfont-archer github" target="_blank" title="github"></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title="wechat">
+                  
+                  <img class="profile-qr" src="/blog/assets/zongsoft-wechat-qrcode.jpg">
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+            
+                <a href="//zhuanlan.zhihu.com/Zongsoft" class="iconfont-archer zhihu" target="_blank" title="zhihu"></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            
+                <a href="//cnblogs.com/Zongsoft" class="iconfont-archer others" target="_blank" title="others"></a>
+            
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言：模型只是-CPU，插件运行时才是-Agent-的操作系统"><span class="toc-number">1.</span> <span class="toc-text">引言：模型只是 CPU，插件运行时才是 Agent 的操作系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一、先看-DSH：一行一个插件"><span class="toc-number">2.</span> <span class="toc-text">一、先看 DSH：一行一个插件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#连“内核”都是插件"><span class="toc-number">2.1.</span> <span class="toc-text">连“内核”都是插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#连-UI-都是插件"><span class="toc-number">2.2.</span> <span class="toc-text">连 UI 都是插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#会话是事实流，不是聊天数组"><span class="toc-number">2.3.</span> <span class="toc-text">会话是事实流，不是聊天数组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Agent-能修改运行时自己"><span class="toc-number">2.4.</span> <span class="toc-text">Agent 能修改运行时自己</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、插件运行时的五项机制"><span class="toc-number">3.</span> <span class="toc-text">二、插件运行时的五项机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#机制一：能力坐标-——-插件把能力放在哪里？"><span class="toc-number">3.1.</span> <span class="toc-text">机制一：能力坐标 —— 插件把能力放在哪里？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#机制二：依赖激活-——-插件何时可以开始工作？"><span class="toc-number">3.2.</span> <span class="toc-text">机制二：依赖激活 —— 插件何时可以开始工作？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#机制三：效果撤回-——-插件改变世界后，怎么把世界还回去？"><span class="toc-number">3.3.</span> <span class="toc-text">机制三：效果撤回 —— 插件改变世界后，怎么把世界还回去？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#机制四：组合与形态-——-产品是什么？"><span class="toc-number">3.4.</span> <span class="toc-text">机制四：组合与形态 —— 产品是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#机制五：自省与演化-——-运行时能被观察、被修改吗？"><span class="toc-number">3.5.</span> <span class="toc-text">机制五：自省与演化 —— 运行时能被观察、被修改吗？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、Zongsoft-的十六年：把“一切皆插件”落在企业软件里"><span class="toc-number">4.</span> <span class="toc-text">三、Zongsoft 的十六年：把“一切皆插件”落在企业软件里</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#空宿主：多类应用，同一套装配"><span class="toc-number">4.1.</span> <span class="toc-text">空宿主：多类应用，同一套装配</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#终端应用（Terminal）"><span class="toc-number">4.1.1.</span> <span class="toc-text">终端应用（Terminal）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#后台服务（Daemon）"><span class="toc-number">4.1.2.</span> <span class="toc-text">后台服务（Daemon）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#网站应用（Web）"><span class="toc-number">4.1.3.</span> <span class="toc-text">网站应用（Web）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部署即组合：插件自带的“出厂清单”"><span class="toc-number">4.2.</span> <span class="toc-text">部署即组合：插件自带的“出厂清单”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#插件树：路径即契约"><span class="toc-number">4.3.</span> <span class="toc-text">插件树：路径即契约</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Automao：250-个插件的真实-SaaS"><span class="toc-number">4.4.</span> <span class="toc-text">Automao：250+ 个插件的真实 SaaS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#依赖解耦：核心模块与技术方案的边界"><span class="toc-number">4.5.</span> <span class="toc-text">依赖解耦：核心模块与技术方案的边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据引擎与安全：“核心部件”也只是插件"><span class="toc-number">4.6.</span> <span class="toc-text">数据引擎与安全：“核心部件”也只是插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#企业级的插件化，慢一点，但更稳"><span class="toc-number">4.7.</span> <span class="toc-text">企业级的插件化，慢一点，但更稳</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、殊途同归：插件成为系统的组织单位"><span class="toc-number">5.</span> <span class="toc-text">四、殊途同归：插件成为系统的组织单位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、对-Agent-时代的启示：插件运行时应该长什么样"><span class="toc-number">6.</span> <span class="toc-text">五、对 Agent 时代的启示：插件运行时应该长什么样</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结语：模型决定-Agent-能走多远，运行时决定它能走多久"><span class="toc-number">7.</span> <span class="toc-text">结语：模型决定 Agent 能走多远，运行时决定它能走多久</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#延伸阅读"><span class="toc-number">8.</span> <span class="toc-text">延伸阅读</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 10
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2026 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/15</span><a class="archive-post-title" href="/blog/zh-cn/zongsoft/agent-os-everything-is-a-plugin/">模型只是 CPU，插件运行时才是 Agent 的操作系统：从 DeepSeek Harness 到 Zongsoft</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2022 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/15</span><a class="archive-post-title" href="/blog/zh-cn/zongsoft/smooth-weighted-round-robin-balancing/">平滑的加权轮询均衡算法</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/19</span><a class="archive-post-title" href="/blog/zh-cn/zongsoft/announcing-data-engine/">Zongsoft.Data 发布公告</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/01</span><a class="archive-post-title" href="/blog/zh-cn/misc/iis-express/">关于 IIS Express 常用设置</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/03</span><a class="archive-post-title" href="/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-2/">代码失控与状态机（下）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span><a class="archive-post-title" href="/blog/zh-cn/zongsoft/coding-outcontrol-statemachine-1/">代码失控与状态机（上）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/17</span><a class="archive-post-title" href="/blog/zh-cn/zongsoft/entity-dynamic-generation-3/">实体类的动态生成（三）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/16</span><a class="archive-post-title" href="/blog/zh-cn/zongsoft/entity-dynamic-generation-2/">实体类的动态生成（二）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/15</span><a class="archive-post-title" href="/blog/zh-cn/zongsoft/entity-dynamic-generation-1/">实体类的动态生成（一）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/10</span><a class="archive-post-title" href="/blog/zh-cn/misc/github-site/">搭建 github.io 博客站点</a>
+        </li>
+    
+    </ul></div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="DeepSeek Harness"><span class="iconfont-archer">&#xe606;</span>DeepSeek Harness</span>
+    
+        <span class="sidebar-tag-name" data-tags="Cordis"><span class="iconfont-archer">&#xe606;</span>Cordis</span>
+    
+        <span class="sidebar-tag-name" data-tags="Zongsoft.Plugins"><span class="iconfont-archer">&#xe606;</span>Zongsoft.Plugins</span>
+    
+        <span class="sidebar-tag-name" data-tags="AI Agent"><span class="iconfont-archer">&#xe606;</span>AI Agent</span>
+    
+        <span class="sidebar-tag-name" data-tags="插件架构"><span class="iconfont-archer">&#xe606;</span>插件架构</span>
+    
+        <span class="sidebar-tag-name" data-tags="ORM"><span class="iconfont-archer">&#xe606;</span>ORM</span>
+    
+        <span class="sidebar-tag-name" data-tags="entity framework"><span class="iconfont-archer">&#xe606;</span>entity framework</span>
+    
+        <span class="sidebar-tag-name" data-tags="data access"><span class="iconfont-archer">&#xe606;</span>data access</span>
+    
+        <span class="sidebar-tag-name" data-tags="data engine"><span class="iconfont-archer">&#xe606;</span>data engine</span>
+    
+        <span class="sidebar-tag-name" data-tags="数据访问"><span class="iconfont-archer">&#xe606;</span>数据访问</span>
+    
+        <span class="sidebar-tag-name" data-tags="数据引擎"><span class="iconfont-archer">&#xe606;</span>数据引擎</span>
+    
+        <span class="sidebar-tag-name" data-tags="coding"><span class="iconfont-archer">&#xe606;</span>coding</span>
+    
+        <span class="sidebar-tag-name" data-tags="out of control"><span class="iconfont-archer">&#xe606;</span>out of control</span>
+    
+        <span class="sidebar-tag-name" data-tags="state machine"><span class="iconfont-archer">&#xe606;</span>state machine</span>
+    
+        <span class="sidebar-tag-name" data-tags="expression parser"><span class="iconfont-archer">&#xe606;</span>expression parser</span>
+    
+        <span class="sidebar-tag-name" data-tags="entity"><span class="iconfont-archer">&#xe606;</span>entity</span>
+    
+        <span class="sidebar-tag-name" data-tags="emit"><span class="iconfont-archer">&#xe606;</span>emit</span>
+    
+        <span class="sidebar-tag-name" data-tags="dynamic"><span class="iconfont-archer">&#xe606;</span>dynamic</span>
+    
+        <span class="sidebar-tag-name" data-tags="generate"><span class="iconfont-archer">&#xe606;</span>generate</span>
+    
+        <span class="sidebar-tag-name" data-tags="compile"><span class="iconfont-archer">&#xe606;</span>compile</span>
+    
+        <span class="sidebar-tag-name" data-tags="实体"><span class="iconfont-archer">&#xe606;</span>实体</span>
+    
+        <span class="sidebar-tag-name" data-tags="动态编译"><span class="iconfont-archer">&#xe606;</span>动态编译</span>
+    
+        <span class="sidebar-tag-name" data-tags="动态生成"><span class="iconfont-archer">&#xe606;</span>动态生成</span>
+    
+        <span class="sidebar-tag-name" data-tags="github.io"><span class="iconfont-archer">&#xe606;</span>github.io</span>
+    
+        <span class="sidebar-tag-name" data-tags="github pages"><span class="iconfont-archer">&#xe606;</span>github pages</span>
+    
+        <span class="sidebar-tag-name" data-tags="Hexo"><span class="iconfont-archer">&#xe606;</span>Hexo</span>
+    
+        <span class="sidebar-tag-name" data-tags="建站"><span class="iconfont-archer">&#xe606;</span>建站</span>
+    
+        <span class="sidebar-tag-name" data-tags="博客"><span class="iconfont-archer">&#xe606;</span>博客</span>
+    
+        <span class="sidebar-tag-name" data-tags="Visual Studio"><span class="iconfont-archer">&#xe606;</span>Visual Studio</span>
+    
+        <span class="sidebar-tag-name" data-tags="IIS Express"><span class="iconfont-archer">&#xe606;</span>IIS Express</span>
+    
+        <span class="sidebar-tag-name" data-tags="site binding"><span class="iconfont-archer">&#xe606;</span>site binding</span>
+    
+        <span class="sidebar-tag-name" data-tags="request limit"><span class="iconfont-archer">&#xe606;</span>request limit</span>
+    
+        <span class="sidebar-tag-name" data-tags="balancing"><span class="iconfont-archer">&#xe606;</span>balancing</span>
+    
+        <span class="sidebar-tag-name" data-tags="weighted"><span class="iconfont-archer">&#xe606;</span>weighted</span>
+    
+        <span class="sidebar-tag-name" data-tags="round-robin"><span class="iconfont-archer">&#xe606;</span>round-robin</span>
+    
+        <span class="sidebar-tag-name" data-tags="smooth"><span class="iconfont-archer">&#xe606;</span>smooth</span>
+    
+        <span class="sidebar-tag-name" data-tags="加权轮询"><span class="iconfont-archer">&#xe606;</span>加权轮询</span>
+    
+        <span class="sidebar-tag-name" data-tags="负载均衡"><span class="iconfont-archer">&#xe606;</span>负载均衡</span>
+    
+        <span class="sidebar-tag-name" data-tags="权重均衡"><span class="iconfont-archer">&#xe606;</span>权重均衡</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br>
+    1、请确保node版本大于6.2<br>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="zongsoft"><span class="iconfont-archer">&#xe60a;</span>zongsoft</span>
+    
+        <span class="sidebar-category-name" data-categories="misc"><span class="iconfont-archer">&#xe60a;</span>misc</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/blog/",
+        author: "钟峰(Popeye Zhong)"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/blog/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/blog/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/blog/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+
