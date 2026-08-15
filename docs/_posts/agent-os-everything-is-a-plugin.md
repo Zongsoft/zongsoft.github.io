@@ -12,7 +12,7 @@ tags:
 - 插件架构
 ---
 
-![由可插拔模块组成的 Agent 运行时](/images/agent-os-hero.png)
+![由可插拔模块组成的 Agent 运行时](/blog/images/agent-os-hero.png)
 
 > **导读**：DeepSeek Harness（DSH）开源后，“一切皆插件”成了 AI Agent 圈最热的口号。但口号人人会说，机制决定生死。本文不写“DSH 很厉害”的观后感，而是翻开它的真实组合清单与源码，把“一切皆插件”拆成插件运行时必须回答的**五个底层问题**——能力坐标、依赖激活、效果撤回、组合形态、自省演化。
 >
@@ -82,7 +82,7 @@ tags:
 
 每一行的语义是：“把名为 X 的插件，以这份 config 挂进运行时”。行与行之间**没有加载顺序的含义**——清单里的注释写得很直白：“Row order carries no load semantics (activation is service-availability driven)”，即**激活由服务可用性驱动，而不是行序**。一个插件声明自己依赖哪些服务（`inject`），依赖齐了它才启动；依赖消失，它先失活，等依赖回来再重新激活。这是“插件”与“一堆 import”最本质的区别。
 
-![Agent Runtime 的完整分层](/images/agent-os-runtime-stack.png)
+![Agent Runtime 的完整分层](/blog/images/agent-os-runtime-stack.png)
 
 ### 连“内核”都是插件
 
@@ -470,11 +470,11 @@ Cordis 论文给这套共同问题提供了理论坐标：**时间可组合性**
 
 论文也直面了一个“粒度不匹配”的问题：操作系统可以在进程退出时回收内存和句柄，容器编排器可以在服务层处理依赖与重启，但为了换掉一个 Agent 工具而重启整个进程，会丢失连接、缓存和进行中的任务；把每个细小能力都拆成独立服务，又会引入网络、序列化和运维成本。Cordis 想建立的，是一种介于函数局部作用域与进程边界之间的**组件级恢复域**：既保留同进程调用的效率，又让一个组件能够独立退出。而且论文给出的性质非常克制：它并不声称现实世界的所有副作用都能倒放——发送出去的邮件、已经被外部系统读取的文件、完成的支付，通常不可逆，只能补偿；恶意插件若能直接接触宿主运行时，也不能靠语言级 Context 变成可信代码。**可组合性减少的是结构性失控，不是抹除现实世界的不可逆性。**
 
-![时空可组合性的两条坐标轴](/images/agent-os-spatiotemporal-composability.png)
+![时空可组合性的两条坐标轴](/blog/images/agent-os-spatiotemporal-composability.png)
 
 这里必须诚实：**没有证据表明两条路线存在直接影响关系**。Zongsoft 的插件树与 Cordis 的上下文，各自独立演化。恰恰因为如此，这次会合才更值得重视：
 
-![DSH/Cordis 与 Zongsoft/Automao 的插件化路径](/images/agent-os-dsh-zongsoft-plugin-architecture.png)
+![DSH/Cordis 与 Zongsoft/Automao 的插件化路径](/blog/images/agent-os-dsh-zongsoft-plugin-architecture.png)
 
 > 当两条相隔多年、面向不同场景的技术路线，都把“插件”从扩展点提升为系统组织单位时，我们看到的可能不是一阵热点，而是一种正在成为基础设施的架构范式。
 
