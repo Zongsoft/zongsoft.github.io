@@ -156,7 +156,7 @@ DSH 还内置了一套自引用工具：`cordis_inspect`（查看当前进程的
 - **Zongsoft**：能力放在**插件树路径**上。对象、服务、模块、事件处理器、命令、启动项被挂载到稳定路径，例如 `/Workbench/Modules`、`/Workspace/Environment/Services`、`/Workbench/Events`。路径既是位置，也是契约：提供者把能力放到约定节点，消费者通过路径或 `expose` 关系取得它。
 
 ```xml
-<!-- Automao.Trading-daemon.plugin（真实清单，节选） -->
+<!-- Automao.Trading-daemon.plugin（真实插件，节选） -->
 <plugin name="Automao.Trading.Daemon"
         title="Automao.Trading.Daemon Plugin">
 	<manifest>
@@ -203,9 +203,9 @@ await root.plugin(Counter)
 await root.plugin(greeter)
 ```
 
-- **Zongsoft**：清单里也有 `<dependencies>`，但源码注释把边界划得非常清楚：**“依赖项只表明插件的加载顺序，并无类型依赖的暗喻”**。加载器递归预加载清单，用栈做依赖拓扑，主插件先加载、从插件后加载；运行时定位则交给插件树路径。也就是说，Zongsoft 的依赖是**排序语义**，Cordis 的依赖是**状态语义**——前者表达“先装谁”，后者表达“依赖齐了没”。
+- **Zongsoft**：插件里也有 `<dependencies>`，但源码注释把边界划得非常清楚：**“依赖项只表明插件的加载顺序，并无类型依赖的暗喻”**。加载器递归预加载插件，用栈做依赖拓扑，主插件先加载、从插件后加载；运行时定位则交给插件树路径。也就是说，Zongsoft 的依赖是**排序语义**，Cordis 的依赖是**状态语义**——前者表达“先装谁”，后者表达“依赖齐了没”。
 
-顺带厘清一组概念：**物理依赖**指代码层面的程序集/类型引用，编译期就固定；**逻辑依赖**指运行时的行为契约（事件路径、服务约定），只在运行中成立。Zongsoft 清单里的 `<dependencies>` 两者都不是——它只表达加载顺序：类型引用交给 .NET 的程序集解析，运行时协作交给插件树路径。所以“清单里没有依赖”不等于“两者毫无关系”：核心模块之间完全可以靠逻辑依赖（事件路径）协作，而清单只负责决定谁先装。
+顺带厘清一组概念：**物理依赖**指代码层面的程序集/类型引用，编译期就固定；**逻辑依赖**指运行时的行为契约（事件路径、服务约定），只在运行中成立。Zongsoft 插件文件里的 `<dependencies>` 两者都不是——它只表达加载顺序：类型引用交给 .NET 的程序集解析，运行时协作交给插件树路径。所以“插件里没有依赖”不等于“两者毫无关系”：核心模块之间完全可以靠逻辑依赖（事件路径）协作，而插件依赖只负责决定谁先装。
 
 为什么会有这个差异？因为场景不同。Agent 运行时的拓扑在**运行中**高频变化（HMR、动态包、会话级插件），依赖必须能响应变化；企业系统的插件集合在**部署时**确定，加载顺序足够，稳定性更重要。这不是谁优谁劣，而是动力学与静力学的分工。
 
@@ -255,16 +255,16 @@ Zongsoft：空宿主 → 插件程序集 + *.plugin → X.option → X.{env}.opt
 前四项机制回答“系统如何被组装”，最后一项回答“系统如何被认知和改变”。
 
 - **DSH**：把自省做成了 Agent 可用的工具。`cordis_inspect` 报告当前进程里“谁在跑、每个服务能做什么”；`cordis_define` / `cordis_run` / `cordis_stop` / `cordis_undefine` 让 Agent 在**进程内存**里定义、运行、停止、撤回一个动态插件包。它还能检查自己的 API 目录——这个目录与官方文档由同一份 AST 遍历生成，因此“模型读到的数据”与“渲染出来的文档”不可能彼此偏离。这是把“一切皆插件”延伸到**自我描述协议**的一步：运行时结构不再只是人眼可读，而是模型可读、可操作。
-- **Zongsoft**：插件树自带 `find` / `list` / `tree` 命令，可以把运行中的系统结构以树状打印出来；`Mount` / `Unmount` 支持运行时挂载与卸载对象。它的演化走的是另一条更重的路：编译后的插件程序集 + 声明式清单 + 部署工具链（`deploy` / `*.deploy` 部署文件）+ 环境化配置，强调版本、审核、回滚与责任边界。
+- **Zongsoft**：插件树自带 `find` / `list` / `tree` 命令，可以把运行中的系统结构以树状打印出来；`Mount` / `Unmount` 支持运行时挂载与卸载对象。它的演化走的是另一条更重的路：编译后的插件程序集 + 声明式插件文件 + 部署工具链（`deploy` / `*.deploy` 部署文件）+ 环境化配置，强调版本、审核、回滚与责任边界。
 
 两者的分野在这里变得非常清楚：
 
 | 维度 | DSH / Cordis | Zongsoft |
 |---|---|---|
 | 能力坐标 | 上下文服务键 `ctx.<key>`、事件名、loader 条目 id | 插件树稳定路径（`/Workbench/...`）与 expose |
-| 依赖语义 | `inject` 反应式 coeffect，依赖驱动激活/失活 | 清单 `<dependencies>` 只表达加载顺序 |
+| 依赖语义 | `inject` 反应式 coeffect，依赖驱动激活/失活 | 插件依赖 `<dependencies>` 只表达加载顺序 |
 | 效果撤回 | `ctx.effect` 累积逆操作，逆序执行，级联撤销 | `Build/Destroy`、内置节点清理、递归卸载 |
-| 组合形态 | profile = bundle patch 分层，整行替换，HMR | 空宿主 + 插件清单 + 环境 option 分层 |
+| 组合形态 | profile = bundle patch 分层，整行替换，HMR | 空宿主 + 插件文件 + 环境 option 分层 |
 | 自省演化 | `cordis_inspect/define/run/stop/undefine`，进程内自修改 | 插件树命令、`Mount/Unmount`、部署工具链 |
 | 主要场景 | 高动态 Agent 运行时、自修改、细粒度恢复 | 企业软件、跨宿主复用、版本化治理 |
 
@@ -374,7 +374,7 @@ nuget:Confluent.Kafka@2.15.0
 %NUGET_PACKAGES%/librdkafka.redist/2.15.0/runtimes/linux-$(architecture)/native/* <platform:linux>
 ```
 
-> `artifacts/` 是插件清单文件，`lib/$(Framework)/` 按目标框架展开程序集，`nuget:` 声明第三方依赖，`%NUGET_PACKAGES%/...` 配合 `<platform:...>` 按平台挑原生库——`$(Framework)`、`$(architecture)` 是部署时的展开变量。一份清单，把“这个插件需要什么环境”说得明明白白。
+> `artifacts/` 是插件文件，`lib/$(Framework)/` 按目标框架展开程序集，`nuget:` 声明第三方依赖，`%NUGET_PACKAGES%/...` 配合 `<platform:...>` 按平台挑原生库——`$(Framework)`、`$(architecture)` 是部署时的展开变量。一份清单，把“这个插件需要什么环境”说得明明白白。
 
 宿主侧则声明“我要哪些插件”。[`hosting/web/web.deploy`](https://github.com/Zongsoft/hosting/tree/main/web/web.deploy) 以 `#@import ../packages` 引入共享包清单 [`hosting/packages`](https://github.com/Zongsoft/hosting/tree/main/packages)，再按 `[plugins 分类 名称]` 分组声明要部署的 NuGet 包（如 [`Zongsoft.Security.Web`](https://github.com/Zongsoft/framework/tree/main/Zongsoft.Security/api)、[`Zongsoft.Externals.Wechat.Web`](https://github.com/Zongsoft/framework/tree/main/externals/wechat/api)）；[`terminal/.deploy`](https://github.com/Zongsoft/hosting/tree/main/terminal/.deploy)、[`daemon/.deploy`](https://github.com/Zongsoft/hosting/tree/main/daemon/.deploy) 各自声明自己的集合，并且把配置文件的来源也写成带变量的映射，例如：
 
@@ -394,13 +394,13 @@ nuget:Zongsoft.Plugins/plugins/Main.plugin
 
 ### 插件树：路径即契约
 
-[PluginTree](https://github.com/Zongsoft/framework/blob/main/Zongsoft.Plugins/src/PluginTree.cs) 是 Zongsoft 的核心数据结构。它的根节点下挂着 `/Workbench/Modules`、`/Workbench/Services`、`/Workbench/Events`、`/Workspace/Environment/Services` 等稳定路径；插件清单通过 `<extension path="...">` 把构件挂到这些节点上。构件（Builtin）是“延迟构造的对象描述”：被引用时才通过构建器构建，卸载时通过构建器销毁。
+[PluginTree](https://github.com/Zongsoft/framework/blob/main/Zongsoft.Plugins/src/PluginTree.cs) 是 Zongsoft 的核心数据结构。它的根节点下挂着 `/Workbench/Modules`、`/Workbench/Services`、`/Workbench/Events`、`/Workspace/Environment/Services` 等稳定路径；插件文件通过 `<extension path="...">` 把构件挂到这些节点上。构件（Builtin）是“延迟构造的对象描述”：被引用时才通过构建器构建，卸载时通过构建器销毁。
 
 更彻底的是：**框架连“如何解释和构建插件”本身也做成了插件**。`object`、`expose`、`lazy` 等构建器，`path`、`service`、`option`、`type` 等解析器，都由主插件清单注册；它们随后又被用来装配模块、服务、文件系统、事件交换器和命令。换言之，Zongsoft 没有只把“业务功能”做成插件——它把“插件的语法”也开放为可组合能力。这是“一切皆插件”最容易被忽略、也最彻底的一层。
 
-### Automao：250+ 个插件清单的真实 SaaS
+### Automao：250+ 个插件的真实 SaaS
 
-插件化最常受到的质疑是：Demo 很漂亮，业务一复杂就退化为依赖地狱。Automao 是这个问题最好的反例——一个基于 Zongsoft 开发框架构建的插件化 SaaS 系统。仅源码目录就存在 **258 个 `.plugin` 清单**：基础技术、通用业务模块、行业产品（房产、车辆、资产、票务……）、管理端/商家端/客户端/网关/IoT 站点，全部通过清单组合。
+插件化最常受到的质疑是：Demo 很漂亮，业务一复杂就退化为依赖地狱。Automao 是这个问题最好的反例——一个基于 Zongsoft 开发框架构建的插件化 SaaS 系统。仅源码目录就存在 **258 个 `.plugin` 文件**：基础技术、通用业务模块、行业产品（房产、车辆、资产、票务……）、管理端/商家端/客户端/网关/IoT 站点，全部通过插件组合。
 
 当插件数量达到这个量级，考验早已不是“能否加载一个 DLL”，而是**命名、依赖、边界与交付方式能否长期保持可理解**。Automao 的意义正在于此：它把插件化从一个框架特性，变成了团队组织复杂业务的共同语言——业务能力与交付形态正交（交易是一个领域能力，Web/后台任务/不同站点是承载方式），扩展位置成为架构语言（退款处理器挂载到明确事件路径，而不是隐式调用约定）。
 
@@ -410,7 +410,7 @@ nuget:Zongsoft.Plugins/plugins/Main.plugin
 
 多重依赖是插件化最容易失控的地方：会员（Membership）与支付（Paying）都是核心业务模块，微信（WeChat）是具体技术方案——如果不加约束，就会出现“会员 → 支付 → 微信”的链式耦合，换一个支付渠道就要动三个模块。Automao 的答案是：**把技术方案从核心模块里拆出去，让依赖方向反转**。
 
-看真实清单。会员模块与支付模块的核心清单，`manifest` 依赖都只有 `Automao.Common`——两个核心模块之间、以及它们与任何支付技术之间，既没有物理依赖（程序集/类型引用），也没有清单声明的加载依赖；它们的协作只发生在逻辑依赖（事件路径契约）上。支付模块通过插件树**发布事件契约**：
+看真实插件。会员模块与支付模块的核心插件，`manifest` 依赖都只有 `Automao.Common`——两个核心模块之间、以及它们与任何支付技术之间，既没有物理依赖（程序集/类型引用），也没有插件声明的加载依赖；它们的协作只发生在逻辑依赖（事件路径契约）上。支付模块通过插件树**发布事件契约**：
 
 ```xml
 <!-- Automao.Paying.plugin（事件契约，节选） -->
@@ -424,7 +424,7 @@ nuget:Zongsoft.Plugins/plugins/Main.plugin
 </extension>
 ```
 
-会员模块把 `ChargeHandler` / `RefundHandler` 挂到这两个事件路径上（甚至没有在清单里声明对支付模块的依赖）——模块之间通过路径通信（逻辑依赖），而不是通过类型引用（物理依赖）。而具体支付技术方案，作为**独立的 provider 插件**存在：`modules/paying/providers/` 下同时有 alipay / card / cash / wechat 四个提供程序，`modules/membership/providers/wechat/` 则提供微信会员卡提供程序。每个 provider 的依赖方向都是“核心模块 + 对应外部 SDK”：
+会员模块把 `ChargeHandler` / `RefundHandler` 挂到这两个事件路径上（甚至没有在插件里声明对支付模块的依赖）——模块之间通过路径通信（逻辑依赖），而不是通过类型引用（物理依赖）。而具体支付技术方案，作为**独立的 provider 插件**存在：`modules/paying/providers/` 下同时有 alipay / card / cash / wechat 四个提供程序，`modules/membership/providers/wechat/` 则提供微信会员卡提供程序。每个 provider 的依赖方向都是“核心模块 + 对应外部 SDK”：
 
 ```xml
 <!-- Automao.Paying.Providers.Wechat.plugin -->
