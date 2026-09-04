@@ -1,67 +1,43 @@
 hexo-theme-archer
 ================
 
+[English](README.md) | [简体中文](README.zh-Hans.md)
+
 ![preview](./docs/snap.png)
 
-## 在线预览(Online demo)
+## Online demo
 
-🎯 主题预览：[Demo](http://firework.studio/archer-demo/)。
+🎯  Preview theme：[Demo](http://firework.studio/archer-demo/)
 
-## 文档
+## Document
 
-- [English document](./docs/README-en.md)
+- [Chinese document](README.zh-Hans.md)
+- [Secondary development guide](./docs/develop-guide-en.md)
 
+## Instruction
 
-- [二次开发文档](./docs/develop-guide-zh.md)
+- This theme is inspired by theme [yilia](https://github.com/litten/hexo-theme-yilia) and theme [huxpro](https://github.com/Huxpro/huxpro.github.io), it combines the sidebar of the former and the UI design of latter. You can switch to archive, tag and categories via the navigation sidebar without jumpping to a new page.
+- Compatibility：modern browsers and IE 10 +.
+- You are welcome to create a new [issue](https://github.com/fi3ework/hexo-theme-archer/issues) if there is any problem installing or using this theme.
+- This theme will continue to be maintained and optimized, star it if you like it 😆.
 
-##  更新
+##  Install
 
-- 2017.08.17 - 『添加了置顶显示』
-- 2017.08.26 - 『添加了二次开发文档，文章页 header 在下滑时隐藏』
-- 2017.09.10 - 『添加了 about 页面』
-- 2017.09.25 - 『可以直接添加 disqus，gitment 了』
-- 2017.09.30 - 『添加了 rss，修复了 placeholder 的 bug，更流畅』
-- 2017.10.05 - 『添加 toc，默认开启，可在配置中关闭』
-- 2017.10.16 - 『修复移动端 bug，增加渐入效果』
-- 2017.12.17 - 『增加阅读进度条，在 post 页的顶部』
-- 2017.12.27 - 『增加~~百度分享和~~页面浏览量统计』
-- 2018.02.04 - 『代码重构，性能优化，样式更新，V1.0.0』
-- 2018.02.24 - 『支持显示微信和 QQ 二维码』
-- 2018.02.28 - 『重写分享功能，分享按钮在头图上』
-- 2018.03.04 - 『头图的高度可以自定义了，配置  _config 即可』
-- 2018.03.11 - 『toc 可以根据阅读位置自动展开和收缩了』
-- 2018.03.18 - 『添加 fancybox』
-- 2018.05.01 - 『添加 license』
-- 2018.05.24 - 『可自定义访问量统计/增加字数统计及阅读时间』
-- 2018.06.04 - 『添加 Algolia 搜索，[详情](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%90%AF%E7%94%A8-Algolia-%E6%90%9C%E7%B4%A2)』
-- 2018.06.23 - 『添加 Valine 评论，感谢 [hulichao](https://github.com/fi3ework/hexo-theme-archer/issues/115) 同学』
-- 2018.07.09 - 『可以切换深/浅色代码配色方案了，[详情](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%88%87%E6%8D%A2%E4%BB%A3%E7%A0%81%E9%85%8D%E8%89%B2%E6%96%B9%E6%A1%88)』
-- 2018.08.26 - 『添加 i18n 支持』
-
-## 说明
-
-- 本主题受 [yilia](https://github.com/litten/hexo-theme-yilia) 主题和 [huxpro](https://github.com/Huxpro/huxpro.github.io) 主题的启发，结合了前者的 sidebar 设计及后者的 UI 设计。通过 sidebar 能够不跳转到 archive 页、tag页及 categories 页进行导航。
-- 兼容性：现代浏览器及 IE10+。
-- 有任何使用上的问题欢迎 [**发起 issue**](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%90%AF%E7%94%A8-Algolia-%E6%90%9C%E7%B4%A2)。
-- Due to lack of time, this theme is not guaranteed to be maintained, welcome fork 👋🏻.
-
-##  安装
-
-1. 在**Hexo目录**下执行
+1. Execute the following commands in **Hexo directory**.
 
 ``` shell
-npm i hexo-generator-json-content --save && npm i --save hexo-wordcount && git clone https://github.com/fi3ework/hexo-theme-archer.git themes/archer --depth=1
+npm i hexo-generator-json-content --save && npm i --save hexo-wordcount && git clone https://github.com/fi3ework/hexo-theme-archer.git themes/archer
 ```
 
-2. 修改**Hexo目录**下的 `_config.yml` 的 `theme` 字段为 `archer`
+2. Change the `theme` property to `archer` of `_config.yml` in **Hexo directory**.
 
 ``` yaml
 theme: archer
 ```
 
-3. 添加sidebar启用支持：
+3. Add sidebar enable support:
 
-在**Hexo目录**下的 `_config.yml` 中添加以下字段（不是archer下的 `_config.yml`）
+Add following properties to the `_config.yml` in **Hexo directory** (not archer).
 
 ```yaml
 jsonContent:
@@ -84,38 +60,38 @@ jsonContent:
     tags: true
 ```
 
+## Optional config
 
-## 可选配置
+- [switch to English](https://github.com/fi3ework/hexo-theme-archer/wiki/%E8%8B%B1%E6%96%87%E7%95%8C%E9%9D%A2)
 
-- [启用 about 页](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%90%AF%E7%94%A8about%E9%A1%B5)
-- [启用 404 页](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%90%AF%E7%94%A8404%E9%A1%B5)
-- [启用 rss 订阅](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%90%AF%E7%94%A8rss)
-- [自定义单独文章页头图](https://github.com/fi3ework/hexo-theme-archer/wiki/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%96%87%E7%AB%A0%E9%A1%B5%E5%A4%B4%E5%9B%BE)
-- [将 Unsplash 的随机图片作为头图](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%B0%86-Unsplash-%E9%9A%8F%E6%9C%BA%E5%9B%BE%E7%89%87%E4%BD%9C%E4%B8%BA%E5%A4%B4%E5%9B%BE)
-- [自定义文章在首页的摘要](https://github.com/fi3ework/hexo-theme-archer/wiki/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%96%87%E7%AB%A0%E5%9C%A8%E9%A6%96%E9%A1%B5%E6%91%98%E8%A6%81)
-- [自定义主题颜色](https://github.com/fi3ework/hexo-theme-archer/wiki/%E6%9B%B4%E6%94%B9%E4%B8%BB%E9%A2%98%E9%A2%9C%E8%89%B2)
-- [切换代码配色方案](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%88%87%E6%8D%A2%E4%BB%A3%E7%A0%81%E9%85%8D%E8%89%B2%E6%96%B9%E6%A1%88)
-- [置顶文章](https://www.jianshu.com/p/42a4efcdf8d7)
-- [设置文章版权信息](https://github.com/fi3ework/hexo-theme-archer/wiki/%E8%AE%BE%E7%BD%AE%E6%96%87%E7%AB%A0%E7%89%88%E6%9D%83%E4%BF%A1%E6%81%AF)
-- [启用站内搜索](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%90%AF%E7%94%A8-Algolia-%E6%90%9C%E7%B4%A2)
-- [启用 Latex](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%90%AF%E7%94%A8-Latex-%E6%94%AF%E6%8C%81)
-- [切换为英文界面](https://github.com/fi3ework/hexo-theme-archer/wiki/%E8%8B%B1%E6%96%87%E7%95%8C%E9%9D%A2)
+- [enable about page](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%90%AF%E7%94%A8about%E9%A1%B5)
+- [enable 404 page](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%90%AF%E7%94%A8404%E9%A1%B5)
+- [enable rss](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%90%AF%E7%94%A8rss)
+- [custom artical head image](https://github.com/fi3ework/hexo-theme-archer/wiki/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%96%87%E7%AB%A0%E9%A1%B5%E5%A4%B4%E5%9B%BE)
+- [use random image from Unsplash to be header image](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%B0%86-Unsplash-%E9%9A%8F%E6%9C%BA%E5%9B%BE%E7%89%87%E4%BD%9C%E4%B8%BA%E5%A4%B4%E5%9B%BE)
+- [custom abstract on home page](https://github.com/fi3ework/hexo-theme-archer/wiki/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%96%87%E7%AB%A0%E5%9C%A8%E9%A6%96%E9%A1%B5%E6%91%98%E8%A6%81)
+- [custom feature color](https://github.com/fi3ework/hexo-theme-archer/wiki/%E6%9B%B4%E6%94%B9%E4%B8%BB%E9%A2%98%E9%A2%9C%E8%89%B2)
+- [switch code theme color](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%88%87%E6%8D%A2%E4%BB%A3%E7%A0%81%E9%85%8D%E8%89%B2%E6%96%B9%E6%A1%88)
+- [stick artical to the top](https://www.jianshu.com/p/42a4efcdf8d7)
+- [custom license of posts](https://github.com/fi3ework/hexo-theme-archer/wiki/%E8%AE%BE%E7%BD%AE%E6%96%87%E7%AB%A0%E7%89%88%E6%9D%83%E4%BF%A1%E6%81%AF)
+- [enable search](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%90%AF%E7%94%A8-Algolia-%E6%90%9C%E7%B4%A2)
+- [enbale Latex](https://github.com/fi3ework/hexo-theme-archer/wiki/%E5%90%AF%E7%94%A8-Latex-%E6%94%AF%E6%8C%81)
 
-## 主题配置
+## Theme configuration
 
 ```yaml
-# ========== 资料栏 ========== #
-# 头像路径
+# ========== Profile Column ========== #
+# avatar path
 avatar:
-# 博主名字，不填写该字段则默认采用 Hexo 配置文件中的 author 字段
+# author name (if this property is blank, by default using the author property in Hexo configuration)
 author:
-# 博客签名
+# signature of blog
 signature:
-# 社交账号(可以自定义顺序)
+# SNS (you can custom the order)
 social:
   email:
   github:
-  # wechat 和 qq 需要填写二维码图片的路径
+  # wechat and qq should be a path of an qr-code image
   wechat:
   qq:
   telegram:
@@ -133,106 +109,102 @@ social:
   blog:
   others:
   rss: /atom.xml
-# 友链
+# friends link
 friends:
   friendA:
   friendB:
   friendC:
-# about 页面
+# about
 about:
-  # 是否启用 about 页
+  # enable about page
   enable: true
-  # about 页头图
+  # about heade image
   image:
 
-# ========== 站点 ========== #
-# 网站的 title，每篇文章后面也会加上此字段利于 SEO
+# ========== Site ========== #
+# title of the site (each article will be followed by this value to help SEO)
 SEO_title:
-# 网站的关键字，有利于 SEO，每篇文章也可以在 Front-matter 添加特定的关键字
+# keywords of the site, good for SEO, you also can add specified keyswords for each post at Front-matter
 SEO_keywords:
-# 显示在网站头图上的主标题
-main_title: 
-# 显示在网站头图上的副标题
+# main title (title in site banner)
+main_title:
+# subtitle (subtitle in site banner)
 subtitle:
-# 主页头图
+# header image (image of site banner)
 header_image:
-# 文章页默认头图
+# default post header image
 post_header_image:
-# 404 页头图
+# 404 page header image
 _404_image:
 
-# ========== 搜索 ========== #
+# ========== Search ========== #
 algolia_search:
   enable: false
   hits:
-    per_page: 10 # 每页的结果数
+    per_page: 10 # result number per page
   labels:
-    input_placeholder: Search for Posts # 搜索栏 placeholder
-    hits_empty: "We did not find any results for the search: ${query}" # 搜索结果提示
-    hits_stats: "${hits} results found in ${time} ms" # 搜索无结果的提示
-    
-# ========== 评论插件 ========== #
-# 目前支持直接添加 Livere，Disqus，Gitment，友言及 Valine，填写插件对应的字段即可启用。(推荐使用 Livere)
-# 如果想添加其他评论插件，在 custom.ejs 中添加即可。
+    input_placeholder: Search for Posts # search input placeholder
+    hits_empty: "We did not find any results for the search: ${query}" # search results hint
+    hits_stats: "${hits} results found in ${time} ms" # no results found hint
+
+# ========== Comment Plugin ========== #
+# Currently support directly adding Livere, Gitment, Youyan and Valine, fill the field to enable corresponding plugin
 comment:
-  # Livere 官网：https://livere.com/
+  # Livere：https://livere.com/
   livere_uid:
-  # Disqus 官网：https://disqus.com/
+  # Disqus：https://disqus.com/
   disqus_shortname:
-  # Gitment 官网：https://github.com/imsun/gitment
+  # Gitment：https://github.com/imsun/gitment
   gitment_owner:
   gitment_repo:
   gitment_client_id:
   gitment_client_secret:
-  # 友言 官网: http://www.uyan.cc/
+  # Youyan: http://www.uyan.cc/
   youyan_uid:
-  # Valine 官网: https://valine.js.org/
-  valine_appId: 
-  valine_appKey: 
-  valine_placeHolder: 
+  # Valine: site: https://valine.js.org/
+  valine_appId:
+  valine_appKey:
+  valine_placeHolder:
 
-# ========== 统计 ========== #
-# 是否开启不蒜子阅读量统计
+# ========== Analytics ========== #
+# enable Busuanzi analytics
 busuanzi: true
-# 统计方式，填写 pv 或 uv
+# fill in pv or uv
 busuanzi_pv_or_uv: 'pv'
-# 自定义统计标语，'${count}' 会自动替换成统计值
+# custom analytic slogan, '${count}' is the analytic number, DO NOT modify it.
 busuanzi_slug: 'PV: ${count} :)'
-# 百度统计(填写 siteID)
+# Baidu analytics (fill in siteID)
 baidu_analytics:
-# Google统计(填写 siteID)
+# Google analytics (fill in siteID)
 google_analytics:
-# CNZZ统计
+# CNZZ analytics
 CNZZ_analytics:
 
-# ========== 其他 ========== #
-# 网站的标签页缩略图
+# ========== Others ========== #
+# favicon
 favicon:
-# 首页的文章摘要字数(默认300，填0则不显示摘要)
+# truncate length of abstracts in index page (the default is 300, there will be no abstruct if you set it to 0)
 truncate_length:
-# 开启文章右侧的大纲
+# enable toc
 toc: true
-# 字数统计 & 阅读时间
+# word count & reading time
 reading_info: true
-# 头图高度 (默认是屏幕高度的 50%, 可以直接输入其他数字)
+# intro height (the default is 50 percents of the screen, you can input other number)
 index_intro_height: 50
 post_intro_height: 50
 about_intro_height: 50
 ```
+## Update theme
 
-## 更新主题
-
-提供两种方法供参考：第一种使用 git 进行更新，但是有可能需要手动解决合并冲突，你需要手动解决；第二种简单粗暴。
+Two kind of update method are provided here: the first use git to update theme. However, it may encounter merge conflict that you need to resolve; The second is simple but efficient.
 
 ### git pull
 
-在 archer 目录下先执行 `git stash` 将本地的修改暂存，然后执行 `git pull` 获取主题的最新版本，再执行 `git stash pop` 将本地的修改还原，如果合并冲突报错 `CONFLICT`，可以参考 [这篇文章](http://www.01happy.com/git-resolve-conflicts/) 手动解决合并冲突，手动解决。
+Run `git stash` under archer folder to stash the local modification and run `git pull` to fetch the lastest version of theme. Then run `git stash pop` to restore the local modification. There may be a merge conflict that you need to resolve.
 
-如果自定义了主题，在合并冲突时可以手动解决冲突的部分后，重新生成主题即可。
+### simple but efficient way
 
-### 简单粗暴
-
-首先备份 archer 下所有你自定义过的文件（包括 _config.yml 和 source 文件夹下添加的文件等），然后删除 archer，再重新安装，最后将备份的文件替换到原来的位置即可。
+First backup all the files that you customed and added (include _config.yml and files in source and so on) and delete the directory of archer. Then reinstall archer. At last, restore the backup files to the original place they belong.
 
 ## License
 

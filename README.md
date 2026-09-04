@@ -1,3 +1,5 @@
-## 关于站点
+[English](README.md) | [简体中文](README.zh-Hans.md)
 
-请访问[《搭建Github博客站点》](https://zongsoft.github.io/blog/zh-cn/misc/github-site)查看详细的构建过程。
+## About This Site
+
+See [Building a GitHub Blog Site](https://zongsoft.github.io/blog/zh-cn/misc/github-site) for the detailed build process.

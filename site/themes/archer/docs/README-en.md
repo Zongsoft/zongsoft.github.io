@@ -16,7 +16,7 @@ hexo-theme-archer
 
 - This theme is inspired by theme [yilia](https://github.com/litten/hexo-theme-yilia) and theme [huxpro](https://github.com/Huxpro/huxpro.github.io), it combines the sidebar of the former and the UI design of latter. You can switch to archive, tag and categories via the navigation sidebar without jumpping to a new page.
 - Compatibility：modern browsers and IE 10 +.
-- You are welcomed to create a new [issue]((https://github.com/fi3ework/hexo-theme-archer/issues)。) if there is any problem when installling and using this theme.
+- You are welcome to create a new [issue](https://github.com/fi3ework/hexo-theme-archer/issues) if there is any problem installing or using this theme.
 - This theme will continue to be maintained and optimized, star it if you like it 😆.
 
 ##  Install
@@ -118,7 +118,7 @@ about:
   enable: true
   # about heade image
   image:
-  
+
 # ========== Site ========== #
 # title of the site (each article will be followed by this value to help SEO)
 SEO_title:
@@ -144,7 +144,7 @@ algolia_search:
     input_placeholder: Search for Posts # search input placeholder
     hits_empty: "We did not find any results for the search: ${query}" # search results hint
     hits_stats: "${hits} results found in ${time} ms" # no results found hint
-    
+
 # ========== Comment Plugin ========== #
 # Currently support directly adding Livere, Gitment, Youyan and Valine, fill the field to enable corresponding plugin
 comment:
@@ -160,10 +160,10 @@ comment:
   # Youyan: http://www.uyan.cc/
   youyan_uid:
   # Valine: site: https://valine.js.org/
-  valine_appId: 
-  valine_appKey: 
-  valine_placeHolder: 
-  
+  valine_appId:
+  valine_appKey:
+  valine_placeHolder:
+
 # ========== Analytics ========== #
 # enable Busuanzi analytics
 busuanzi: true
@@ -194,7 +194,7 @@ about_intro_height: 50
 ```
 ## Update theme
 
-Two kind of update method are provided here: the first use git to update theme. However, it may encounter merge conflict that you need to resolve; The second is simple but efficient.  
+Two kind of update method are provided here: the first use git to update theme. However, it may encounter merge conflict that you need to resolve; The second is simple but efficient.
 
 ### git pull
 
