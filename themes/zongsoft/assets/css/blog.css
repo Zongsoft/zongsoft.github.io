@@ -20,6 +20,7 @@
 	--soft: #f6f6f6;
 	--accent: #f75357;
 	--feature-font: 'Oswald-Regular';
+	--article-width: 960px;
 	font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'Microsoft JhengHei', 'Source Han Sans SC', 'Noto Sans CJK SC', 'Noto Sans SC', 'WenQuanYi Micro Hei', SimSun, sans-serif;
 	font-size: 16px;
 	scroll-behavior: smooth;
@@ -57,9 +58,8 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .hero-title { margin: 0; font-family: var(--feature-font); font-size: 64px; line-height: 1.35; font-weight: 700; overflow-wrap: anywhere; }
 .hero-subtitle { font-family: var(--feature-font); font-size: 32px; margin: 5px 0 0; }
 .hero-post { height: auto; min-height: max(360px, 50vh); }
-.hero-post .hero-content { width: 720px; max-width: calc(100% - 48px); padding: 88px 0 68px; margin: 0 auto; text-align: left; }
+.hero-post .hero-content { width: var(--article-width); max-width: calc(100% - 48px); padding: 88px 0 68px; margin: 0 auto; text-align: left; }
 .hero-post .hero-title { font-weight: 400; line-height: 1.325; }
-.hero-post-long .hero-content { width: 960px; }
 .hero-post-long .hero-title { font-size: 54px; line-height: 1.45; }
 .hero-tags { display: flex; flex-wrap: wrap; gap: 3px 12px; font-family: var(--feature-font); font-size: 18px; margin-top: 6px; }
 .hero-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; font-size: 14px; margin-top: 12px; }
@@ -86,7 +86,7 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .summary-meta time { flex-shrink: 0; }
 .summary-meta > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 3px 8px; }
 .pagination { display: flex; justify-content: center; gap: 30px; margin-top: 35px; color: var(--muted); }
-.article-layout { position: relative; width: 720px; max-width: calc(100% - 48px); margin: 0 auto; padding-top: 48px; }
+.article-layout { position: relative; width: var(--article-width); max-width: calc(100% - 48px); margin: 0 auto; padding-top: 48px; }
 .article-main { min-width: 0; }
 .article-entry { line-height: 1.75; overflow-wrap: break-word; }
 .article-entry h1 { font-size: 32px; }
@@ -114,7 +114,7 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .article-entry th { background: var(--soft); }
 .article-entry hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
 .article-entry li { margin: 4px 0; }
-.toc { position: absolute; left: calc(100% + 28px); top: 64px; width: min(250px, calc((100vw - 720px) / 2 - 50px)); height: calc(100% - 64px); color: var(--muted); font-size: 14px; }
+.toc { position: absolute; left: calc(100% + 28px); top: 64px; width: min(250px, calc((100vw - var(--article-width)) / 2 - 50px)); height: calc(100% - 64px); color: var(--muted); font-size: 14px; }
 .toc > nav { position: sticky; top: 30px; max-height: calc(100vh - 80px); overflow-y: auto; scrollbar-width: thin; }
 .toc-heading { font: 700 20px var(--feature-font); margin-bottom: 8px; }
 .toc ol { margin: 5px 0; padding-left: 20px; }
@@ -160,7 +160,7 @@ body:has(dialog[open]) { overflow: hidden; }
 @media (min-width: 1500px) {
 	.blog-layout { width: 1050px; }
 }
-@media (max-width: 1199px) {
+@media (max-width: 1439px) {
 	.toc { display: none; }
 	.mobile-toc { display: block; margin-bottom: 30px; padding: 14px 18px; background: var(--soft); line-height: 1.7; }
 	.mobile-toc summary { cursor: pointer; color: var(--muted); }
