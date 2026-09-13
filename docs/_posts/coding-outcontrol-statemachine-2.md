@@ -1,4 +1,6 @@
 ---
+type: post
+url: /blog/zh-cn/zongsoft/coding-outcontrol-statemachine-2/
 title: 代码失控与状态机（下）
 date: 2018-09-03 18:00:00
 comments: true

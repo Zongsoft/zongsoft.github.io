@@ -1,0 +1,13 @@
+{{ $post := eq .Type "post" }}
+{{ $blogHome := eq .RelPermalink "/blog/" }}
+<section class="hero {{ if $post }}hero-post{{ if gt (strings.RuneCount .Title) 45 }} hero-post-long{{ end }}{{ end }}" aria-labelledby="page-title">
+	<div class="hero-image" style="background-image: url('{{ if $post }}{{ site.Params.postImage }}{{ else }}{{ site.Params.homeImage }}{{ end }}')"></div>
+	<div class="hero-content">
+		<h1 id="page-title" class="hero-title">{{ if $blogHome }}{{ site.Title }}{{ else }}{{ .Title }}{{ end }}</h1>
+		{{ if $blogHome }}<p class="hero-subtitle">{{ site.Params.subtitle }}</p>{{ end }}
+		{{ if $post }}
+			<div class="hero-tags">{{ range .GetTerms "tags" }}<a href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>{{ end }}</div>
+			<div class="hero-meta"><time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "2006/01/02" }}</time><span>{{ .ReadingTime }} 分钟阅读</span><button class="share-button" type="button">分享链接</button></div>
+		{{ end }}
+	</div>
+</section>

@@ -1,4 +1,6 @@
 ---
+type: post
+url: /blog/zh-cn/zongsoft/entity-dynamic-generation-2/
 title: 实体类的动态生成（二）
 date: 2018-07-16 00:00:00
 comments: true

@@ -1,4 +1,6 @@
 ---
+type: post
+url: /blog/zh-cn/misc/iis-express/
 title: 关于 IIS Express 常用设置
 date: 2019-05-01 19:00:00
 comments: true

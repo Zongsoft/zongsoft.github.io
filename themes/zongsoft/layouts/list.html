@@ -1,0 +1,18 @@
+{{ define "main" }}
+<div class="blog-layout">
+	{{ partial "profile.html" . }}
+	<main id="main" class="post-list">
+		{{ $pages := .RegularPages }}
+		{{ if eq .RelPermalink "/blog/" }}{{ $pages = where site.RegularPages "Type" "post" }}{{ end }}
+		{{ $paginator := .Paginate $pages.ByDate.Reverse }}
+		{{ range $paginator.Pages }}
+		<article class="post-summary">
+			<h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+			<p class="summary-text">{{ .Description | default (.Summary | plainify | htmlUnescape) | truncate 230 }}</p>
+			<div class="summary-meta"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006/01/02" }}</time><div>{{ range .GetTerms "tags" }}<a href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>{{ end }}</div></div>
+		</article>
+		{{ end }}
+		{{ if gt $paginator.TotalPages 1 }}<nav class="pagination" aria-label="分页">{{ with $paginator.Prev }}<a href="{{ .URL }}">← 上一页</a>{{ end }}<span>{{ $paginator.PageNumber }} / {{ $paginator.TotalPages }}</span>{{ with $paginator.Next }}<a href="{{ .URL }}">下一页 →</a>{{ end }}</nav>{{ end }}
+	</main>
+</div>
+{{ end }}

@@ -1,0 +1,6 @@
+name = 'Zongsoft'
+license = 'MIT'
+description = 'A small, self-contained Hugo theme preserving the Zongsoft visual identity.'
+[author]
+	name = 'Zongsoft'
+	homepage = 'https://zongsoft.com/'

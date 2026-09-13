@@ -1,0 +1,13 @@
+{{ define "main" }}
+<div class="article-layout">
+	<main id="main" class="article-main">
+		<details class="mobile-toc"><summary>文章目录</summary>{{ .TableOfContents }}</details>
+		<article class="article-entry">{{ .Content }}</article>
+		<div class="article-license"><p>作者：{{ site.Params.author }}</p><p>原文链接：<a href="{{ .Permalink }}">{{ .Permalink }}</a></p><p>发表日期：{{ .Date.Format "2006-01-02" }}{{ if gt .Lastmod .Date }} · 更新日期：{{ .Lastmod.Format "2006-01-02" }}{{ end }}</p><p>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名－非商业性使用－相同方式共享 4.0 国际许可协议</a>。</p></div>
+		<details class="support"><summary>支持作者 · Buy me a coffee</summary><div><figure><img src="/assets/donate-wechat.png" loading="lazy" alt="微信赞赏二维码"><figcaption>微信</figcaption></figure><figure><img src="/assets/donate-alipay.png" loading="lazy" alt="支付宝赞赏二维码"><figcaption>支付宝</figcaption></figure></div></details>
+		{{ $posts := where site.RegularPages "Type" "post" }}
+		<nav class="post-pagination" aria-label="相邻文章">{{ with $posts.Next . }}<a href="{{ .RelPermalink }}"><span>← NEWER POST</span>{{ .Title }}</a>{{ end }}{{ with $posts.Prev . }}<a href="{{ .RelPermalink }}"><span>OLDER POST →</span>{{ .Title }}</a>{{ end }}</nav>
+	</main>
+	<aside class="toc" aria-label="文章目录"><div class="toc-heading">CATALOG</div>{{ .TableOfContents }}</aside>
+</div>
+{{ end }}

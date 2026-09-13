@@ -1,136 +1,163 @@
-﻿---
-title: 搭建 github.io 博客站点
+---
+type: post
+url: /blog/zh-cn/misc/github-site/
+title: 使用 Hugo 与 GitHub Actions 搭建博客站点
 date: 2018-07-10 18:00:00
-comments: true
+lastmod: 2026-09-14T00:00:00+08:00
+description: 用 Markdown 写作，用 Hugo 预览，让 GitHub Actions 自动构建和发布；家里和公司的电脑使用同一份配置，不再手工维护两套建站环境。
 categories: misc
 tags:
 - github.io
-- github pages
-- Hexo
+- GitHub Pages
+- GitHub Actions
+- Hugo
 - 建站
 - 博客
 ---
 
-## 前言
-很多人都有搭建博客或知识库站点的想法，可自己买云服务器太不划算，部署管理也是个问题；基于免费又热门的 [GitHub Pages](https://pages.github.com/) 来搭建博客站点倒是省钱省力省事的好办法，于是上网一搜，满屏都是关于使用 Jekyll 来搭建站点的文章，这个 Jekyll 是基于 Ruby 开发的，上手得先装一大坨东西、各种啰嗦各种坑，看的一点欲望都没有了。
+## 写作与发布分开
 
-### 神器出现
-平地一声雷，炸出了 [Hexo (https://hexo.io/zh-cn)](https://hexo.io/zh-cn/) 这个神器。它只需要 NodeJS 即可，完全不依赖其他乱七八糟的玩意，安装部署超级简单，功能完善、漂亮主题也很多，妥妥的就是它了。
+这个博客使用 [Hugo](https://gohugo.io/) 生成静态页面，通过 [GitHub Actions](https://github.com/features/actions) 自动构建，最后发布到 [GitHub Pages](https://pages.github.com/)。官网和博客共用一个仓库、一个自定义域名。
 
-* __Hexo __官网：[https://hexo.io/zh-cn/](https://hexo.io/zh-cn/)
-> 安装简单，并且官网上提供了[很多主题](https://hexo.io/themes/)可供选择。
+日常写作只需要编辑 Markdown 和图片，然后提交到 GitHub。构建工具的版本、主题和配置都在仓库中，家里和公司的电脑使用同一套文件。只改文字时，可以直接使用 GitHub 网页编辑器；需要查看完整排版时，再启动本地预览。
 
-* 我喜欢的一款主题 (__Archer__)
-> [http://firework.studio/archer-demo/](http://firework.studio/archer-demo/)
-> [https://github.com/fi3ework/hexo-theme-archer](https://github.com/fi3ework/hexo-theme-archer)
+本文首次发表于 2018 年，现已按本站使用的 Hugo 工作流重写。首次发表日期和原文章地址保持不变，更新时间单独记录。
 
+## 获取项目
 
-## 建站步骤
-有关一般建站步骤，请参考本文后面的“参考文章”部分，在进行后续操作之前，请按照 Hexo 官网的安装指引，确保 NodeJS 和 Hexo 已经成功安装。
+首次使用时克隆仓库：
 
-友情提示：在此之前请务必详读 Hexo 官网中的[文档](https://hexo.io/zh-cn/docs/index.html)。
-
-我们的站点源码：[https://github.com/Zongsoft/zongsoft.github.io](https://github.com/Zongsoft/zongsoft.github.io)，没必要把 Hexo 运行环境和使用的主题文件都保存在站点仓库中，所以需要将这些不需要的目录和文件加入到 __.gitignore__ 文件中；站点的 Hexo 基本配置(*hexo.config.yml*)和相应主题配置文件(*hexo.config-theme.archer*)需要保留，以便下次或别人构建时将其覆盖还原为默认配置。
-
-### 站点构建
-在首次 clone 获取我们[站点源码](https://github.com/Zongsoft/zongsoft.github.io)后，按顺序执行下列命令，__注意：__推荐在 Git Bash 中进行操作。
-
-1. 初始化 Hexo 站点目录：
-```bash
-hexo init site && cd site
+```powershell
+git clone https://github.com/Zongsoft/zongsoft.github.io.git
+cd zongsoft.github.io
 ```
 
-2. 安装相关插件：
-```bash
-npm i hexo-generator-json-content --save && npm i hexo-wordcount --save
+换电脑继续写作前，先同步远端已经提交的修改：
+
+```powershell
+git pull --ff-only
 ```
 
-3. 获取 Archer 主题：
-```bash
-git clone https://github.com/fi3ework/hexo-theme-archer.git themes/archer
+仓库中最常使用的文件如下：
+
+| 路径 | 用途 |
+| --- | --- |
+| `docs/_posts/` | Markdown 文章原文 |
+| `docs/images/` | 文章配图 |
+| `hugo.toml` | 网站配置 |
+| `.hugo-version` | 固定的 Hugo 版本 |
+| `themes/zongsoft/` | 本站主题源码和资源 |
+| `preview.cmd` | Windows 本地预览入口 |
+| `build.cmd` | Windows 正式构建入口 |
+
+官网首页继续使用根目录的 `index.html`，英文页面在 `en/`，共享静态资源在 `assets/`。Hugo 将官网和博客合并为同一个发布产物。
+
+## 新建文章与草稿
+
+在 `docs/_posts/` 新建 Markdown 文件，例如 `hello-hugo.md`。文件开头填写文章元数据：
+
+```yaml
+---
+title: 我的第一篇文章
+type: post
+date: 2026-09-14T10:00:00+08:00
+url: /blog/zh-cn/misc/hello-hugo/
+categories: [misc]
+tags: [Hugo, 博客]
+draft: true
+---
+
+## 正文
+
+从这里开始写文章。
 ```
 
-4. 覆盖 Hexo 默认配置文件：
-```bash
-cp  ../hexo.config.yml _config.yml
+`type: post` 将文件识别为博客文章；`date` 决定首次发表日期和列表排序；`url` 固定文章地址，之后修改标题或源文件名都不需要改动它。请为每篇文章设置不同的地址。
+
+写作期间使用 `draft: true`。本地预览会显示草稿，正式构建会排除草稿。准备发布时删除这一行，或改为 `draft: false`。未来日期的文章默认也不会出现在正式站点中；若需要提前预览，可以运行 `preview.cmd --buildFuture`。
+
+修改已发表的文章时保留原来的 `date`，需要展示更新时间时增加 `lastmod`：
+
+```yaml
+lastmod: 2026-09-15T18:00:00+08:00
 ```
 
-5. 覆盖 Archer 主题默认配置文件：
-```bash
-cp ../hexo.config-theme.archer.yml themes/archer/_config.yml
+本站不使用文件修改时间作为文章更新时间，因此换电脑、重新克隆仓库不会改变文章的日期。
+
+## 添加图片与代码
+
+将图片保存到 `docs/images/`，在正文中使用对应的公开地址：
+
+```markdown
+![图片说明](/blog/images/your-image.png)
 ```
 
-6. 加入定制的页面布局：
-```bash
-cp ../post-footer.ejs themes/archer/layout/_partial/post-footer.ejs
+路径以 `/blog/images/` 开头，不要写成本机的磁盘路径。图片文件和文章需要一起提交，文件名大小写必须一致。
+
+使用 Markdown 围栏代码块，并在开头声明语言，例如 `csharp`、`xml`、`powershell`。主题会显示代码高亮和复制按钮。文章标题自动生成目录，正文图片支持点击放大；这些功能不需要额外安装插件。
+
+## 本地预览
+
+Windows 下双击仓库根目录的 `preview.cmd`，或在终端执行：
+
+```powershell
+.\preview.cmd
 ```
 
-7. 安装 Hexo 站点：
-```bash
-npm install
+然后打开[本地博客](http://127.0.0.1:1313/blog/)，也可以访问[本地官网](http://127.0.0.1:1313/)。修改文章、模板或样式后，浏览器会自动刷新。按 Ctrl+C 可以停止服务。
+
+首次运行时，脚本从 Hugo 官方 GitHub Releases 下载 `.hugo-version` 指定的程序，核对官方 SHA-256 校验值，并缓存在 `.tools/`。这一步需要访问 GitHub，后续预览可离线运行。不需要安装 Go、Node.js、npm 或 Sass，也不需要修改系统 PATH。
+
+预览输出位于 `.tools/preview/`，正式构建输出位于 `public/`，两者互不覆盖。端口被占用时，可以指定其他端口：
+
+```powershell
+.\preview.cmd --port 1316
 ```
 
+Linux 或 macOS 用户安装 `.hugo-version` 指定的 Hugo 标准版后，可直接运行：
 
-### 文章写作
-上面的构建过程稍微需要花点时间，但只要构建一次之后就不用管它了。
-
-* 通过 `hexo new [layout] <title>` 命令来创建一个文章，也可以手动把写好的文章拷贝到源目录(/docs/\_posts/)中。
-* 执行 `hexo generate` 命令生成静态页面(/blog)，生成之后，可以使用 `hexo server` 命令来查看实际效果。
-* 最后，执行相关 Git 命令将这些改动提交到远程仓库中。
-
-__注意：__创建了一篇新文章后，务必要设置好文章的元信息（即标题、创建时间、所属分类、Tags等），具体定义请参考 Hexo 官网的这篇文章：[https://hexo.io/zh-cn/docs/front-matter.html](https://hexo.io/zh-cn/docs/front-matter.html)
-
-__提示：__如果生成有问题，可以执行 `hexo clean` 命令来清空输出目录，之后再把项目所需的资源文件手动拷贝到输出目录的相应子目录中。
-
-## 其他备注
-1. 修改 post.ejs (*site/themes/archer/layout/*) 模板，增加对 post-footer.ejs 局部模板的引用：
-```html
-<main class="main post-page">
-    <article class="article-entry">
-        <%- page.content %>
-    </article>
-
-<%- partial('_partial/post-footer') %>
+```sh
+hugo server -D --destination .tools/preview
 ```
 
-2. 修改 post.ejs 模板中的分页指示的标签：
-> ~~<span data-type="color" style="color:#F5222D">&lt;div class=&quot;nextSlogan&quot;&gt;Next Post&lt;/div&gt;</span>~~
-> <span data-type="color" style="color:#389E0D">&lt;a class=&quot;nextSlogan&quot; href=&quot;&lt;%- url_for(page.prev.path) %&gt;&quot;&gt;Next Post&lt;/a&gt;</span>
-> <span style="color:gray">... ...</span>
-> ~~<span data-type="color" style="color:#F5222D">&lt;div class=&quot;prevSlogan&quot;&gt;Previous Post&lt;/div&gt;</span>~~
-> <span data-type="color" style="color:#389E0D">&lt;a class=&quot;prevSlogan&quot; href=&quot;&lt;%- url_for(page.next.path) %&gt;&quot;&gt;Previous Post&lt;/a&gt;</span>
+## 修改主题
 
-3. 调整了 Archer 主题的 \_post\_page.scss (*site/themes/archer/src/scss/\_partial/*) 中的部分样式：
-```css
-// ========== paginator ========== //
-.post-paginator {
-    li {
-        max-width:18rem;
-    }
+本站主题保留了双行站名“Zongsoft / Zongsoft Studio”、大图背景、头像，以及 Oswald-Regular 标题字体。
 
-    .nextTitle,
-    .prevTitle{
-        font-size:1.2rem; //remove this line
-    }
-}
+- 修改站名、副标题和背景图路径：编辑 `hugo.toml`。
+- 修改配色、字号、间距和手机布局：编辑 `themes/zongsoft/assets/css/blog.css`。
+- 修改文章列表、正文或公共页眉页脚：编辑 `themes/zongsoft/layouts/` 中对应的 HTML 模板。
+- 修改目录、明暗切换、复制或图片放大行为：编辑 `themes/zongsoft/assets/js/blog.js`。
+- 更换头像：替换 `assets/avatar.jpg`。
 
-// ========== content ========== //
-.abstract-content,
-.article-entry {
-    > p {
-        text-indent:2em;
-    }
-}
+字体和背景图随主题保存，不依赖外部字体服务。CSS 是可以直接编辑的普通样式文件，无须先编译 Sass 或运行前端打包工具。官网独立使用的样式文件与博客主题分开维护。
+
+## 构建与自动发布
+
+发布前可以本地检查正式构建：
+
+```powershell
+.\build.cmd
 ```
 
+生成结果在 `public/`，该目录不提交到 Git。确认文章和配图无误后，提交并推送源码：
 
+```powershell
+git add docs/_posts/hello-hugo.md docs/images/your-image.png
+git commit -m "发布新文章"
+git push origin main
+```
 
-## 参考文章
-* 《使用 Hexo & GitPage 搭建博客》
-[https://yuque.com/skyrin/coding/tm8yf5](https://yuque.com/skyrin/coding/tm8yf5)
+上述图片文件名按实际文件修改；没有新增图片时，只提交文章即可。通过 GitHub 网页修改文章并提交到 `main`，也会触发同一发布流程。
 
-* 《从多说到跟帖：推荐网易云跟帖》
-[https://blog.vadxq.com/dstogentie/](https://blog.vadxq.com/dstogentie/)
+工作流位于 `.github/workflows/pages.yml`，依次执行：读取固定的 Hugo 版本、下载并校验程序、构建完整网站、上传 Pages 产物、部署网站。拉取请求只做构建验证，不发布；推送到 `main` 才会部署。
 
-* 《集成gitment或者gitalk评论系统》
-[http://www.huyanbing.me/2017/10/20/46383.html](http://www.huyanbing.me/2017/10/20/46383.html)
+首次配置仓库时，在 **Settings → Pages → Build and deployment** 中将 **Source** 设置为 **GitHub Actions**，并保留自定义域名 `zongsoft.com` 和现有 DNS 配置。以后每次推送无需重新设置。
+
+在仓库的 **Actions** 页面查看当前提交的运行结果。部署成功后访问[博客](https://zongsoft.com/blog/)。构建失败时先查看失败步骤的日志，修复源码后重新提交，不要手工修改生成页面。
+
+## 换电脑与日常维护
+
+日常工作就是同步仓库、写文章、预览、提交。两台电脑共用仓库中的工具版本和主题配置，不需要手工复制配置文件。
+
+升级 Hugo 时修改 `.hugo-version`，先本地构建并检查文章排版，再提交。不要同时随意升级构建工具和大幅调整主题，这样更容易判断变化来自哪里。原文、图片和主题都有 Git 历史，可以用普通的回退提交恢复，不需要重写仓库历史。

@@ -1,0 +1,62 @@
+baseURL = 'https://zongsoft.com/'
+locale = 'zh-CN'
+defaultContentLanguage = 'zh-cn'
+title = 'Zongsoft'
+theme = 'zongsoft'
+timeZone = 'Asia/Shanghai'
+hasCJKLanguage = true
+enableRobotsTXT = true
+disableKinds = []
+
+[pagination]
+	pagerSize = 10
+[params]
+	subtitle = 'Zongsoft Studio'
+	author = '钟峰(Popeye Zhong)'
+	description = 'Zongsoft Studio · 软件开发、框架设计与技术随笔'
+	avatar = '/assets/avatar.jpg'
+	homeImage = '/blog/intro/index-bg.jpg'
+	postImage = '/blog/intro/post-bg.jpg'
+[frontmatter]
+	lastmod = ['lastmod', 'updated', 'date']
+[outputs]
+	home = ['HTML']
+	section = ['HTML', 'RSS']
+[taxonomies]
+	tag = 'tags'
+	category = 'categories'
+[permalinks.taxonomy]
+	tags = '/blog/tags/'
+	categories = '/blog/categories/'
+[permalinks.term]
+	tags = '/blog/tags/:slug/'
+	categories = '/blog/categories/:slug/'
+[markup.goldmark.renderer]
+	unsafe = true
+[markup.highlight]
+	style = 'onedark'
+	lineNos = true
+	lineNumbersInTable = false
+	tabWidth = 4
+[markup.tableOfContents]
+	startLevel = 1
+	endLevel = 4
+	ordered = true
+[[module.mounts]]
+	source = 'content'
+	target = 'content'
+[[module.mounts]]
+	source = 'docs/_posts'
+	target = 'content/blog'
+[[module.mounts]]
+	source = 'assets'
+	target = 'static/assets'
+[[module.mounts]]
+	source = 'en'
+	target = 'static/en'
+[[module.mounts]]
+	source = 'styles'
+	target = 'static/styles'
+[[module.mounts]]
+	source = 'docs/images'
+	target = 'static/blog/images'

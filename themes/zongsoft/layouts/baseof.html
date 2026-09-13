@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{ if ne .Title site.Title }}{{ .Title }} · {{ end }}{{ site.Title }}</title>
+	<meta name="description" content="{{ .Description | default site.Params.description }}">
+	<meta name="author" content="{{ site.Params.author }}">
+	<link rel="canonical" href="{{ .Permalink }}">
+	<link rel="icon" href="/assets/favicon.ico">
+	<link rel="preload" href="/blog/font/Oswald-Regular.ttf" as="font" type="font/ttf" crossorigin>
+	{{ with resources.Get "css/blog.css" | fingerprint }}<link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">{{ end }}
+	<script>try { document.documentElement.dataset.theme = localStorage.getItem('zongsoft-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (_) {}</script>
+	<link rel="alternate" type="application/rss+xml" title="Zongsoft" href="/blog/index.xml">
+	<meta property="og:title" content="{{ .Title }}">
+	<meta property="og:description" content="{{ .Description | default site.Params.description }}">
+	<meta property="og:url" content="{{ .Permalink }}">
+	<meta property="og:image" content="{{ site.Params.homeImage | absURL }}">
+	<meta property="og:type" content="{{ if eq .Type "post" }}article{{ else }}website{{ end }}">
+</head>
+<body class="{{ if eq .Type "post" }}post-page{{ else }}list-page{{ end }}">
+	<a class="skip-link" href="#main">跳至正文</a>
+	<header class="site-header">
+		<button class="menu-button" type="button" aria-label="打开导航" aria-controls="site-menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+		<div class="header-links"><button class="theme-button" type="button" aria-label="切换明暗主题" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2Z"/></svg></button><a href="/blog/">Zongsoft</a></div>
+	</header>
+	<dialog id="site-menu" class="site-menu" aria-labelledby="menu-title">
+		<div class="menu-heading"><span id="menu-title">Zongsoft Studio</span><button type="button" data-close-menu aria-label="关闭导航">×</button></div>
+		<nav aria-label="网站导航"><a href="/">官网首页</a><a href="/blog/">博客首页</a><a href="/blog/archives/">文章归档</a><a href="/blog/categories/">分类</a><a href="/blog/tags/">标签</a><a href="https://github.com/Zongsoft">GitHub</a><a href="/blog/index.xml">RSS 订阅</a></nav>
+	</dialog>
+	{{ partial "hero.html" . }}
+	{{ block "main" . }}{{ end }}
+	<footer class="site-footer"><p>© {{ now.Year }} <a href="/">Zongsoft Studio</a></p><p>Built with <a href="https://gohugo.io/">Hugo</a> · Zongsoft theme</p></footer>
+	<a class="back-top" href="#" aria-label="返回顶部">↑</a>
+	<dialog class="image-viewer" aria-label="图片预览"><button type="button" aria-label="关闭图片预览">×</button><img alt=""></dialog>
+	{{ with resources.Get "js/blog.js" | fingerprint }}<script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" defer></script>{{ end }}
+</body>
+</html>

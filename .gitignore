@@ -1,19 +1,11 @@
 .DS_Store
-.npmignore
 Thumbs.db
-db.json
 *.log
-_config.yml
-package.json
-package-lock.json
-yarn.lock
 
 node_modules/
-scaffolds/
-themes/
 public/
-site/
-hexo/
-.deploy*/
-blog/avatar/Misaka.jpg
-blog/assets/example_qr.png
+
+# Hugo local tools and build output
+.tools/
+.hugo_build.lock
+resources/
