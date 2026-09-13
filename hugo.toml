@@ -1,8 +1,8 @@
 baseURL = 'https://zongsoft.com/'
 locale = 'zh-CN'
 defaultContentLanguage = 'zh-cn'
-title = 'Zongsoft'
-theme = 'zongsoft'
+title = 'Zongsoft · Blog'
+theme = 'archer'
 timeZone = 'Asia/Shanghai'
 hasCJKLanguage = true
 enableRobotsTXT = true
@@ -46,8 +46,9 @@ disableKinds = []
 	source = 'content'
 	target = 'content'
 [[module.mounts]]
-	source = 'docs/_posts'
+	source = 'docs'
 	target = 'content/blog'
+	files = ['! images/**']
 [[module.mounts]]
 	source = 'assets'
 	target = 'static/assets'

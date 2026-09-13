@@ -4,11 +4,11 @@
 
 官网：[zongsoft.com](https://zongsoft.com/) · 博客：[zongsoft.com/blog](https://zongsoft.com/blog/)
 
-博客使用 Hugo 和仓库内的 `themes/zongsoft` 主题，GitHub Actions 自动构建并发布整个网站。主题保留本站的背景图、Oswald-Regular 标题字体和头像，以普通 CSS、原生 JavaScript 实现，不需要 Go、Node.js、npm、Sass 或外部主题模块。
+博客使用 Hugo 和仓库内的 `themes/archer` 主题，GitHub Actions 自动构建并发布整个网站。主题保留本站的背景图、Oswald-Regular 标题字体和头像，以普通 CSS、原生 JavaScript 实现，不需要 Go、Node.js、npm、Sass 或外部主题模块。
 
 ## 写文章
 
-原文仍在 `docs/_posts/`，图片仍在 `docs/images/`。新建 Markdown 文件，例如 `hello-hugo.md`：
+文章原文直接保存在 `docs/`，配图保存在 `docs/images/`。新建 Markdown 文件，例如 `hello-hugo.md`：
 
 ```yaml
 ---
@@ -26,7 +26,7 @@ draft: true
 ![图片说明](/blog/images/example.png)
 ```
 
-写完后删除 `draft: true` 或改为 `false`，提交并推送至 `main`。文章 URL 独立于标题，修改标题不影响旧链接；已迁移的 10 篇文章保留原地址。`date` 是首次发表时间，需要标注更新时手动增加 `lastmod`，不使用文件修改时间。
+写完后删除 `draft: true` 或改为 `false`，提交并推送至 `main`。文章 URL 通过元数据中的 `url` 明确设置，修改标题不会自动改变地址；需要更换地址时，可通过 `aliases` 保留旧链接的跳转。`date` 是首次发表时间，需要标注更新时手动增加 `lastmod`，不使用文件修改时间。
 
 ## 本地预览
 
@@ -63,18 +63,18 @@ Windows 双击 `preview.cmd`，或在终端执行：
 | 路径 | 用途 |
 | --- | --- |
 | `index.html`、`en/`、`assets/`、`styles/` | 现有官网静态文件；Hugo 将它们合并到发布产物 |
-| `docs/_posts/`、`docs/images/` | 文章原文与配图 |
+| `docs/`、`docs/images/` | 文章原文与配图 |
 | `content/blog/` | 博客首页及归档页元数据 |
 | `hugo.toml` | 全站配置、文章挂载与旧 URL 规则 |
-| `themes/zongsoft/layouts/` | HTML 模板：公共外壳、文章、列表、标签与目录 |
-| `themes/zongsoft/assets/css/blog.css` | 可直接修改的普通 CSS，包含字体、颜色和响应式布局 |
-| `themes/zongsoft/assets/js/blog.js` | 明暗切换、导航、代码复制、分享链接、图片放大与目录跟随 |
-| `themes/zongsoft/static/blog/` | 原有标题字体、代码字体与背景图 |
+| `themes/archer/layouts/` | HTML 模板：公共外壳、文章、列表、标签与目录 |
+| `themes/archer/assets/css/blog.css` | 可直接修改的普通 CSS，包含字体、颜色和响应式布局 |
+| `themes/archer/assets/js/blog.js` | 明暗切换、导航、代码复制、分享链接、图片放大与目录跟随 |
+| `themes/archer/static/blog/` | 原有标题字体、代码字体与背景图 |
 
 Hugo 使用本地目录挂载读取原文，不使用 Go 模块下载。标题字体为原文件 `Oswald-Regular.ttf`，中文字符使用浏览器原有回退；首页文章列表沿用原系统无衬线字体。头像直接使用 `assets/avatar.jpg`。
 
 归档、标签、分类和 RSS 由 Hugo 生成。目录、明暗主题、图片放大与复制功能使用原生 JavaScript，没有启用第三方访问统计和评论服务。仓库只保存源码和素材，不再保存旧生成器、第三方主题依赖及生成页面；需要恢复旧站时可查阅 Git 历史。
 
-完整教程请参阅[《使用 Hugo 与 GitHub Actions 搭建博客站点》](https://zongsoft.com/blog/zh-cn/misc/github-site/)。文章保留首次发表日期和原地址，通过 `lastmod` 标注更新。文章版权声明沿用本站定制页脚中的 BY-NC-SA 4.0 声明。
+当前共有 11 篇文章。[《使用 Hexo 与 Archer 主题搭建 GitHub Pages 博客》](https://zongsoft.com/blog/zh-cn/misc/hexo-archer-github-pages/)恢复原文并保留 2018 年首次发表日期，原 `/blog/zh-cn/misc/github-site/` 地址跳转至该文新地址。[《使用 Hugo 与 GitHub Actions 搭建博客站点》](https://zongsoft.com/blog/zh-cn/misc/hugo-github-actions/)作为独立文章于 2026 年 9 月 14 日发布。其他既有文章地址保持不变。文章版权声明沿用本站定制页脚中的 BY-NC-SA 4.0 声明。
 
 文本文件使用 CRLF；代码缩进使用 Tab。YAML 的层级缩进按格式要求使用空格；`.sh` 使用 LF。第三方字体和图片保留原始二进制文件，主题保留 Archer 的 MIT 版权声明。

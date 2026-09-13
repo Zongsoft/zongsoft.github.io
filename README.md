@@ -4,11 +4,11 @@ English | [简体中文](README.zh-Hans.md)
 
 [Website](https://zongsoft.com/) · [Blog](https://zongsoft.com/blog/)
 
-The blog uses Hugo and the local `themes/zongsoft` theme. It preserves the site's backgrounds, original Oswald title font, and avatar, using plain CSS and vanilla JavaScript. Go, Node.js, npm, Sass, and remote theme modules are not required.
+The blog uses Hugo and the local `themes/archer` theme. It preserves the site's backgrounds, original Oswald title font, and avatar, using plain CSS and vanilla JavaScript. Go, Node.js, npm, Sass, and remote theme modules are not required.
 
 ## Write and preview
 
-Keep Markdown posts in `docs/_posts/` and images in `docs/images/`. Posts need `title`, `type: post`, `date`, and a stable `url` such as `/blog/zh-cn/misc/my-post/`. Categories and tags are optional. Use `draft: true` while writing and remove it before publishing. Set `lastmod` explicitly when needed; filesystem modification times are not used.
+Keep Markdown posts in `docs/` and images in `docs/images/`. Posts need `title`, `type: post`, `date`, and a stable `url` such as `/blog/zh-cn/misc/my-post/`. Categories and tags are optional. Use `draft: true` while writing and remove it before publishing. Set `lastmod` explicitly when needed; filesystem modification times are not used.
 
 On Windows, run `preview.cmd` and open <http://127.0.0.1:1313/blog/>. The first run downloads the official Hugo binary pinned in `.hugo-version`, verifies its SHA-256, and caches it in `.tools/`. Subsequent runs can work offline. No PATH changes or global installation are needed.
 
@@ -23,12 +23,12 @@ Only source files and assets are versioned. The previous generator, third-party 
 ## Theme customization
 
 - `hugo.toml`: site configuration, local content mounts, taxonomy URLs.
-- `themes/zongsoft/layouts/`: templates for posts, lists, archives, navigation, and table of contents.
-- `themes/zongsoft/assets/css/blog.css`: ordinary CSS, typography, colors, and responsive layout.
-- `themes/zongsoft/assets/js/blog.js`: navigation, theme switch, clipboard actions, image viewer, and active table of contents.
-- `themes/zongsoft/static/blog/`: original title/code fonts and background images.
+- `themes/archer/layouts/`: templates for posts, lists, archives, navigation, and table of contents.
+- `themes/archer/assets/css/blog.css`: ordinary CSS, typography, colors, and responsive layout.
+- `themes/archer/assets/js/blog.js`: navigation, theme switch, clipboard actions, image viewer, and active table of contents.
+- `themes/archer/static/blog/`: original title/code fonts and background images.
 - `assets/avatar.jpg`: the original avatar.
 
-The 10 existing articles retain their URLs. The [site setup tutorial](https://zongsoft.com/blog/zh-cn/misc/github-site/) now describes Hugo and GitHub Actions, retaining its original publication date and recording the revision in `lastmod`. The article footer retains the site's custom BY-NC-SA 4.0 notice.
+The blog contains 11 articles. The restored [Hexo and Archer tutorial](https://zongsoft.com/blog/zh-cn/misc/hexo-archer-github-pages/) retains its 2018 publication date, and its old `/blog/zh-cn/misc/github-site/` address redirects to the new URL. The [Hugo and GitHub Actions tutorial](https://zongsoft.com/blog/zh-cn/misc/hugo-github-actions/) is a separate article published on September 14, 2026. Other existing article URLs remain unchanged. The article footer retains the site's custom BY-NC-SA 4.0 notice.
 
 Text files use CRLF, code indentation uses tabs, YAML indentation uses the spaces required by YAML, and shell scripts use LF. Original font/image binaries and the Archer MIT notice are preserved.

@@ -1,9 +1,8 @@
 ---
 type: post
-url: /blog/zh-cn/misc/github-site/
+url: /blog/zh-cn/misc/hugo-github-actions/
 title: 使用 Hugo 与 GitHub Actions 搭建博客站点
-date: 2018-07-10 18:00:00
-lastmod: 2026-09-14T00:00:00+08:00
+date: 2026-09-14T07:49:27+08:00
 description: 用 Markdown 写作，用 Hugo 预览，让 GitHub Actions 自动构建和发布；家里和公司的电脑使用同一份配置，不再手工维护两套建站环境。
 categories: misc
 tags:
@@ -21,7 +20,7 @@ tags:
 
 日常写作只需要编辑 Markdown 和图片，然后提交到 GitHub。构建工具的版本、主题和配置都在仓库中，家里和公司的电脑使用同一套文件。只改文字时，可以直接使用 GitHub 网页编辑器；需要查看完整排版时，再启动本地预览。
 
-本文首次发表于 2018 年，现已按本站使用的 Hugo 工作流重写。首次发表日期和原文章地址保持不变，更新时间单独记录。
+本文介绍本站当前使用的 Hugo 与 GitHub Actions 工作流。此前的 Hexo 建站过程另见[《使用 Hexo 与 Archer 主题搭建 GitHub Pages 博客》](/blog/zh-cn/misc/hexo-archer-github-pages/)。
 
 ## 获取项目
 
@@ -42,11 +41,11 @@ git pull --ff-only
 
 | 路径 | 用途 |
 | --- | --- |
-| `docs/_posts/` | Markdown 文章原文 |
+| `docs/` | Markdown 文章原文 |
 | `docs/images/` | 文章配图 |
 | `hugo.toml` | 网站配置 |
 | `.hugo-version` | 固定的 Hugo 版本 |
-| `themes/zongsoft/` | 本站主题源码和资源 |
+| `themes/archer/` | 本站主题源码和资源 |
 | `preview.cmd` | Windows 本地预览入口 |
 | `build.cmd` | Windows 正式构建入口 |
 
@@ -54,7 +53,7 @@ git pull --ff-only
 
 ## 新建文章与草稿
 
-在 `docs/_posts/` 新建 Markdown 文件，例如 `hello-hugo.md`。文件开头填写文章元数据：
+在 `docs/` 新建 Markdown 文件，例如 `hello-hugo.md`。文件开头填写文章元数据：
 
 ```yaml
 ---
@@ -122,12 +121,12 @@ hugo server -D --destination .tools/preview
 
 ## 修改主题
 
-本站主题保留了双行站名“Zongsoft / Zongsoft Studio”、大图背景、头像，以及 Oswald-Regular 标题字体。
+本站主题保留了双行站名“Zongsoft · Blog / Zongsoft Studio”、大图背景、头像，以及 Oswald-Regular 标题字体。
 
 - 修改站名、副标题和背景图路径：编辑 `hugo.toml`。
-- 修改配色、字号、间距和手机布局：编辑 `themes/zongsoft/assets/css/blog.css`。
-- 修改文章列表、正文或公共页眉页脚：编辑 `themes/zongsoft/layouts/` 中对应的 HTML 模板。
-- 修改目录、明暗切换、复制或图片放大行为：编辑 `themes/zongsoft/assets/js/blog.js`。
+- 修改配色、字号、间距和手机布局：编辑 `themes/archer/assets/css/blog.css`。
+- 修改文章列表、正文或公共页眉页脚：编辑 `themes/archer/layouts/` 中对应的 HTML 模板。
+- 修改目录、明暗切换、复制或图片放大行为：编辑 `themes/archer/assets/js/blog.js`。
 - 更换头像：替换 `assets/avatar.jpg`。
 
 字体和背景图随主题保存，不依赖外部字体服务。CSS 是可以直接编辑的普通样式文件，无须先编译 Sass 或运行前端打包工具。官网独立使用的样式文件与博客主题分开维护。
@@ -143,7 +142,7 @@ hugo server -D --destination .tools/preview
 生成结果在 `public/`，该目录不提交到 Git。确认文章和配图无误后，提交并推送源码：
 
 ```powershell
-git add docs/_posts/hello-hugo.md docs/images/your-image.png
+git add docs/hello-hugo.md docs/images/your-image.png
 git commit -m "发布新文章"
 git push origin main
 ```

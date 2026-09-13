@@ -30,7 +30,7 @@
 	</dialog>
 	{{ partial "hero.html" . }}
 	{{ block "main" . }}{{ end }}
-	<footer class="site-footer"><p>© {{ now.Year }} <a href="/">Zongsoft Studio</a></p><p>Built with <a href="https://gohugo.io/">Hugo</a> · Zongsoft theme</p></footer>
+	<footer class="site-footer"><p>© {{ now.Year }} <a href="/">Zongsoft Studio</a></p><p>Built with <a href="https://gohugo.io/">Hugo</a> · Archer theme</p></footer>
 	<a class="back-top" href="#" aria-label="返回顶部">↑</a>
 	<dialog class="image-viewer" aria-label="图片预览"><button type="button" aria-label="关闭图片预览">×</button><img alt=""></dialog>
 	{{ with resources.Get "js/blog.js" | fingerprint }}<script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" defer></script>{{ end }}
