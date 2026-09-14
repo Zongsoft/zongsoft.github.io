@@ -12,7 +12,13 @@
 	const controller = new AbortController();
 	const timeout = setTimeout(() => controller.abort(), 6000);
 	fetch(endpoint + '/counter/' + encodeURIComponent(path) + '.json', {signal: controller.signal, credentials: 'omit'})
-		.then(response => { if (!response.ok) throw new Error('Counter unavailable'); return response.json(); })
+		.then(async response => {
+			if (!response.ok && response.status !== 404) throw new Error('Counter unavailable');
+			const data = await response.json();
+			// GoatCounter returns 404 with a zero count for paths without recorded visits.
+			if (response.status === 404 && data.count !== '0') throw new Error('Counter unavailable');
+			return data;
+		})
 		.then(data => {
 			const value = String(data.count ?? '');
 			if (!/^\d[\d,]*$/.test(value)) return;
