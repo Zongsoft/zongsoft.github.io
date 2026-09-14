@@ -29,6 +29,4 @@ Only source files and assets are versioned. The previous generator, third-party 
 - `themes/archer/static/blog/`: original title/code fonts and background images.
 - `assets/avatar.jpg`: the original avatar.
 
-The blog contains 11 articles. The restored [Hexo and Archer tutorial](https://zongsoft.com/blog/zh-cn/misc/hexo-archer-github-pages/) retains its 2018 publication date, and its old `/blog/zh-cn/misc/github-site/` address redirects to the new URL. The [Hugo and GitHub Actions tutorial](https://zongsoft.com/blog/zh-cn/misc/hugo-github-actions/) is a separate article published on September 14, 2026. Other existing article URLs remain unchanged. The article footer retains the site's custom BY-NC-SA 4.0 notice.
-
 Text files use CRLF, code indentation uses tabs, YAML indentation uses the spaces required by YAML, and shell scripts use LF. Original font/image binaries and the Archer MIT notice are preserved.

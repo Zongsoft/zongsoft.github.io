@@ -75,6 +75,4 @@ Hugo 使用本地目录挂载读取原文，不使用 Go 模块下载。标题�
 
 归档、标签、分类和 RSS 由 Hugo 生成。目录、明暗主题、图片放大与复制功能使用原生 JavaScript，没有启用第三方访问统计和评论服务。仓库只保存源码和素材，不再保存旧生成器、第三方主题依赖及生成页面；需要恢复旧站时可查阅 Git 历史。
 
-当前共有 11 篇文章。[《使用 Hexo 与 Archer 主题搭建 GitHub Pages 博客》](https://zongsoft.com/blog/zh-cn/misc/hexo-archer-github-pages/)恢复原文并保留 2018 年首次发表日期，原 `/blog/zh-cn/misc/github-site/` 地址跳转至该文新地址。[《使用 Hugo 与 GitHub Actions 搭建博客站点》](https://zongsoft.com/blog/zh-cn/misc/hugo-github-actions/)作为独立文章于 2026 年 9 月 14 日发布。其他既有文章地址保持不变。文章版权声明沿用本站定制页脚中的 BY-NC-SA 4.0 声明。
-
 文本文件使用 CRLF；代码缩进使用 Tab。YAML 的层级缩进按格式要求使用空格；`.sh` 使用 LF。第三方字体和图片保留原始二进制文件，主题保留 Archer 的 MIT 版权声明。
