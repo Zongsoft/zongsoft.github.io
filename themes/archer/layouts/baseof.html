@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>{{ if ne .Title site.Title }}{{ .Title }} · {{ end }}{{ site.Title }}</title>
+	<title>{{ if and (ne .RelPermalink "/blog/") (ne .Title site.Title) }}{{ .Title }} · {{ end }}{{ site.Title }}</title>
 	<meta name="description" content="{{ .Description | default site.Params.description }}">
 	<meta name="author" content="{{ site.Params.author }}">
 	<link rel="canonical" href="{{ .Permalink }}">
