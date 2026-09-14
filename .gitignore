@@ -9,3 +9,7 @@ public/
 .tools/
 .hugo_build.lock
 resources/
+
+# Local verification artifacts
+.testagent/
+__pycache__/

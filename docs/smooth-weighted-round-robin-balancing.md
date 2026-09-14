@@ -1,6 +1,7 @@
 ---
 type: post
 url: /blog/zh-cn/zongsoft/smooth-weighted-round-robin-balancing/
+stats_path: /blog/zh-cn/zongsoft/smooth-weighted-round-robin-balancing/
 title: 平滑的加权轮询均衡算法
 date: 2022-09-15 00:00:00
 comments: true

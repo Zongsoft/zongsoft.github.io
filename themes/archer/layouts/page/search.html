@@ -1,0 +1,15 @@
+{{ define "main" }}
+<main id="main" class="search-page">
+	<label for="search-query">搜索标题、正文与代码</label>
+	<input id="search-query" type="search" placeholder="例如：状态机、动态生成、Hugo" autocomplete="off" maxlength="160" aria-describedby="search-status">
+	<p id="search-status" role="status">输入关键词开始搜索，多个关键词以空格分隔。</p>
+	<div id="search-results"></div>
+	<noscript>全文搜索需要启用 JavaScript，也可以浏览<a href="/blog/archives/">文章归档</a>。</noscript>
+</main>
+{{ $entries := slice }}
+{{ range (where site.RegularPages "Type" "post").ByDate.Reverse }}
+	{{ $entries = $entries | append (dict "title" .Title "url" .RelPermalink "date" (.Date.Format "2006/01/02") "text" (.Plain | htmlUnescape) "tags" (.Params.tags | default slice)) }}
+{{ end }}
+<script id="search-data" type="application/json">{{ $entries | jsonify | safeJS }}</script>
+{{ with resources.Get "js/search.js" | fingerprint }}<script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" defer></script>{{ end }}
+{{ end }}

@@ -30,3 +30,17 @@ Only source files and assets are versioned. The previous generator, third-party 
 - `assets/avatar.jpg`: the original avatar.
 
 Text files use CRLF, code indentation uses tabs, YAML indentation uses the spaces required by YAML, and shell scripts use LF. Original font/image binaries and the Archer MIT notice are preserved.
+
+## Reading, search, and feedback
+
+Article views use GoatCounter at `https://zongsoft.goatcounter.com/`, enabled only on production article pages hosted at `https://zongsoft.com`. Preview, search, and corporate pages do not send visits. Public counts may lag by hours; unavailable counts remain hidden. Keep each article's `stats_path` unchanged after publication, even if its file or URL changes, and retain redirects with `aliases`. Set `params.goatcounter` to an empty string to disable analytics. The official GoatCounter script sends visitor statistics to that service; no password or API token belongs in the site source.
+
+The [search page](https://zongsoft.com/blog/search/) uses a Hugo-generated full-text index and vanilla JavaScript. All space-separated terms must match; title matches rank first. It searches titles, tags, prose, and code without a search server or an additional build tool. JavaScript is required; fuzzy matching and semantic search are not included.
+
+Set `series` and a positive `series_order` on related articles to render an ordered series navigator. Heading `#` buttons copy canonical section links. Article footers link to a prefilled GitHub issue form and the source editor; readers review and submit feedback themselves with a GitHub account.
+
+## Publishing checks
+
+After building, Actions runs `python3 scripts/check-site.py` and the checker's standard-library unit tests. Missing metadata, invalid dates, duplicate URLs/statistics paths, invalid series positions, and broken generated internal links, fragments, images, or CSS assets block deployment. Draft/future metadata is included; link checks cover generated pages. External sites are not checked as a deployment gate.
+
+Python 3.9+ is already available on the Actions runner; no npm dependencies or additional local Hugo build requirements are introduced. With Python installed, run `python scripts/check-site.py --hugo .tools/hugo/0.166.0/amd64/hugo.exe` and `python -m unittest discover -s scripts -p 'test_*.py'`. Required post fields and the `stats_path`, `series`, and `series_order` fields must use top-level, single-line YAML values. Browser screenshots and temporary reports stay outside version control.

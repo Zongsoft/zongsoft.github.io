@@ -1,6 +1,7 @@
 ---
 type: post
 url: /blog/zh-cn/zongsoft/announcing-data-engine/
+stats_path: /blog/zh-cn/zongsoft/announcing-data-engine/
 title: Zongsoft.Data 发布公告
 date: 2019-11-19 00:00:00
 comments: true

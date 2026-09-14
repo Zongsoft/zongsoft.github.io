@@ -7,7 +7,7 @@
 		{{ if $blogHome }}<p class="hero-subtitle">{{ site.Params.subtitle }}</p>{{ end }}
 		{{ if $post }}
 			<div class="hero-tags">{{ range .GetTerms "tags" }}<a href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>{{ end }}</div>
-			<div class="hero-meta"><time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "2006/01/02" }}</time><span>{{ .ReadingTime }} 分钟阅读</span><button class="share-button" type="button">分享链接</button></div>
+			<div class="hero-meta"><time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "2006/01/02" }}</time><span>{{ .ReadingTime }} 分钟阅读</span>{{ if and hugo.IsProduction site.Params.goatcounter }}<span hidden data-counter-site="{{ site.Params.goatcounter }}" data-counter-path="{{ .Params.stats_path | default .RelPermalink }}" title="由 GoatCounter 统计，数字可能延迟更新"></span>{{ end }}<button class="share-button" type="button">分享链接</button></div>
 		{{ end }}
 	</div>
 </section>

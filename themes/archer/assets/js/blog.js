@@ -32,6 +32,19 @@
 		window.setTimeout(() => { button.textContent = original; }, 2200);
 	};
 	document.querySelector('.share-button')?.addEventListener('click', event => copy(event.currentTarget, document.querySelector('link[rel="canonical"]').href, '链接已复制'));
+	document.querySelectorAll('.article-entry h1[id], .article-entry h2[id], .article-entry h3[id], .article-entry h4[id], .article-entry h5[id], .article-entry h6[id]').forEach(heading => {
+		const button = document.createElement('button');
+		button.type = 'button';
+		button.className = 'heading-copy';
+		button.textContent = '#';
+		button.setAttribute('aria-label', '复制章节链接：' + heading.textContent.trim());
+		button.addEventListener('click', () => {
+			const url = new URL(document.querySelector('link[rel="canonical"]').href);
+			url.hash = heading.id;
+			copy(button, url.href, '已复制');
+		});
+		heading.append(button);
+	});
 	document.querySelectorAll('.article-entry pre').forEach(pre => {
 		const block = pre.closest('.highlight') || pre;
 		const button = document.createElement('button');

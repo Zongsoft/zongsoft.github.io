@@ -1,6 +1,7 @@
 ---
 type: post
 url: /blog/zh-cn/misc/hexo-archer-github-pages/
+stats_path: /blog/zh-cn/misc/hexo-archer-github-pages/
 aliases:
 - /blog/zh-cn/misc/github-site/
 title: 使用 Hexo 与 Archer 主题搭建 GitHub Pages 博客

@@ -1,0 +1,9 @@
+{{ with .Params.series }}
+	{{ $name := . }}
+	{{ $current := $ }}
+	{{ $posts := where (where site.RegularPages "Type" "post") "Params.series" $name }}
+	<nav class="article-series" aria-label="系列文章">
+		<h2>系列：{{ $name }}</h2>
+		<ol>{{ range sort $posts "Params.series_order" }}<li>{{ if eq .RelPermalink $current.RelPermalink }}<span aria-current="page">{{ .Title }}（本文）</span>{{ else }}<a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}</li>{{ end }}</ol>
+	</nav>
+{{ end }}

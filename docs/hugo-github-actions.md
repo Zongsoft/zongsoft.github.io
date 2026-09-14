@@ -1,6 +1,7 @@
 ---
 type: post
 url: /blog/zh-cn/misc/hugo-github-actions/
+stats_path: /blog/zh-cn/misc/hugo-github-actions/
 title: 使用 Hugo 与 GitHub Actions 搭建博客站点
 date: 2026-09-14T07:49:27+08:00
 description: 用 Markdown 写作，用 Hugo 预览，让 GitHub Actions 自动构建和发布；家里和公司的电脑使用同一份配置，不再手工维护两套建站环境。

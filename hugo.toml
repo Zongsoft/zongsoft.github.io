@@ -17,6 +17,8 @@ disableKinds = []
 	avatar = '/assets/avatar.jpg'
 	homeImage = '/blog/intro/index-bg.jpg'
 	postImage = '/blog/intro/post-bg.jpg'
+	repository = 'https://github.com/Zongsoft/zongsoft.github.io'
+	goatcounter = 'https://zongsoft.goatcounter.com'
 [frontmatter]
 	lastmod = ['lastmod', 'updated', 'date']
 [outputs]

@@ -1,6 +1,7 @@
 ---
 type: post
 url: /blog/zh-cn/zongsoft/agent-os-everything-is-a-plugin/
+stats_path: /blog/zh-cn/zongsoft/agent-os-everything-is-a-plugin/
 title: 模型只是 CPU，插件运行时才是 Agent 的操作系统：从 DeepSeek Harness 到 Zongsoft
 date: 2026-08-15 23:00:00
 comments: true

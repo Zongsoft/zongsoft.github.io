@@ -1,8 +1,10 @@
 {{ define "main" }}
 <div class="article-layout">
 	<main id="main" class="article-main">
+		{{ partial "series.html" . }}
 		<details class="mobile-toc"><summary>文章目录</summary>{{ .TableOfContents }}</details>
 		<article class="article-entry">{{ .Content }}</article>
+		<div class="article-feedback"><a href="{{ printf "%s/issues/new?title=%s&body=%s" site.Params.repository (querify "title" (printf "文章纠错：%s" .Title) | strings.TrimPrefix "title=") (querify "body" (printf "文章：%s\n地址：%s\n\n问题描述：\n\n建议修改：\n" .Title .Permalink) | strings.TrimPrefix "body=") }}" target="_blank" rel="noopener noreferrer">报告本文问题 ↗</a>{{ with .File }}<a href="{{ printf "%s/edit/main/docs/%s" site.Params.repository .LogicalName }}" target="_blank" rel="noopener noreferrer">在 GitHub 编辑 ↗</a>{{ end }}<span>提交反馈需要 GitHub 账号</span></div>
 		<div class="article-license"><p>作者：{{ site.Params.author }}</p><p>原文链接：<a href="{{ .Permalink }}">{{ .Permalink }}</a></p><p>发表日期：{{ .Date.Format "2006-01-02" }}{{ if gt .Lastmod .Date }} · 更新日期：{{ .Lastmod.Format "2006-01-02" }}{{ end }}</p><p>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名－非商业性使用－相同方式共享 4.0 国际许可协议</a>。</p></div>
 		<details class="support"><summary>支持作者 · Buy me a coffee</summary><div><figure><img src="/assets/donate-wechat.png" loading="lazy" alt="微信赞赏二维码"><figcaption>微信</figcaption></figure><figure><img src="/assets/donate-alipay.png" loading="lazy" alt="支付宝赞赏二维码"><figcaption>支付宝</figcaption></figure></div></details>
 		{{ $posts := where site.RegularPages "Type" "post" }}

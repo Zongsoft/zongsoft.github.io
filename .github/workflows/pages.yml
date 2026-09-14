@@ -34,6 +34,10 @@ jobs:
           echo "$RUNNER_TEMP/hugo" >> "$GITHUB_PATH"
       - name: Build website
         run: hugo --minify --destination public --panicOnWarning
+      - name: Check content, images and internal links
+        run: python3 scripts/check-site.py
+      - name: Test the publishing checks
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5.0.0
         with:

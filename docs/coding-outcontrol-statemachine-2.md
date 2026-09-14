@@ -1,6 +1,9 @@
 ---
 type: post
+series: 代码失控与状态机
+series_order: 2
 url: /blog/zh-cn/zongsoft/coding-outcontrol-statemachine-2/
+stats_path: /blog/zh-cn/zongsoft/coding-outcontrol-statemachine-2/
 title: 代码失控与状态机（下）
 date: 2018-09-03 18:00:00
 comments: true

@@ -201,3 +201,22 @@ body:has(dialog[open]) { overflow: hidden; }
 	:root { scroll-behavior: auto; }
 	* { transition: none !important; }
 }
+
+[hidden] { display: none !important; }
+.search-link { font: 14px sans-serif; }
+.search-page { width: 960px; max-width: calc(100% - 40px); margin: 40px auto 70px; min-height: 240px; }
+.search-page label { display: block; margin-bottom: 12px; }
+#search-query { width: 100%; padding: 14px 18px; border: 1px solid var(--line); border-radius: 6px; background: var(--background); color: var(--text); }
+#search-status, .search-result time { color: var(--muted); font-size: 14px; }
+.search-result { padding: 18px 0; border-bottom: 1px dashed var(--line); }
+.search-result h2 { font-size: 24px; font-weight: 400; line-height: 1.5; margin: 0 0 8px; }
+.search-result p { line-height: 1.75; overflow-wrap: anywhere; }
+.article-series { margin: 0 0 28px; padding: 18px 22px; border-left: 3px solid var(--accent); background: var(--soft); }
+.article-series h2 { font-size: 18px; margin: 0 0 12px; }
+.article-series ol { padding-left: 24px; margin: 0; line-height: 1.8; }
+.article-series [aria-current] { color: var(--accent); }
+.heading-copy { border: 0; padding: 0 8px; color: var(--muted); background: transparent; font-size: 14px; vertical-align: middle; }
+.heading-copy:hover { color: var(--accent); }
+.article-feedback { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin: 36px 0 24px; font-size: 14px; line-height: 1.7; }
+.article-feedback a { color: var(--accent); }
+.article-feedback span { color: var(--muted); }
