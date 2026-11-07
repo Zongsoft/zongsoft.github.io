@@ -16,7 +16,7 @@ Run `build.cmd` to generate production files in `public/`. Do not commit generat
 
 ## Deployment
 
-Set Settings → Pages → Source to **GitHub Actions** and retain the custom domain `zongsoft.com`. `.github/workflows/pages.yml` builds the complete website on pushes to `main` and publishes the Pages artifact. Pull requests build without deploying. The root website, English pages, shared assets, and blog are included in one artifact.
+Set Settings → Pages → Source to **GitHub Actions** and retain the custom domain `zongsoft.com`. `.github/workflows/pages.yaml` builds the complete website on pushes to `main` and publishes the Pages artifact. Pull requests build without deploying. The root website, English pages, shared assets, and blog are included in one artifact.
 
 Only source files and assets are versioned. The previous generator, third-party theme dependencies, and generated pages have been removed. Git history remains available for restoring the previous site.
 

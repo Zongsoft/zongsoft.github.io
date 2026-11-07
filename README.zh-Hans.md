@@ -50,7 +50,7 @@ Windows 双击 `preview.cmd`，或在终端执行：
 
 ## 自动发布
 
-工作流：`.github/workflows/pages.yml`。
+工作流：`.github/workflows/pages.yaml`。
 
 1. 在仓库 Settings → Pages → Build and deployment 将 Source 设置为 **GitHub Actions**。
 2. 保留 Pages 的自定义域名 `zongsoft.com` 和现有 DNS 设置。自定义 Actions 部署以 Pages 设置为准，根目录 `CNAME` 作为原有域名记录保留。

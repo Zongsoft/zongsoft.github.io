@@ -150,7 +150,7 @@ git push origin main
 
 上述图片文件名按实际文件修改；没有新增图片时，只提交文章即可。通过 GitHub 网页修改文章并提交到 `main`，也会触发同一发布流程。
 
-工作流位于 `.github/workflows/pages.yml`，依次执行：读取固定的 Hugo 版本、下载并校验程序、构建完整网站、上传 Pages 产物、部署网站。拉取请求只做构建验证，不发布；推送到 `main` 才会部署。
+工作流位于 `.github/workflows/pages.yaml`，依次执行：读取固定的 Hugo 版本、下载并校验程序、构建完整网站、上传 Pages 产物、部署网站。拉取请求只做构建验证，不发布；推送到 `main` 才会部署。
 
 首次配置仓库时，在 **Settings → Pages → Build and deployment** 中将 **Source** 设置为 **GitHub Actions**，并保留自定义域名 `zongsoft.com` 和现有 DNS 配置。以后每次推送无需重新设置。
 
