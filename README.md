@@ -44,3 +44,7 @@ Set `series` and a positive `series_order` on related articles to render an orde
 After building, Actions runs `python3 scripts/check-site.py` and the checker's standard-library unit tests. Missing metadata, invalid dates, duplicate URLs/statistics paths, invalid series positions, and broken generated internal links, fragments, images, or CSS assets block deployment. Draft/future metadata is included; link checks cover generated pages. External sites are not checked as a deployment gate.
 
 Python 3.9+ is already available on the Actions runner; no npm dependencies or additional local Hugo build requirements are introduced. With Python installed, run `python scripts/check-site.py --hugo .tools/hugo/0.166.0/amd64/hugo.exe` and `python -m unittest discover -s scripts -p 'test_*.py'`. Required post fields and the `stats_path`, `series`, and `series_order` fields must use top-level, single-line YAML values. Browser screenshots and temporary reports stay outside version control.
+
+## License
+
+This project is licensed under the [MIT](LICENSE) license. Third-party content retains its own copyright and license notices.

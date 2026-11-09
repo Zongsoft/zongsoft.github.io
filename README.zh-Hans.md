@@ -99,3 +99,7 @@ python -m unittest discover -s scripts -p 'test_*.py'
 ```
 
 文章必填字段以及 `stats_path`、`series`、`series_order` 使用顶层单行 YAML 值，便于检查；正文仍可使用完整 Markdown。浏览器截图与临时测试报告不提交到仓库。
+
+## 许可
+
+本项目采用 [MIT](LICENSE) 许可协议。第三方内容保留各自的版权和许可声明。
